@@ -498,6 +498,12 @@ textarea {
   font-size: 0.82rem;
 }
 
+.topbar .source-posture {
+  margin-top: 7px;
+  max-width: 760px;
+  color: #52616d;
+}
+
 .topbar-controls {
   flex-wrap: wrap;
   justify-content: flex-end;
@@ -608,6 +614,31 @@ textarea {
 
 .filter-chip strong {
   color: #26333f;
+}
+
+.corpus-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.corpus-overview article {
+  border: 1px solid #d8e0e7;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 11px 12px;
+}
+
+.corpus-overview strong {
+  display: block;
+  color: #152534;
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.corpus-overview span {
+  color: #62717d;
+  font-size: 0.76rem;
 }
 
 .mode-tabs {

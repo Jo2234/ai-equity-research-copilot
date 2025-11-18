@@ -27,9 +27,12 @@ export interface CompanyDiscoverResponse {
     documents: ResearchDocument[];
   };
   imported_document: ResearchDocument;
+  imported_documents: ResearchDocument[];
   source: string;
   cik: number;
   accession_number: string;
+  accession_numbers: string[];
+  reused_existing_count: number;
 }
 
 export interface ResearchDocument {
