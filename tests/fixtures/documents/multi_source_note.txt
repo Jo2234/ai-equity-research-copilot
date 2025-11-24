@@ -1,0 +1,11 @@
+MANAGEMENT COMMENTARY
+
+Data Center revenue increased primarily because customers expanded accelerated computing clusters for generative AI training and inference workloads.
+
+MARGIN ANALYSIS
+
+Gross margin expanded because data center mix improved and pricing remained favorable, partly offset by new platform ramp costs and supply chain expenses.
+
+RISK FACTORS
+
+Export controls, supplier concentration, and rapid product transitions could reduce revenue timing or pressure gross margin.
