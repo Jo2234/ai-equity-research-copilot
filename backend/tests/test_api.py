@@ -130,6 +130,7 @@ def test_sec_company_search_and_discover_imports_latest_filing(tmp_path: Path, m
     )
 
     monkeypatch.setattr(app.state.sec_client, "search_companies", lambda query, limit=8: [match])
+    monkeypatch.setattr(app.state.sec_client, "company_corpus_filings", lambda cik, **kwargs: [filing])
     monkeypatch.setattr(app.state.sec_client, "latest_filing", lambda cik, forms: filing)
     monkeypatch.setattr(
         app.state.sec_client,
@@ -170,6 +171,7 @@ def test_sec_company_search_and_discover_imports_latest_filing(tmp_path: Path, m
     assert payload["company"]["ready_document_count"] == 1
     assert payload["imported_document"]["status"] == "ready"
     assert payload["imported_document"]["chunk_count"] >= 1
+    assert len(payload["imported_documents"]) == 1
 
     chat_response = client.post(
         "/research/chat",
@@ -177,3 +179,48 @@ def test_sec_company_search_and_discover_imports_latest_filing(tmp_path: Path, m
     )
     assert chat_response.status_code == 200
     assert chat_response.json()["citations"]
+
+
+def test_chat_uses_ollama_provider_when_configured_and_grounded(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("AIERC_LLM_PROVIDER", "ollama")
+    app = create_app(tmp_path, seed=False)
+    client = TestClient(app)
+    company_response = client.post("/companies", json={"ticker": "MU", "name": "Micron Technology"})
+    company_id = company_response.json()["id"]
+    upload_response = client.post(
+        f"/companies/{company_id}/documents",
+        json={
+            "title": "Micron Filing Excerpt",
+            "document_type": "10-k",
+            "fiscal_year": 2025,
+            "text": "Micron sells memory and storage products. Data center demand supported revenue growth, while cyclical pricing and capital intensity were risk factors.",
+            "filename": "mu.txt",
+        },
+    )
+    assert upload_response.status_code == 201
+
+    def fake_answer(question, contexts):
+        from ai_equity_research_copilot_backend.llm import GroundedDraft
+        from ai_equity_research_copilot_backend.schemas import Confidence
+
+        return GroundedDraft(
+            answer="Micron's cited filing excerpt points to data center demand as a revenue driver, with cyclical pricing and capital intensity as risks.",
+            key_points=["Data center demand supported revenue growth.", "Pricing cyclicality and capital intensity are risk factors."],
+            citation_indices=[1],
+            confidence=Confidence.high,
+            limitations=[],
+            model="gemma3:4b",
+            provider="ollama",
+        )
+
+    monkeypatch.setattr(app.state.research.ollama, "answer", fake_answer)
+    response = client.post(
+        "/research/chat",
+        json={"company_ids": [company_id], "question": "What drives Micron revenue and what are the risks?"},
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["usage"]["provider"] == "ollama"
+    assert payload["usage"]["model"] == "gemma3:4b"
+    assert payload["citations"]
+    assert "data center demand" in payload["answer"].lower()
