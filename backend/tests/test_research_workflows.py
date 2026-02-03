@@ -225,7 +225,7 @@ def test_json_upload_and_api_validation_paths(tmp_path: Path) -> None:
         },
     )
     assert unsupported_upload.status_code == 422
-    assert "Only .txt, .md, and .pdf uploads are supported" in unsupported_upload.json()["detail"]
+    assert "Only .txt, .md, .text, .pdf uploads are supported" in unsupported_upload.json()["detail"]
 
     compare_validation = client.post(
         "/research/compare",
