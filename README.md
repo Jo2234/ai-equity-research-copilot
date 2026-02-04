@@ -4,6 +4,19 @@ Document-grounded equity research assistant for public US companies. The app is 
 
 This is research assistance software, not investment advice. It must not issue buy, sell, hold, or price-target recommendations unless the user supplies explicit valuation assumptions.
 
+## Why This Matters
+
+- Starts from company filings and uploaded source documents instead of market commentary.
+- Makes retrieval visible through chunk-level citations, source metadata, and fallback behavior when evidence is weak.
+- Includes a finance QA eval set so answer quality, citation precision, unsupported-question refusal, and hallucination risk can be tested instead of hand-waved.
+
+## Quick Proof
+
+- Corpus builder can discover a ticker through SEC EDGAR, fetch recent `10-K`, `10-Q`, `8-K`, and `DEF 14A` filings, convert them into chunks, and add them to the RAG corpus.
+- Chat synthesis retrieves evidence first, then uses local Gemma/Ollama only when available; invalid or uncited model output falls back to deterministic cited synthesis.
+- The eval suite has 35 finance QA cases covering factual extraction, multi-document synthesis, company comparison, and unsupported questions.
+- Synthetic fixtures include companies, documents, chunks, chat responses, memo responses, and comparison responses for deterministic review.
+
 ## Current Scope
 
 - Backend API: FastAPI service under `backend/`.
