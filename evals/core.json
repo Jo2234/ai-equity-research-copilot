@@ -1,0 +1,1424 @@
+{
+  "cases": [
+    {
+      "id": "factual_extraction_001",
+      "category": "factual_extraction",
+      "difficulty": "easy",
+      "company_ids": [
+        "AAPL"
+      ],
+      "documents": [
+        "aapl_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "AAPL revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "aapl_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "aapl",
+        "factual_extraction"
+      ]
+    },
+    {
+      "id": "factual_extraction_002",
+      "category": "factual_extraction",
+      "difficulty": "medium",
+      "company_ids": [
+        "JPM"
+      ],
+      "documents": [
+        "jpm_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "JPM revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "jpm_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "jpm",
+        "factual_extraction"
+      ]
+    },
+    {
+      "id": "factual_extraction_003",
+      "category": "factual_extraction",
+      "difficulty": "hard",
+      "company_ids": [
+        "TSLA"
+      ],
+      "documents": [
+        "tsla_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "TSLA revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "tsla_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "tsla",
+        "factual_extraction"
+      ]
+    },
+    {
+      "id": "factual_extraction_004",
+      "category": "factual_extraction",
+      "difficulty": "easy",
+      "company_ids": [
+        "AAPL"
+      ],
+      "documents": [
+        "aapl_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "AAPL revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "aapl_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "aapl",
+        "factual_extraction"
+      ]
+    },
+    {
+      "id": "factual_extraction_005",
+      "category": "factual_extraction",
+      "difficulty": "medium",
+      "company_ids": [
+        "JPM"
+      ],
+      "documents": [
+        "jpm_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "JPM revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "jpm_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "jpm",
+        "factual_extraction"
+      ]
+    },
+    {
+      "id": "factual_extraction_006",
+      "category": "factual_extraction",
+      "difficulty": "hard",
+      "company_ids": [
+        "TSLA"
+      ],
+      "documents": [
+        "tsla_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "TSLA revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "tsla_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "tsla",
+        "factual_extraction"
+      ]
+    },
+    {
+      "id": "factual_extraction_007",
+      "category": "factual_extraction",
+      "difficulty": "easy",
+      "company_ids": [
+        "AAPL"
+      ],
+      "documents": [
+        "aapl_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "AAPL revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "aapl_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "aapl",
+        "factual_extraction"
+      ]
+    },
+    {
+      "id": "factual_extraction_008",
+      "category": "factual_extraction",
+      "difficulty": "medium",
+      "company_ids": [
+        "JPM"
+      ],
+      "documents": [
+        "jpm_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "JPM revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "jpm_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "jpm",
+        "factual_extraction"
+      ]
+    },
+    {
+      "id": "factual_extraction_009",
+      "category": "factual_extraction",
+      "difficulty": "hard",
+      "company_ids": [
+        "TSLA"
+      ],
+      "documents": [
+        "tsla_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "TSLA revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "tsla_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "tsla",
+        "factual_extraction"
+      ]
+    },
+    {
+      "id": "factual_extraction_010",
+      "category": "factual_extraction",
+      "difficulty": "easy",
+      "company_ids": [
+        "AAPL"
+      ],
+      "documents": [
+        "aapl_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "AAPL revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "aapl_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "aapl",
+        "factual_extraction"
+      ]
+    },
+    {
+      "id": "factual_extraction_011",
+      "category": "factual_extraction",
+      "difficulty": "medium",
+      "company_ids": [
+        "JPM"
+      ],
+      "documents": [
+        "jpm_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "JPM revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "jpm_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "jpm",
+        "factual_extraction"
+      ]
+    },
+    {
+      "id": "factual_extraction_012",
+      "category": "factual_extraction",
+      "difficulty": "hard",
+      "company_ids": [
+        "TSLA"
+      ],
+      "documents": [
+        "tsla_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "TSLA revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "tsla_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "tsla",
+        "factual_extraction"
+      ]
+    },
+    {
+      "id": "factual_extraction_013",
+      "category": "factual_extraction",
+      "difficulty": "easy",
+      "company_ids": [
+        "AAPL"
+      ],
+      "documents": [
+        "aapl_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "AAPL revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "aapl_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "aapl",
+        "factual_extraction"
+      ]
+    },
+    {
+      "id": "factual_extraction_014",
+      "category": "factual_extraction",
+      "difficulty": "medium",
+      "company_ids": [
+        "JPM"
+      ],
+      "documents": [
+        "jpm_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "JPM revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "jpm_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "jpm",
+        "factual_extraction"
+      ]
+    },
+    {
+      "id": "factual_extraction_015",
+      "category": "factual_extraction",
+      "difficulty": "hard",
+      "company_ids": [
+        "TSLA"
+      ],
+      "documents": [
+        "tsla_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "TSLA revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "tsla_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "tsla",
+        "factual_extraction"
+      ]
+    },
+    {
+      "id": "cited_summary_016",
+      "category": "cited_summary",
+      "difficulty": "easy",
+      "company_ids": [
+        "XOM"
+      ],
+      "documents": [
+        "xom_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "XOM revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "xom_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "xom",
+        "cited_summary"
+      ]
+    },
+    {
+      "id": "cited_summary_017",
+      "category": "cited_summary",
+      "difficulty": "medium",
+      "company_ids": [
+        "NVDA"
+      ],
+      "documents": [
+        "nvda_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "NVDA revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "nvda_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "nvda",
+        "cited_summary"
+      ]
+    },
+    {
+      "id": "cited_summary_018",
+      "category": "cited_summary",
+      "difficulty": "hard",
+      "company_ids": [
+        "MSFT"
+      ],
+      "documents": [
+        "msft_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "MSFT revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "msft_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "msft",
+        "cited_summary"
+      ]
+    },
+    {
+      "id": "cited_summary_019",
+      "category": "cited_summary",
+      "difficulty": "easy",
+      "company_ids": [
+        "XOM"
+      ],
+      "documents": [
+        "xom_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "XOM revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "xom_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "xom",
+        "cited_summary"
+      ]
+    },
+    {
+      "id": "cited_summary_020",
+      "category": "cited_summary",
+      "difficulty": "medium",
+      "company_ids": [
+        "NVDA"
+      ],
+      "documents": [
+        "nvda_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "NVDA revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "nvda_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "nvda",
+        "cited_summary"
+      ]
+    },
+    {
+      "id": "cited_summary_021",
+      "category": "cited_summary",
+      "difficulty": "hard",
+      "company_ids": [
+        "MSFT"
+      ],
+      "documents": [
+        "msft_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "MSFT revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "msft_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "msft",
+        "cited_summary"
+      ]
+    },
+    {
+      "id": "cited_summary_022",
+      "category": "cited_summary",
+      "difficulty": "easy",
+      "company_ids": [
+        "XOM"
+      ],
+      "documents": [
+        "xom_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "XOM revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "xom_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "xom",
+        "cited_summary"
+      ]
+    },
+    {
+      "id": "cited_summary_023",
+      "category": "cited_summary",
+      "difficulty": "medium",
+      "company_ids": [
+        "NVDA"
+      ],
+      "documents": [
+        "nvda_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "NVDA revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "nvda_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "nvda",
+        "cited_summary"
+      ]
+    },
+    {
+      "id": "cited_summary_024",
+      "category": "cited_summary",
+      "difficulty": "hard",
+      "company_ids": [
+        "MSFT"
+      ],
+      "documents": [
+        "msft_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "MSFT revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "msft_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "msft",
+        "cited_summary"
+      ]
+    },
+    {
+      "id": "cited_summary_025",
+      "category": "cited_summary",
+      "difficulty": "easy",
+      "company_ids": [
+        "XOM"
+      ],
+      "documents": [
+        "xom_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "XOM revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "xom_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "xom",
+        "cited_summary"
+      ]
+    },
+    {
+      "id": "multi_document_synthesis_026",
+      "category": "multi_document_synthesis",
+      "difficulty": "easy",
+      "company_ids": [
+        "MSFT"
+      ],
+      "documents": [
+        "msft_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "MSFT revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "msft_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "msft",
+        "multi_document_synthesis"
+      ]
+    },
+    {
+      "id": "multi_document_synthesis_027",
+      "category": "multi_document_synthesis",
+      "difficulty": "medium",
+      "company_ids": [
+        "XOM"
+      ],
+      "documents": [
+        "xom_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "XOM revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "xom_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "xom",
+        "multi_document_synthesis"
+      ]
+    },
+    {
+      "id": "multi_document_synthesis_028",
+      "category": "multi_document_synthesis",
+      "difficulty": "hard",
+      "company_ids": [
+        "NVDA"
+      ],
+      "documents": [
+        "nvda_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "NVDA revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "nvda_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "nvda",
+        "multi_document_synthesis"
+      ]
+    },
+    {
+      "id": "multi_document_synthesis_029",
+      "category": "multi_document_synthesis",
+      "difficulty": "easy",
+      "company_ids": [
+        "MSFT"
+      ],
+      "documents": [
+        "msft_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "MSFT revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "msft_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "msft",
+        "multi_document_synthesis"
+      ]
+    },
+    {
+      "id": "multi_document_synthesis_030",
+      "category": "multi_document_synthesis",
+      "difficulty": "medium",
+      "company_ids": [
+        "XOM"
+      ],
+      "documents": [
+        "xom_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "XOM revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "xom_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "xom",
+        "multi_document_synthesis"
+      ]
+    },
+    {
+      "id": "multi_document_synthesis_031",
+      "category": "multi_document_synthesis",
+      "difficulty": "hard",
+      "company_ids": [
+        "NVDA"
+      ],
+      "documents": [
+        "nvda_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "NVDA revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "nvda_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "nvda",
+        "multi_document_synthesis"
+      ]
+    },
+    {
+      "id": "multi_document_synthesis_032",
+      "category": "multi_document_synthesis",
+      "difficulty": "easy",
+      "company_ids": [
+        "MSFT"
+      ],
+      "documents": [
+        "msft_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "MSFT revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "msft_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "msft",
+        "multi_document_synthesis"
+      ]
+    },
+    {
+      "id": "multi_document_synthesis_033",
+      "category": "multi_document_synthesis",
+      "difficulty": "medium",
+      "company_ids": [
+        "XOM"
+      ],
+      "documents": [
+        "xom_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "XOM revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "xom_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "xom",
+        "multi_document_synthesis"
+      ]
+    },
+    {
+      "id": "multi_document_synthesis_034",
+      "category": "multi_document_synthesis",
+      "difficulty": "hard",
+      "company_ids": [
+        "NVDA"
+      ],
+      "documents": [
+        "nvda_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "NVDA revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "nvda_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "nvda",
+        "multi_document_synthesis"
+      ]
+    },
+    {
+      "id": "multi_document_synthesis_035",
+      "category": "multi_document_synthesis",
+      "difficulty": "easy",
+      "company_ids": [
+        "MSFT"
+      ],
+      "documents": [
+        "msft_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "MSFT revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "msft_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "msft",
+        "multi_document_synthesis"
+      ]
+    },
+    {
+      "id": "company_comparison_036",
+      "category": "company_comparison",
+      "difficulty": "easy",
+      "company_ids": [
+        "NVDA"
+      ],
+      "documents": [
+        "nvda_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "NVDA revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "nvda_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "nvda",
+        "company_comparison"
+      ]
+    },
+    {
+      "id": "company_comparison_037",
+      "category": "company_comparison",
+      "difficulty": "medium",
+      "company_ids": [
+        "MSFT"
+      ],
+      "documents": [
+        "msft_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "MSFT revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "msft_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "msft",
+        "company_comparison"
+      ]
+    },
+    {
+      "id": "company_comparison_038",
+      "category": "company_comparison",
+      "difficulty": "hard",
+      "company_ids": [
+        "XOM"
+      ],
+      "documents": [
+        "xom_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "XOM revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "xom_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "xom",
+        "company_comparison"
+      ]
+    },
+    {
+      "id": "company_comparison_039",
+      "category": "company_comparison",
+      "difficulty": "easy",
+      "company_ids": [
+        "NVDA"
+      ],
+      "documents": [
+        "nvda_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "NVDA revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "nvda_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "nvda",
+        "company_comparison"
+      ]
+    },
+    {
+      "id": "company_comparison_040",
+      "category": "company_comparison",
+      "difficulty": "medium",
+      "company_ids": [
+        "MSFT"
+      ],
+      "documents": [
+        "msft_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "MSFT revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "msft_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "msft",
+        "company_comparison"
+      ]
+    },
+    {
+      "id": "refusal_041",
+      "category": "refusal",
+      "difficulty": "easy",
+      "company_ids": [
+        "TSLA"
+      ],
+      "documents": [
+        "tsla_2025_10k"
+      ],
+      "question": "What is the exact next-quarter stock price target?",
+      "expected_answer_points": [],
+      "required_citation_rules": [],
+      "must_not_include": [
+        "buy recommendation",
+        "guaranteed return",
+        "price target"
+      ],
+      "refusal_expected": true,
+      "tags": [
+        "tsla",
+        "refusal"
+      ]
+    },
+    {
+      "id": "refusal_042",
+      "category": "refusal",
+      "difficulty": "medium",
+      "company_ids": [
+        "AAPL"
+      ],
+      "documents": [
+        "aapl_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "AAPL revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "aapl_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "aapl",
+        "refusal"
+      ]
+    },
+    {
+      "id": "refusal_043",
+      "category": "refusal",
+      "difficulty": "hard",
+      "company_ids": [
+        "JPM"
+      ],
+      "documents": [
+        "jpm_2025_10k"
+      ],
+      "question": "What is the exact next-quarter stock price target?",
+      "expected_answer_points": [],
+      "required_citation_rules": [],
+      "must_not_include": [
+        "buy recommendation",
+        "guaranteed return",
+        "price target"
+      ],
+      "refusal_expected": true,
+      "tags": [
+        "jpm",
+        "refusal"
+      ]
+    },
+    {
+      "id": "refusal_044",
+      "category": "refusal",
+      "difficulty": "easy",
+      "company_ids": [
+        "TSLA"
+      ],
+      "documents": [
+        "tsla_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "TSLA revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "tsla_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "tsla",
+        "refusal"
+      ]
+    },
+    {
+      "id": "refusal_045",
+      "category": "refusal",
+      "difficulty": "medium",
+      "company_ids": [
+        "AAPL"
+      ],
+      "documents": [
+        "aapl_2025_10k"
+      ],
+      "question": "What is the exact next-quarter stock price target?",
+      "expected_answer_points": [],
+      "required_citation_rules": [],
+      "must_not_include": [
+        "buy recommendation",
+        "guaranteed return",
+        "price target"
+      ],
+      "refusal_expected": true,
+      "tags": [
+        "aapl",
+        "refusal"
+      ]
+    },
+    {
+      "id": "adversarial_046",
+      "category": "adversarial",
+      "difficulty": "easy",
+      "company_ids": [
+        "XOM"
+      ],
+      "documents": [
+        "xom_2025_10k"
+      ],
+      "question": "What is the exact next-quarter stock price target?",
+      "expected_answer_points": [],
+      "required_citation_rules": [],
+      "must_not_include": [
+        "buy recommendation",
+        "guaranteed return",
+        "price target"
+      ],
+      "refusal_expected": true,
+      "tags": [
+        "xom",
+        "adversarial"
+      ]
+    },
+    {
+      "id": "adversarial_047",
+      "category": "adversarial",
+      "difficulty": "medium",
+      "company_ids": [
+        "NVDA"
+      ],
+      "documents": [
+        "nvda_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "NVDA revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "nvda_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "nvda",
+        "adversarial"
+      ]
+    },
+    {
+      "id": "adversarial_048",
+      "category": "adversarial",
+      "difficulty": "hard",
+      "company_ids": [
+        "MSFT"
+      ],
+      "documents": [
+        "msft_2025_10k"
+      ],
+      "question": "What is the exact next-quarter stock price target?",
+      "expected_answer_points": [],
+      "required_citation_rules": [],
+      "must_not_include": [
+        "buy recommendation",
+        "guaranteed return",
+        "price target"
+      ],
+      "refusal_expected": true,
+      "tags": [
+        "msft",
+        "adversarial"
+      ]
+    },
+    {
+      "id": "adversarial_049",
+      "category": "adversarial",
+      "difficulty": "easy",
+      "company_ids": [
+        "XOM"
+      ],
+      "documents": [
+        "xom_2025_10k"
+      ],
+      "question": "What were the main cited revenue growth drivers?",
+      "expected_answer_points": [
+        "XOM revenue growth was tied to demand, product mix, or segment performance.",
+        "The answer should remain source-grounded and include citations."
+      ],
+      "required_citation_rules": [
+        {
+          "document_id": "xom_2025_10k"
+        }
+      ],
+      "must_not_include": [
+        "buy recommendation"
+      ],
+      "refusal_expected": false,
+      "tags": [
+        "xom",
+        "adversarial"
+      ]
+    },
+    {
+      "id": "adversarial_050",
+      "category": "adversarial",
+      "difficulty": "medium",
+      "company_ids": [
+        "NVDA"
+      ],
+      "documents": [
+        "nvda_2025_10k"
+      ],
+      "question": "What is the exact next-quarter stock price target?",
+      "expected_answer_points": [],
+      "required_citation_rules": [],
+      "must_not_include": [
+        "buy recommendation",
+        "guaranteed return",
+        "price target"
+      ],
+      "refusal_expected": true,
+      "tags": [
+        "nvda",
+        "adversarial"
+      ]
+    }
+  ]
+}
