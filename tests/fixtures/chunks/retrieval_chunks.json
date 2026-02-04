@@ -1,0 +1,328 @@
+[
+  {
+    "id": "31111111-1111-4111-8111-111111111111",
+    "document_id": "21111111-1111-4111-8111-111111111111",
+    "company_id": "11111111-1111-4111-8111-111111111111",
+    "chunk_index": 0,
+    "page_start": 42,
+    "page_end": 42,
+    "section_title": "Management's Discussion and Analysis - Data Center",
+    "token_count": 118,
+    "text": "Data center revenue increased primarily from demand for compute products used in generative AI and accelerated computing workloads. Growth was supported by large cloud service providers, consumer internet companies, enterprise software customers, and sovereign AI programs. Networking revenue also increased as customers built larger AI clusters requiring high-speed interconnects.",
+    "metadata": {
+      "ticker": "NVDA",
+      "fiscal_year": 2025,
+      "document_type": "10-k"
+    }
+  },
+  {
+    "id": "31111111-1111-4111-8111-111111111112",
+    "document_id": "21111111-1111-4111-8111-111111111111",
+    "company_id": "11111111-1111-4111-8111-111111111111",
+    "chunk_index": 1,
+    "page_start": 47,
+    "page_end": 48,
+    "section_title": "Management's Discussion and Analysis - Gross Margin",
+    "token_count": 104,
+    "text": "Gross margin expanded due to a higher mix of data center products and improved pricing on accelerated computing platforms. The expansion was partly offset by inventory provisions, product transition costs, and higher supply chain expenses associated with new platform ramps.",
+    "metadata": {
+      "ticker": "NVDA",
+      "fiscal_year": 2025,
+      "document_type": "10-k"
+    }
+  },
+  {
+    "id": "31111111-1111-4111-8111-111111111113",
+    "document_id": "21111111-1111-4111-8111-111111111111",
+    "company_id": "11111111-1111-4111-8111-111111111111",
+    "chunk_index": 2,
+    "page_start": 18,
+    "page_end": 20,
+    "section_title": "Risk Factors",
+    "token_count": 132,
+    "text": "Risks include dependence on a limited number of suppliers and foundry partners, customer concentration among large cloud and internet companies, export controls affecting shipments of advanced products, product transition execution, and cyclicality in semiconductor demand. Restrictions on sales to certain jurisdictions could reduce revenue or require product redesigns.",
+    "metadata": {
+      "ticker": "NVDA",
+      "fiscal_year": 2025,
+      "document_type": "10-k"
+    }
+  },
+  {
+    "id": "31111111-1111-4111-8111-111111111121",
+    "document_id": "21111111-1111-4111-8111-111111111112",
+    "company_id": "11111111-1111-4111-8111-111111111111",
+    "chunk_index": 0,
+    "page_start": 6,
+    "page_end": 7,
+    "section_title": "Earnings Call - Prepared Remarks",
+    "token_count": 126,
+    "text": "Management said demand for the Blackwell platform exceeded supply during the initial ramp. Customers were deploying systems for training and inference, and networking attach rates increased as clusters scaled. Management expected supply to improve through the year but noted that gross margin could fluctuate during the transition.",
+    "metadata": {
+      "ticker": "NVDA",
+      "fiscal_year": 2025,
+      "fiscal_quarter": 4,
+      "document_type": "earnings_transcript"
+    }
+  },
+  {
+    "id": "32222222-2222-4222-8222-222222222221",
+    "document_id": "22222222-2222-4222-8222-222222222221",
+    "company_id": "22222222-2222-4222-8222-222222222222",
+    "chunk_index": 0,
+    "page_start": 30,
+    "page_end": 31,
+    "section_title": "Management's Discussion and Analysis - Net Sales",
+    "token_count": 111,
+    "text": "Apple's services net sales increased due to growth in advertising, cloud services, payment services, and subscriptions. The company said services growth was supported by the active installed base of devices and customer engagement across its platforms.",
+    "metadata": {
+      "ticker": "AAPL",
+      "fiscal_year": 2025,
+      "document_type": "10-k"
+    }
+  },
+  {
+    "id": "32222222-2222-4222-8222-222222222222",
+    "document_id": "22222222-2222-4222-8222-222222222221",
+    "company_id": "22222222-2222-4222-8222-222222222222",
+    "chunk_index": 1,
+    "page_start": 32,
+    "page_end": 33,
+    "section_title": "Management's Discussion and Analysis - Gross Margin",
+    "token_count": 104,
+    "text": "Services gross margin was higher than products gross margin. Total gross margin benefited from a higher services mix, while products gross margin remained sensitive to component costs, foreign exchange movements, and product mix.",
+    "metadata": {
+      "ticker": "AAPL",
+      "fiscal_year": 2025,
+      "document_type": "10-k"
+    }
+  },
+  {
+    "id": "32222222-2222-4222-8222-222222222223",
+    "document_id": "22222222-2222-4222-8222-222222222221",
+    "company_id": "22222222-2222-4222-8222-222222222222",
+    "chunk_index": 2,
+    "page_start": 11,
+    "page_end": 14,
+    "section_title": "Risk Factors",
+    "token_count": 125,
+    "text": "Risks include dependence on new product introductions, competitive pressure in smartphones and services, supply chain concentration in Asia, regulatory scrutiny of app distribution and payment practices, foreign exchange volatility, and potential disruptions from component shortages.",
+    "metadata": {
+      "ticker": "AAPL",
+      "fiscal_year": 2025,
+      "document_type": "10-k"
+    }
+  },
+  {
+    "id": "32222222-2222-4222-8222-222222222224",
+    "document_id": "22222222-2222-4222-8222-222222222222",
+    "company_id": "22222222-2222-4222-8222-222222222222",
+    "chunk_index": 0,
+    "page_start": 5,
+    "page_end": 6,
+    "section_title": "Earnings Call - Prepared Remarks",
+    "token_count": 109,
+    "text": "Management highlighted record services revenue and said paid subscriptions reached a new high. The company also described continued investment in artificial intelligence features across devices, while noting that capital allocation priorities remained investment in the business, dividends, and share repurchases.",
+    "metadata": {
+      "ticker": "AAPL",
+      "fiscal_year": 2025,
+      "fiscal_quarter": 4,
+      "document_type": "earnings_transcript"
+    }
+  },
+  {
+    "id": "33333333-3333-4333-8333-333333333331",
+    "document_id": "23333333-3333-4333-8333-333333333331",
+    "company_id": "33333333-3333-4333-8333-333333333333",
+    "chunk_index": 0,
+    "page_start": 54,
+    "page_end": 56,
+    "section_title": "Management's Discussion and Analysis - Net Interest Income",
+    "token_count": 119,
+    "text": "Net interest income benefited from higher rates and loan balances, partly offset by deposit margin compression and migration to higher-yielding deposit products. Management noted that deposit costs remained a key sensitivity for future net interest income.",
+    "metadata": {
+      "ticker": "JPM",
+      "fiscal_year": 2025,
+      "document_type": "10-k"
+    }
+  },
+  {
+    "id": "33333333-3333-4333-8333-333333333332",
+    "document_id": "23333333-3333-4333-8333-333333333331",
+    "company_id": "33333333-3333-4333-8333-333333333333",
+    "chunk_index": 1,
+    "page_start": 80,
+    "page_end": 82,
+    "section_title": "Credit Risk",
+    "token_count": 125,
+    "text": "The provision for credit losses reflected loan growth and normalization in card delinquencies from unusually low levels. The allowance considered macroeconomic scenarios, unemployment, borrower behavior, commercial real estate exposure, and portfolio seasoning.",
+    "metadata": {
+      "ticker": "JPM",
+      "fiscal_year": 2025,
+      "document_type": "10-k"
+    }
+  },
+  {
+    "id": "33333333-3333-4333-8333-333333333333",
+    "document_id": "23333333-3333-4333-8333-333333333331",
+    "company_id": "33333333-3333-4333-8333-333333333333",
+    "chunk_index": 2,
+    "page_start": 91,
+    "page_end": 92,
+    "section_title": "Capital Management",
+    "token_count": 102,
+    "text": "The firm's capital position remained above regulatory minimums. Common Equity Tier 1 capital supported loan growth, dividends, share repurchases subject to board approval, and investments in technology and risk management.",
+    "metadata": {
+      "ticker": "JPM",
+      "fiscal_year": 2025,
+      "document_type": "10-k"
+    }
+  },
+  {
+    "id": "33333333-3333-4333-8333-333333333334",
+    "document_id": "23333333-3333-4333-8333-333333333332",
+    "company_id": "33333333-3333-4333-8333-333333333333",
+    "chunk_index": 0,
+    "page_start": 4,
+    "page_end": 5,
+    "section_title": "Earnings Call - Prepared Remarks",
+    "token_count": 104,
+    "text": "Management said credit normalization was occurring as expected, with card losses moving toward long-term averages. Investment banking fees improved from stronger debt underwriting and advisory activity, while expenses reflected technology investment and growth initiatives.",
+    "metadata": {
+      "ticker": "JPM",
+      "fiscal_year": 2025,
+      "fiscal_quarter": 4,
+      "document_type": "earnings_transcript"
+    }
+  },
+  {
+    "id": "34444444-4444-4444-8444-444444444441",
+    "document_id": "24444444-4444-4444-8444-444444444441",
+    "company_id": "44444444-4444-4444-8444-444444444444",
+    "chunk_index": 0,
+    "page_start": 38,
+    "page_end": 40,
+    "section_title": "Management's Discussion and Analysis - Upstream",
+    "token_count": 119,
+    "text": "Upstream earnings were primarily affected by crude oil and natural gas realizations, production volumes, and operating expenses. Higher production from advantaged assets partly offset weaker commodity prices in certain periods.",
+    "metadata": {
+      "ticker": "XOM",
+      "fiscal_year": 2025,
+      "document_type": "10-k"
+    }
+  },
+  {
+    "id": "34444444-4444-4444-8444-444444444442",
+    "document_id": "24444444-4444-4444-8444-444444444441",
+    "company_id": "44444444-4444-4444-8444-444444444444",
+    "chunk_index": 1,
+    "page_start": 24,
+    "page_end": 26,
+    "section_title": "Risk Factors",
+    "token_count": 124,
+    "text": "Risks include volatility in crude oil, natural gas, and refined product prices; changes in demand; reserve replacement uncertainty; project execution risk; climate-related regulations; litigation; and geopolitical events affecting operations and supply chains.",
+    "metadata": {
+      "ticker": "XOM",
+      "fiscal_year": 2025,
+      "document_type": "10-k"
+    }
+  },
+  {
+    "id": "34444444-4444-4444-8444-444444444443",
+    "document_id": "24444444-4444-4444-8444-444444444441",
+    "company_id": "44444444-4444-4444-8444-444444444444",
+    "chunk_index": 2,
+    "page_start": 52,
+    "page_end": 53,
+    "section_title": "Capital Allocation",
+    "token_count": 98,
+    "text": "Capital allocation priorities included investing in advantaged projects, maintaining a strong balance sheet, paying a reliable dividend, and repurchasing shares when supported by cash flow and market conditions.",
+    "metadata": {
+      "ticker": "XOM",
+      "fiscal_year": 2025,
+      "document_type": "10-k"
+    }
+  },
+  {
+    "id": "34444444-4444-4444-8444-444444444444",
+    "document_id": "24444444-4444-4444-8444-444444444442",
+    "company_id": "44444444-4444-4444-8444-444444444444",
+    "chunk_index": 0,
+    "page_start": 4,
+    "page_end": 5,
+    "section_title": "Earnings Call - Prepared Remarks",
+    "token_count": 103,
+    "text": "Management said downstream margins moderated from peak levels, while chemical margins remained pressured by industry supply additions. The company continued to emphasize cost discipline, high-return upstream projects, and low-carbon investment opportunities.",
+    "metadata": {
+      "ticker": "XOM",
+      "fiscal_year": 2025,
+      "fiscal_quarter": 4,
+      "document_type": "earnings_transcript"
+    }
+  },
+  {
+    "id": "35555555-5555-4555-8555-555555555551",
+    "document_id": "25555555-5555-4555-8555-555555555551",
+    "company_id": "55555555-5555-4555-8555-555555555555",
+    "chunk_index": 0,
+    "page_start": 44,
+    "page_end": 45,
+    "section_title": "Management's Discussion and Analysis - Automotive",
+    "token_count": 119,
+    "text": "Automotive revenue was affected by vehicle delivery volumes, average selling prices, product mix, regulatory credit revenue, and foreign exchange. Price reductions and mix changes pressured automotive gross margin, partly offset by manufacturing cost reductions.",
+    "metadata": {
+      "ticker": "TSLA",
+      "fiscal_year": 2025,
+      "document_type": "10-k"
+    }
+  },
+  {
+    "id": "35555555-5555-4555-8555-555555555552",
+    "document_id": "25555555-5555-4555-8555-555555555551",
+    "company_id": "55555555-5555-4555-8555-555555555555",
+    "chunk_index": 1,
+    "page_start": 47,
+    "page_end": 48,
+    "section_title": "Energy Generation and Storage",
+    "token_count": 102,
+    "text": "Energy generation and storage revenue increased due to higher deployments of battery storage products. Profitability improved with scale, factory utilization, and cost reductions, though results remained sensitive to project timing.",
+    "metadata": {
+      "ticker": "TSLA",
+      "fiscal_year": 2025,
+      "document_type": "10-k"
+    }
+  },
+  {
+    "id": "35555555-5555-4555-8555-555555555553",
+    "document_id": "25555555-5555-4555-8555-555555555551",
+    "company_id": "55555555-5555-4555-8555-555555555555",
+    "chunk_index": 2,
+    "page_start": 15,
+    "page_end": 17,
+    "section_title": "Risk Factors",
+    "token_count": 125,
+    "text": "Risks include intense competition, pricing pressure, manufacturing ramp execution, battery cell supply, regulatory changes, dependence on key personnel, autonomous driving development uncertainty, product quality issues, and demand sensitivity to interest rates.",
+    "metadata": {
+      "ticker": "TSLA",
+      "fiscal_year": 2025,
+      "document_type": "10-k"
+    }
+  },
+  {
+    "id": "35555555-5555-4555-8555-555555555554",
+    "document_id": "25555555-5555-4555-8555-555555555552",
+    "company_id": "55555555-5555-4555-8555-555555555555",
+    "chunk_index": 0,
+    "page_start": 5,
+    "page_end": 6,
+    "section_title": "Earnings Call - Prepared Remarks",
+    "token_count": 106,
+    "text": "Management emphasized cost reductions, next-generation vehicle platform work, energy storage growth, and progress in autonomy. The call did not provide a firm date for broad commercial robotaxi availability.",
+    "metadata": {
+      "ticker": "TSLA",
+      "fiscal_year": 2025,
+      "fiscal_quarter": 4,
+      "document_type": "earnings_transcript"
+    }
+  }
+]
+
