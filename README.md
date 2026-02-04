@@ -33,12 +33,19 @@ See [docs/api-contract.md](/Users/johanvaz/Documents/Portfolio/projects/ai-equit
 
 ## SEC Company Discovery
 
-The app can now move beyond the seeded local company list:
+The app can move beyond the seeded local company list and build a filings-first company corpus:
 
 1. Search by ticker or company name in the sidebar.
 2. Local matches filter immediately.
 3. Press `SEC` to query SEC EDGAR's public company ticker mapping.
-4. Choose `Import 10-K` to create the company, fetch the latest SEC filing metadata, download the primary filing document, convert it to text, chunk it, embed it, and add it to the RAG corpus.
+4. Choose `Build corpus` to create the company, fetch SEC filing metadata, download filings, convert them to text, chunk them, embed them, and add them to the RAG corpus.
+
+Default corpus import:
+
+- latest `10-K`
+- latest 4 `10-Q` filings
+- latest 6 `8-K` filings
+- latest `DEF 14A` proxy statement where available
 
 Backend endpoints:
 
@@ -47,7 +54,7 @@ curl "http://localhost:8001/companies/search?q=AAPL"
 
 curl -X POST "http://localhost:8001/companies/discover" \
   -H "Content-Type: application/json" \
-  -d '{"query":"AAPL","form_type":"10-k"}'
+  -d '{"query":"AAPL","build_corpus":true}'
 ```
 
 SEC access uses official public EDGAR data endpoints and requires a declared user agent. Set this before running the API if you want your own contact string in requests:
@@ -56,7 +63,25 @@ SEC access uses official public EDGAR data endpoints and requires a declared use
 export AIERC_SEC_USER_AGENT="Your Name your-email@example.com"
 ```
 
-Currently supported automated imports are latest `10-k`, `10-q`, and `8-k` filings. Uploaded PDFs/text files are still supported for transcripts, investor decks, and custom notes.
+Uploaded PDFs/text files are still supported for transcripts, investor decks, and custom notes.
+
+## Local LLM Synthesis
+
+The chat endpoint always retrieves evidence first. It then tries to synthesize the answer with a local Ollama model when available. The recommended default is a small 3-5B class Gemma model:
+
+```bash
+ollama pull gemma3:4b
+export AIERC_LLM_PROVIDER=auto
+export AIERC_OLLAMA_MODEL=gemma3:4b
+```
+
+Provider modes:
+
+- `AIERC_LLM_PROVIDER=auto`: use Ollama/Gemma if available, otherwise deterministic cited synthesis.
+- `AIERC_LLM_PROVIDER=ollama`: require Ollama/Gemma and return a clear low-confidence response if unavailable.
+- `AIERC_LLM_PROVIDER=local`: deterministic cited synthesis only.
+
+The Ollama prompt is constrained to the retrieved filing excerpts and must return structured JSON with citation indices. If the model returns invalid or uncited output, the app falls back to deterministic synthesis.
 
 ## Local Setup
 

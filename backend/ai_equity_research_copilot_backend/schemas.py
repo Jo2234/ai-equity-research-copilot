@@ -79,14 +79,22 @@ class CompanyLookupResult(BaseModel):
 class CompanyDiscoverRequest(BaseModel):
     query: str = Field(min_length=1)
     form_type: DocumentType = DocumentType.ten_k
+    build_corpus: bool = True
+    annual_limit: int = Field(default=1, ge=0, le=3)
+    quarterly_limit: int = Field(default=4, ge=0, le=8)
+    current_report_limit: int = Field(default=6, ge=0, le=20)
+    proxy_limit: int = Field(default=1, ge=0, le=3)
 
 
 class CompanyDiscoverResponse(BaseModel):
     company: CompanyDetail
     imported_document: "DocumentDetail"
+    imported_documents: list["DocumentDetail"] = Field(default_factory=list)
     source: str = "sec"
     cik: int
     accession_number: str
+    accession_numbers: list[str] = Field(default_factory=list)
+    reused_existing_count: int = 0
 
 
 class DocumentCreate(BaseModel):

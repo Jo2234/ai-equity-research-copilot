@@ -207,6 +207,7 @@ export function App() {
   const selectedFiscalYears = [
     ...new Set(documents.map((document) => document.fiscal_year).filter((year): year is number => Boolean(year)))
   ];
+  const corpusTypes = [...new Set(readyDocuments.map((document) => document.document_type))];
   const selectedSnapshot = selectedCompany
     ? companySnapshots[selectedCompany.ticker] ?? {
         metrics: [
@@ -352,7 +353,7 @@ export function App() {
       });
       setSelectedCompanyId(importedCompany.id);
       setSelectedCompareIds((current) => [...new Set([importedCompany.id, ...current])].slice(0, 4));
-      setDocuments(discovery.company.documents ?? [discovery.imported_document]);
+      setDocuments(discovery.company.documents ?? discovery.imported_documents ?? [discovery.imported_document]);
       setCompanyLookupResults((current) =>
         current.map((item) =>
           item.ticker === result.ticker
@@ -375,7 +376,7 @@ export function App() {
           <div className="brand-mark">ER</div>
           <div>
             <h1>Equity Research Copilot</h1>
-            <p>Grounded document workstation</p>
+            <p>Filings-first company research</p>
           </div>
         </div>
 
@@ -413,7 +414,7 @@ export function App() {
                   <strong>{result.ticker}</strong>
                   <small>{result.name}</small>
                 </span>
-                <em>{result.already_in_workspace ? "Open" : importingTicker === result.ticker ? "Importing" : "Import 10-K"}</em>
+                <em>{result.already_in_workspace ? "Open" : importingTicker === result.ticker ? "Building" : "Build corpus"}</em>
               </button>
             ))}
           </div>
@@ -514,6 +515,7 @@ export function App() {
             <span className="eyebrow">Selected company</span>
             <h2>{selectedCompany ? `${selectedCompany.ticker} · ${selectedCompany.name}` : "Loading company universe"}</h2>
             <p>{selectedCompany ? `${selectedCompany.industry ?? selectedCompany.sector ?? "Coverage universe"} · ${readinessPercent}% corpus ready` : "No company selected"}</p>
+            <p className="source-posture">No news or media coverage. Answers are based on company filings and uploaded source documents.</p>
           </div>
           <div className="topbar-controls">
             <StatusPill tone={apiMode === "live" ? "good" : "warn"}>
@@ -560,6 +562,21 @@ export function App() {
           <FilterChip label="Top K" value="8" />
           <FilterChip label="Citation policy" value="Required for factual claims" />
         </div>
+
+        <section className="corpus-overview" aria-label="Corpus overview">
+          <article>
+            <strong>{readyDocuments.length}</strong>
+            <span>ready filings</span>
+          </article>
+          <article>
+            <strong>{corpusTypes.length ? corpusTypes.join(", ") : "none"}</strong>
+            <span>source types</span>
+          </article>
+          <article>
+            <strong>{readyDocuments.reduce((sum, document) => sum + (document.chunk_count ?? 0), 0)}</strong>
+            <span>evidence chunks</span>
+          </article>
+        </section>
 
         <nav className="mode-tabs" aria-label="Workspace mode">
           <ModeButton active={mode === "chat"} icon={<MessageSquareText size={16} />} onClick={() => setMode("chat")}>
