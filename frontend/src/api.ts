@@ -72,7 +72,15 @@ export async function discoverCompany(
 ): Promise<{ discovery: CompanyDiscoverResponse; demo: boolean }> {
   const discovery = await requestJson<CompanyDiscoverResponse>("/companies/discover", {
     method: "POST",
-    body: JSON.stringify({ query, form_type: formType })
+    body: JSON.stringify({
+      query,
+      form_type: formType,
+      build_corpus: true,
+      annual_limit: 1,
+      quarterly_limit: 4,
+      current_report_limit: 6,
+      proxy_limit: 1
+    })
   });
   return { discovery, demo: false };
 }

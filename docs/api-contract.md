@@ -29,14 +29,18 @@ Response:
 
 ## `POST /companies/discover`
 
-Creates or reuses a company, fetches the latest supported SEC filing, stores it as local text, and runs the ingestion pipeline so it becomes available to retrieval.
+Creates or reuses a company, fetches supported SEC filings, stores them as local text, and runs the ingestion pipeline so they become available to retrieval.
 
 Request:
 
 ```json
 {
   "query": "AAPL",
-  "form_type": "10-k"
+  "build_corpus": true,
+  "annual_limit": 1,
+  "quarterly_limit": 4,
+  "current_report_limit": 6,
+  "proxy_limit": 1
 }
 ```
 
@@ -57,13 +61,16 @@ Response:
     "status": "ready",
     "chunk_count": 64
   },
+  "imported_documents": [],
   "source": "sec",
   "cik": 320193,
-  "accession_number": "0000320193-25-000079"
+  "accession_number": "0000320193-25-000079",
+  "accession_numbers": ["0000320193-25-000079"],
+  "reused_existing_count": 0
 }
 ```
 
-Supported automated SEC imports: `10-k`, `10-q`, and `8-k`.
+Default automated corpus imports: latest `10-k`, recent `10-q`, recent `8-k`, and recent `DEF 14A` where available.
 
 ## `POST /research/chat`
 
@@ -102,12 +109,12 @@ Response:
   "confidence": "high",
   "limitations": [],
   "usage": {
-    "model": "gpt-4.1-mini",
+    "model": "gemma3:4b",
     "latency_ms": 1420,
     "input_tokens": 1800,
     "output_tokens": 220,
     "estimated_cost_usd": 0.0042,
-    "provider": "local",
+    "provider": "ollama",
     "retrieval": {
       "top_k": 8,
       "returned_chunks": 2
