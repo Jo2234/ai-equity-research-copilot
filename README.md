@@ -73,6 +73,7 @@ The chat endpoint always retrieves evidence first. It then tries to synthesize t
 ollama pull gemma3:4b
 export AIERC_LLM_PROVIDER=auto
 export AIERC_OLLAMA_MODEL=gemma3:4b
+export AIERC_OLLAMA_TIMEOUT_SECONDS=180
 ```
 
 Provider modes:

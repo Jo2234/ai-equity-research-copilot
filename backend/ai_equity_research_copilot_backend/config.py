@@ -23,7 +23,7 @@ class Settings:
     llm_provider: str = "auto"
     ollama_base_url: str = "http://127.0.0.1:11434"
     ollama_model: str = "gemma3:4b"
-    ollama_timeout_seconds: float = 45.0
+    ollama_timeout_seconds: float = 180.0
     openai_api_key: str | None = None
     anthropic_api_key: str | None = None
     sec_user_agent: str = "AI Equity Research Copilot local demo contact@example.com"
@@ -48,7 +48,7 @@ def get_settings(data_dir: str | Path | None = None) -> Settings:
         llm_provider=os.getenv("AIERC_LLM_PROVIDER", "auto").lower(),
         ollama_base_url=os.getenv("AIERC_OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/"),
         ollama_model=os.getenv("AIERC_OLLAMA_MODEL", "gemma3:4b"),
-        ollama_timeout_seconds=float(os.getenv("AIERC_OLLAMA_TIMEOUT_SECONDS", "45")),
+        ollama_timeout_seconds=float(os.getenv("AIERC_OLLAMA_TIMEOUT_SECONDS", "180")),
         openai_api_key=os.getenv("OPENAI_API_KEY"),
         anthropic_api_key=os.getenv("ANTHROPIC_API_KEY"),
         sec_user_agent=os.getenv(
