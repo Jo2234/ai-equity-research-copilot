@@ -139,26 +139,48 @@ def create_app(data_dir: str | Path | None = None, seed: bool = True) -> FastAPI
         match = matches[0]
         try:
             company = repo.upsert_company(sec_client.company_create_payload(match))
-            filing = sec_client.latest_filing(match.cik, form_map[payload.form_type])
-            document = next(
-                (existing for existing in repo.list_documents(company.id) if existing.source_url == filing.source_url),
-                None,
+            filings = (
+                sec_client.company_corpus_filings(
+                    match.cik,
+                    annual_limit=payload.annual_limit,
+                    quarterly_limit=payload.quarterly_limit,
+                    current_report_limit=payload.current_report_limit,
+                    proxy_limit=payload.proxy_limit,
+                )
+                if payload.build_corpus
+                else [sec_client.latest_filing(match.cik, form_map[payload.form_type])]
             )
-            if document is None:
-                text = sec_client.download_filing_text(filing)
-                file_path = save_sec_filing_text(settings.raw_dir, company.id, filing, text)
-                document = repo.create_document(company.id, sec_client.document_create_payload(match, filing), str(file_path))
-                ingestion.ingest_document(document.id)
+            if not filings:
+                raise LookupError(f"No supported recent SEC filings found for CIK {match.cik}")
+            documents = []
+            reused_existing_count = 0
+            for filing in filings:
+                document = next(
+                    (existing for existing in repo.list_documents(company.id) if existing.source_url == filing.source_url),
+                    None,
+                )
+                if document is None:
+                    text = sec_client.download_filing_text(filing)
+                    file_path = save_sec_filing_text(settings.raw_dir, company.id, filing, text)
+                    document = repo.create_document(company.id, sec_client.document_create_payload(match, filing), str(file_path))
+                    ingestion.ingest_document(document.id)
+                else:
+                    reused_existing_count += 1
+                documents.append(document)
         except LookupError as exc:
             raise HTTPException(status_code=404, detail=str(exc)) from exc
         except RuntimeError as exc:
             raise HTTPException(status_code=502, detail=str(exc)) from exc
         detail = get_company(company.id)
+        imported_documents = [_document_detail(repo, document.id) for document in documents]
         return CompanyDiscoverResponse(
             company=detail,
-            imported_document=_document_detail(repo, document.id),
+            imported_document=imported_documents[0],
+            imported_documents=imported_documents,
             cik=match.cik,
-            accession_number=filing.accession_number,
+            accession_number=filings[0].accession_number,
+            accession_numbers=[filing.accession_number for filing in filings],
+            reused_existing_count=reused_existing_count,
         )
 
     @api.post("/companies", response_model=Company, status_code=201)
