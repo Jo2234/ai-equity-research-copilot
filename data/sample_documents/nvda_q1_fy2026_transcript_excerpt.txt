@@ -1,0 +1,15 @@
+MANAGEMENT COMMENTARY
+
+Management said Q1 FY2026 demand remained broad for AI infrastructure, with cloud service providers, consumer internet companies, sovereign AI programs, and enterprise customers expanding deployments. The company highlighted inference as a growing workload as trained models move into production.
+
+GROWTH DRIVERS
+
+Growth drivers included next-generation GPUs, networking attach rates, software libraries, and systems designed for large-scale AI factories. Management said customers increasingly buy full platform configurations rather than standalone chips, which can lift content per deployment.
+
+MARGIN AND SUPPLY
+
+Management said gross margin was supported by mix and scale but could fluctuate during new architecture ramps. Supply improved versus the prior year, although advanced packaging and memory availability remained important constraints for some configurations.
+
+RISKS AND OUTLOOK
+
+The outlook depended on customer data center build schedules, export restrictions, competitive alternatives, and the pace at which enterprises convert AI pilots into production workloads. Management did not provide investment advice or a price target.
