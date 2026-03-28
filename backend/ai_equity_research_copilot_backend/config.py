@@ -29,12 +29,31 @@ class Settings:
     sec_user_agent: str = "AI Equity Research Copilot local demo contact@example.com"
     sec_timeout_seconds: float = 20.0
     sec_max_filing_chars: int = 600_000
+    cors_origins: tuple[str, ...] = ("http://localhost:3000", "http://127.0.0.1:3000")
+    max_upload_bytes: int = 10 * 1024 * 1024
+    allowed_upload_suffixes: tuple[str, ...] = (".txt", ".md", ".text", ".pdf")
+    allowed_upload_content_types: tuple[str, ...] = (
+        "text/plain",
+        "text/markdown",
+        "application/pdf",
+        "application/octet-stream",
+    )
+
+
+def _csv_env(name: str, default: tuple[str, ...]) -> tuple[str, ...]:
+    raw = os.getenv(name)
+    if raw is None and name.startswith("AIERC_"):
+        raw = os.getenv(name.removeprefix("AIERC_"))
+    if not raw:
+        return default
+    return tuple(item.strip() for item in raw.split(",") if item.strip())
 
 
 def get_settings(data_dir: str | Path | None = None) -> Settings:
     root = Path(data_dir or os.getenv("AIERC_DATA_DIR", DEFAULT_DATA_DIR)).resolve()
     raw_dir = root / "storage" / "raw"
     state_dir = root / "storage" / "state"
+    max_upload_mb = float(os.getenv("AIERC_MAX_UPLOAD_MB", os.getenv("MAX_UPLOAD_MB", "10")))
     return Settings(
         data_dir=root,
         raw_dir=raw_dir,
@@ -57,4 +76,17 @@ def get_settings(data_dir: str | Path | None = None) -> Settings:
         ),
         sec_timeout_seconds=float(os.getenv("AIERC_SEC_TIMEOUT_SECONDS", "20")),
         sec_max_filing_chars=int(os.getenv("AIERC_SEC_MAX_FILING_CHARS", "600000")),
+        cors_origins=_csv_env("AIERC_CORS_ORIGINS", ("http://localhost:3000", "http://127.0.0.1:3000")),
+        max_upload_bytes=int(max_upload_mb * 1024 * 1024),
+        allowed_upload_suffixes=tuple(
+            suffix.lower() if suffix.startswith(".") else f".{suffix.lower()}"
+            for suffix in _csv_env("AIERC_ALLOWED_UPLOAD_EXTENSIONS", (".txt", ".md", ".text", ".pdf"))
+        ),
+        allowed_upload_content_types=tuple(
+            content_type.lower()
+            for content_type in _csv_env(
+                "AIERC_ALLOWED_UPLOAD_CONTENT_TYPES",
+                ("text/plain", "text/markdown", "application/pdf", "application/octet-stream"),
+            )
+        ),
     )
