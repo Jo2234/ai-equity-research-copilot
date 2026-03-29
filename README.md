@@ -23,7 +23,7 @@ See [docs/recruiter_walkthrough.md](docs/recruiter_walkthrough.md) for a short f
 
 - Backend API: FastAPI service under `backend/`.
 - Frontend: Vite React TypeScript app under `frontend/`.
-- Data services: current backend uses local JSON storage; Docker Compose also starts PostgreSQL with pgvector and Redis for the target architecture.
+- Data services: current backend uses local JSON storage and filesystem document storage by default; Docker Compose also starts PostgreSQL with pgvector and Redis as optional target-architecture services, not required for the local MVP smoke path.
 - Evals: curated finance QA cases under `evals/`.
 - Fixtures: deterministic sample companies, documents, chunks, and API payloads under `tests/fixtures/`.
 
@@ -109,7 +109,23 @@ cp .env.example .env
 
 2. Fill in provider credentials as needed. Local tests and fixture-based eval dry runs should not require live LLM credentials.
 
-3. Start local infrastructure:
+### Storage Mode
+
+The default storage mode is intentionally simple and local-first:
+
+- Metadata, conversations, chunks, embeddings, and citations are stored in `AIERC_DATA_DIR/storage/state/store.json`.
+- Uploaded or SEC-downloaded source files are stored under `AIERC_DATA_DIR/storage/raw/<company_id>/`.
+- `AIERC_DATA_DIR` defaults to `data/`; set it to a disposable directory for tests, demos, or CI.
+- PostgreSQL/pgvector and Redis in `docker-compose.yml` document the target architecture and can be started for local infrastructure parity, but the current backend smoke path does not require a pgvector migration.
+
+Upload guardrails are configurable with:
+
+- `AIERC_MAX_UPLOAD_MB` (or legacy `MAX_UPLOAD_MB`), default `10`.
+- `AIERC_ALLOWED_UPLOAD_EXTENSIONS`, default `.txt,.md,.text,.pdf`.
+- `AIERC_ALLOWED_UPLOAD_CONTENT_TYPES`, default `text/plain,text/markdown,application/pdf,application/octet-stream`.
+- `AIERC_CORS_ORIGINS` (or legacy `CORS_ORIGINS`), default `http://localhost:3000,http://127.0.0.1:3000`.
+
+3. Start local infrastructure only if you want the optional Postgres/Redis services:
 
 ```bash
 docker compose up postgres redis
@@ -172,6 +188,19 @@ Use these fixtures for backend API tests, retrieval scoring smoke tests, and fro
 The sample document corpus covers NVDA, MSFT, AAPL, JPM, XOM, and TSLA with synthetic 10-K and earnings transcript excerpts. The canonical eval set uses NVDA, AAPL, JPM, XOM, and TSLA fixture IDs; MSFT remains useful for local seed/demo data.
 
 ## Useful Commands
+
+Run the deterministic demo smoke and write a reviewable artifact:
+
+```bash
+python scripts/demo_smoke.py
+cat demo_artifacts/demo_smoke_output.json
+```
+
+Run the eval metadata smoke used by CI:
+
+```bash
+python scripts/eval_smoke.py
+```
 
 Validate JSON fixtures:
 

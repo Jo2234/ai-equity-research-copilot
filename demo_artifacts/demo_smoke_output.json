@@ -1,0 +1,51 @@
+{
+  "status": "ok",
+  "health": {
+    "status": "ok",
+    "data_dir": "/tmp/aierc-demo-7oiwc17e",
+    "companies": 2,
+    "documents": 4,
+    "chunks": 4
+  },
+  "selected_company": {
+    "id": "5ab6a85e-0e3d-4892-9447-304446d0169e",
+    "ticker": "NVDA",
+    "name": "NVIDIA Corporation"
+  },
+  "retrieval": {
+    "total": 2,
+    "top_citations": [
+      {
+        "document_title": "FY2025 10-K Excerpt",
+        "page_start": 1,
+        "score": 0.303971,
+        "excerpt": "BUSINESS OVERVIEW NVIDIA designs accelerated computing platforms that combine GPUs, networking, systems, software, and development libraries. Data Center revenue was the largest revenue category in fiscal 2025, supported by demand for gener"
+      },
+      {
+        "document_title": "Q1 FY2026 Earnings Transcript Excerpt",
+        "page_start": 1,
+        "score": 0.295777,
+        "excerpt": "MANAGEMENT COMMENTARY Management said Q1 FY2026 demand remained broad for AI infrastructure, with cloud service providers, consumer internet companies, sovereign AI programs, and enterprise customers expanding deployments. The company highl"
+      }
+    ]
+  },
+  "chat": {
+    "answer": "Data Center revenue was the largest revenue category in fiscal 2025, supported by demand for generative AI training and inference, cloud service provider deployments, and enterprise AI adoption. RECENT PERFORMANCE Fiscal 2025 revenue grew sharply as Data Center compute and networking products scaled across hyperscale and enterprise customers. The company also benefited from operating leverage as revenue growth outpaced increases in operating expenses. A disruption at a key supplier or a change in trade rules could reduce the ability to fulfill Data Center demand. [1] [2]",
+    "citation_count": 2,
+    "provider": "local",
+    "model": "local-deterministic-grounded-v1"
+  },
+  "memo_sections": {
+    "business_summary": "RECENT PERFORMANCE Fiscal 2025 revenue grew sharply as Data Center compute and networking products scaled across hyperscale and enterprise customers.",
+    "growth_drivers": [
+      "GROWTH DRIVERS Growth drivers included next-generation GPUs, networking attach rates, software libraries, and systems designed for large-scale AI factories.",
+      "MANAGEMENT COMMENTARY Management said Q1 FY2026 demand remained broad for AI infrastructure, with cloud service providers, consumer internet companies, sovereign AI programs, and enterprise customers expanding deployments.",
+      "Data Center revenue was the largest revenue category in fiscal 2025, supported by demand for generative AI training and inference, cloud service provider deployments, and enterprise AI adoption."
+    ],
+    "risk_factors": [
+      "RISK FACTORS NVIDIA faces risks from export controls, supply concentration, foundry capacity constraints, rapid technology transitions, customer concentration, competition from custom accelerators, and volatility in end-market demand.",
+      "Management described supply availability, product transitions, and customer deployment timing as important factors for near-term revenue conversion.",
+      "Management noted that future margin can vary with product mix, new product ramps, component costs, and supply chain conditions."
+    ]
+  }
+}
