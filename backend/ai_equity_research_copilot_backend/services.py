@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import re
 import time
+from dataclasses import dataclass
 from pathlib import Path
 from uuid import UUID
 
 from .chunking import chunk_pages
 from .config import Settings
 from .embeddings import HashingEmbedder, estimate_tokens, tokenize
-from .llm import OllamaClient
+from .llm import CITATION_REFERENCE, InvalidGroundedDraft, OllamaClient
 from .parsing import parse_document
 from .retrieval import STOPWORDS, RetrievalService
 from .schemas import (
@@ -27,6 +28,7 @@ from .schemas import (
     MemoCompany,
     MemoRequest,
     ResearchMemo,
+    RetrievalDebugResult,
     StoredCitation,
     UsageMetadata,
 )
@@ -34,6 +36,12 @@ from .storage import JsonRepository
 
 
 SENTENCE_RE = re.compile(r"(?<=[.!?])\s+")
+
+
+@dataclass(frozen=True)
+class EvidencePoint:
+    text: str
+    result: RetrievalDebugResult
 
 
 class IngestionService:
@@ -104,8 +112,9 @@ class ResearchService:
 
     def chat(self, request: ChatRequest) -> ChatResponse:
         started = time.perf_counter()
+        corpus = self.retrieval.prepare(request.company_ids)
         for company_id in request.company_ids:
-            if not self.repo.get_company(company_id):
+            if company_id not in corpus.snapshot.companies:
                 raise KeyError(f"Company '{company_id}' not found")
 
         results = self.retrieval.search(
@@ -114,9 +123,10 @@ class ResearchService:
             top_k=request.top_k,
             document_types=request.document_types,
             fiscal_years=request.fiscal_years,
+            corpus=corpus,
         )
-        citations = [self._citation(result) for result in results[: min(5, len(results))]]
-        answer_payload, synthesis_provider, synthesis_model = self._answer_from_context(request.question, results, citations)
+        answer_payload, synthesis_provider, synthesis_model = self._answer_from_context(request.question, results)
+        citations = answer_payload.citations
         conversation = (
             self.repo.get_conversation(request.conversation_id)
             if request.conversation_id
@@ -138,18 +148,23 @@ class ResearchService:
         )
         retrieval_debug = [
             {
-                "chunk_id": str(result.chunk.id),
+                "id": str(result.chunk.id),
                 "document_id": str(result.document.id),
                 "company_id": str(result.company.id),
-                "ticker": result.company.ticker,
+                "company_ticker": result.company.ticker,
                 "document_title": result.document.title,
                 "score": result.score,
+                "excerpt": result.chunk.text[:500] + ("..." if len(result.chunk.text) > 500 else ""),
+                "page_start": result.chunk.page_start,
+                "section_title": result.chunk.section_title,
                 "keyword_score": result.keyword_score,
                 "vector_score": result.vector_score,
                 "cited": any(citation.chunk_id == result.chunk.id for citation in citations),
             }
             for result in results
         ]
+        retrieval_debug = {"query": request.question, "top_k": request.top_k,
+                           "threshold": self.retrieval.min_score, "chunks": retrieval_debug}
         assistant_message = Message(
             conversation_id=conversation.id,
             role=MessageRole.assistant,
@@ -182,12 +197,14 @@ class ResearchService:
             message_id=assistant_message.id,
             conversation_id=conversation.id,
             usage=usage,
+            retrieval_debug=retrieval_debug,
             **answer_payload.model_dump(),
         )
 
     def memo(self, request: MemoRequest) -> ResearchMemo:
         started = time.perf_counter()
-        company = self.repo.get_company(request.company_id)
+        corpus = self.retrieval.prepare([request.company_id])
+        company = corpus.snapshot.companies.get(request.company_id)
         if not company:
             raise KeyError(f"Company '{request.company_id}' not found")
 
@@ -201,6 +218,7 @@ class ResearchService:
             "management_commentary": "management commentary outlook guidance expects priorities",
         }
         all_citations: list[Citation] = []
+        retrieved_ids: set[UUID] = set()
         sections: dict[str, list[str] | str] = {}
         for name, query in section_queries.items():
             results = self.retrieval.search(
@@ -209,22 +227,22 @@ class ResearchService:
                 top_k=max(3, request.top_k // 2),
                 document_types=request.document_types,
                 fiscal_years=request.fiscal_years,
+                corpus=corpus,
             )
-            citations = [self._citation(result) for result in results[:2]]
-            all_citations.extend(citations)
-            points = self._points_from_results(query, results, max_points=3)
+            retrieved_ids.update(result.chunk.id for result in results)
+            evidence = self._points_from_results(query, results, max_points=1 if name == "business_summary" else 3)
+            points = self._cited_points(evidence, all_citations)
             if name == "business_summary":
                 sections[name] = points[0] if points else "Insufficient cited context for a business summary."
             else:
                 sections[name] = points or ["Insufficient cited context for this section."]
 
-        unique_citations = _dedupe_citations(all_citations)
         usage = self._usage(
             started,
             input_text="\n".join(section_queries.values()),
             output_text="\n".join(str(value) for value in sections.values()),
-            retrieval_count=len(unique_citations),
-            cited_count=len(unique_citations),
+            retrieval_count=len(retrieved_ids),
+            cited_count=len(all_citations),
         )
         return ResearchMemo(
             company=MemoCompany(ticker=company.ticker, name=company.name),
@@ -236,17 +254,17 @@ class ResearchService:
             risk_factors=list(sections["risk_factors"]),
             management_commentary=list(sections["management_commentary"]),
             bull_case=[
-                "Bull case: cited context indicates execution upside if growth drivers persist and margin factors remain favorable."
+                "Analyst scenario to evaluate: could the cited growth drivers persist and support margins? This is not a filing conclusion."
             ],
             bear_case=[
-                "Bear case: cited context highlights risk if demand, competition, costs, or execution pressures worsen."
+                "Analyst scenario to evaluate: could demand, competition, costs, or execution worsen? This is not a filing conclusion."
             ],
             open_questions=[
                 "What current valuation assumptions should be used?",
                 "Which period should anchor the forecast baseline?",
                 "Are there newer filings or transcripts that should be ingested?",
             ],
-            source_citations=unique_citations,
+            source_citations=all_citations,
             limitations=["This memo is document-grounded and does not include live prices or investment advice."],
             usage=usage,
         )
@@ -259,8 +277,9 @@ class ResearchService:
         total_retrievals = 0
         total_citations = 0
 
+        corpus = self.retrieval.prepare(request.company_ids)
         for company_id in request.company_ids:
-            company = self.repo.get_company(company_id)
+            company = corpus.snapshot.companies.get(company_id)
             if not company:
                 raise KeyError(f"Company '{company_id}' not found")
             results = self.retrieval.search(
@@ -269,9 +288,10 @@ class ResearchService:
                 top_k=request.top_k_per_company,
                 document_types=request.document_types,
                 fiscal_years=request.fiscal_years,
+                corpus=corpus,
             )
-            citations = [self._citation(result) for result in results[:3]]
-            points = self._points_from_results(request.question, results, max_points=4)
+            citations: list[Citation] = []
+            points = self._cited_points(self._points_from_results(request.question, results, max_points=4), citations)
             if not points:
                 limitations.append(f"{company.ticker}: no sufficiently relevant cited context was found.")
                 points = ["Insufficient cited context for this company."]
@@ -304,108 +324,90 @@ class ResearchService:
             usage=usage,
         )
 
-    def _answer_from_context(self, question: str, results: list, citations: list[Citation]) -> tuple[ChatAnswerPayload, str, str]:
-        if not results or not citations:
-            return (
-                ChatAnswerPayload(
-                    answer="I do not have enough cited context to answer that. Upload or select relevant company documents first.",
-                    key_points=[],
-                    citations=[],
-                    confidence=Confidence.low,
-                    limitations=["No retrieved chunks cleared the local relevance threshold."],
-                ),
-                "local",
-                self.settings.local_model_name,
-            )
-        if self.settings.llm_provider in {"auto", "ollama"}:
+    def _answer_from_context(self, question: str, results: list[RetrievalDebugResult]) -> tuple[ChatAnswerPayload, str, str]:
+        fallback_note = ""
+        if results and self.settings.llm_provider in {"auto", "ollama"}:
+            # UI previews are not model context. Supply bounded source text and retain
+            # exactly those excerpts for the model's selected citation references.
+            contexts = []
+            candidates = []
+            remaining_chars = 24_000
+            for result in results[:5]:
+                excerpt = result.chunk.text[:min(6_000, remaining_chars)]
+                if not excerpt:
+                    break
+                remaining_chars -= len(excerpt)
+                citation = self._citation(result, excerpt)
+                candidates.append(citation)
+                contexts.append({"label": citation.label, "excerpt": excerpt})
             try:
-                draft = self.ollama.answer(
-                    question,
-                    [
-                        {
-                            "label": citation.label,
-                            "excerpt": citation.excerpt,
-                            "score": citation.score,
-                        }
-                        for citation in citations
-                    ],
-                )
-                selected_citations = [
-                    citations[index - 1]
-                    for index in draft.citation_indices
-                    if 1 <= index <= len(citations)
-                ] or citations[: min(3, len(citations))]
-                limitations = [
-                    *draft.limitations,
-                    "Answer is synthesized by a local Ollama model using only retrieved filing excerpts.",
-                ]
+                draft = self.ollama.answer(question, contexts)
+                if not draft.citation_indices or any(
+                    index < 1 or index > len(candidates) for index in draft.citation_indices
+                ):
+                    raise InvalidGroundedDraft("The local model did not select valid supporting citations")
+                indices = list(dict.fromkeys(draft.citation_indices))
+                number_map = {old: new for new, old in enumerate(indices, 1)}
+                def renumber(text: str) -> str:
+                    references = [int(value) for value in CITATION_REFERENCE.findall(text)]
+                    if not references or any(index not in number_map for index in references):
+                        raise InvalidGroundedDraft("The local model omitted valid inline citations")
+                    return CITATION_REFERENCE.sub(lambda match: f"[{number_map[int(match.group(1))]}]", text)
+                answer = renumber(draft.answer)
+                points = [renumber(point) for point in draft.key_points]
+                limitations = [*draft.limitations,
+                    "Local model synthesis uses the supplied filing excerpts; citation membership does not independently verify every claim."]
+                if any(len(context["excerpt"]) < len(result.chunk.text) for context, result in zip(contexts, results)):
+                    limitations.append("Long retrieved chunks were shortened to fit the local model context.")
                 return (
-                    ChatAnswerPayload(
-                        answer=draft.answer,
-                        key_points=draft.key_points,
-                        citations=selected_citations,
-                        confidence=draft.confidence,
-                        limitations=limitations,
-                    ),
-                    draft.provider,
-                    draft.model,
+                    ChatAnswerPayload(answer=answer, key_points=points,
+                        citations=[candidates[index - 1] for index in indices],
+                        confidence=draft.confidence, limitations=limitations),
+                    draft.provider, draft.model,
                 )
+            except InvalidGroundedDraft as exc:
+                fallback_note = f"Local model output failed citation validation; deterministic cited synthesis used instead ({exc})."
             except RuntimeError as exc:
                 if self.settings.llm_provider == "ollama":
                     return (
                         ChatAnswerPayload(
                             answer="The local LLM is configured but unavailable. Start Ollama and pull the configured model, then retry.",
-                            key_points=[],
-                            citations=citations[: min(3, len(citations))],
-                            confidence=Confidence.low,
-                            limitations=[str(exc)],
-                        ),
-                        "ollama",
-                        self.settings.ollama_model,
+                            key_points=[], citations=[], confidence=Confidence.low, limitations=[str(exc)]),
+                        "ollama", self.settings.ollama_model,
                     )
                 fallback_note = f"Local LLM unavailable; deterministic cited synthesis used instead ({exc})."
-            else:
-                fallback_note = ""
-        else:
-            fallback_note = ""
-        points = self._points_from_results(question, results, max_points=4)
-        if not points:
-            limitations = ["Retrieved chunks were available but did not contain direct support."]
-            if fallback_note:
-                limitations.append(fallback_note)
-            return (
-                ChatAnswerPayload(
-                    answer="I do not have enough cited context to answer that. The retrieved documents do not directly address the question.",
-                    key_points=[],
-                    citations=citations,
-                    confidence=Confidence.low,
-                    limitations=limitations,
-                ),
-                "local",
-                self.settings.local_model_name,
-            )
-        citation_refs = " ".join(f"[{idx + 1}]" for idx in range(min(len(citations), 3)))
-        answer = " ".join(points)
-        answer = f"{answer} {citation_refs}".strip()
-        confidence = Confidence.high if len(citations) >= 3 else Confidence.medium
+        citations: list[Citation] = []
+        points = self._cited_points(self._points_from_results(question, results, max_points=4), citations)
         limitations = ["Answer is based only on ingested local documents; no live market data was used."]
         if fallback_note:
             limitations.append(fallback_note)
+        if not points:
+            limitations.append("No retrieved sentences provided direct support for the question.")
         return (
             ChatAnswerPayload(
-                answer=answer,
-                key_points=points,
-                citations=citations,
-                confidence=confidence,
+                answer=" ".join(points) if points else "I do not have enough cited context to answer that. Upload or select relevant company documents first.",
+                key_points=points, citations=citations,
+                confidence=Confidence.medium if points else Confidence.low,
                 limitations=limitations,
             ),
-            "local",
-            self.settings.local_model_name,
+            "local", self.settings.local_model_name,
         )
 
-    def _points_from_results(self, query: str, results: list, max_points: int) -> list[str]:
+    def _cited_points(self, points: list[EvidencePoint], citations: list[Citation]) -> list[str]:
+        rendered = []
+        for point in points:
+            index = next((i for i, citation in enumerate(citations) if citation.chunk_id == point.result.chunk.id), None)
+            if index is None:
+                index = len(citations)
+                citations.append(self._citation(point.result, point.text))
+            elif point.text not in citations[index].excerpt:
+                citations[index].excerpt += "\n" + point.text
+            rendered.append(f"{point.text} [{index + 1}]")
+        return rendered
+
+    def _points_from_results(self, query: str, results: list[RetrievalDebugResult], max_points: int) -> list[EvidencePoint]:
         query_terms = set(token for token in tokenize(query) if token not in STOPWORDS)
-        scored: list[tuple[float, str]] = []
+        scored: list[tuple[float, str, RetrievalDebugResult]] = []
         for result in results:
             for sentence in SENTENCE_RE.split(result.chunk.text.replace("\n", " ")):
                 cleaned = " ".join(sentence.split())
@@ -415,21 +417,21 @@ class ResearchService:
                 overlap = len(query_terms & sentence_terms) / max(len(query_terms), 1)
                 score = result.score + overlap
                 if overlap > 0 or result.score > 0.16:
-                    scored.append((score, cleaned))
+                    scored.append((score, cleaned, result))
         scored.sort(key=lambda item: item[0], reverse=True)
-        points: list[str] = []
+        points: list[EvidencePoint] = []
         seen: set[str] = set()
-        for _, sentence in scored:
+        for _, sentence, result in scored:
             normalized = sentence.lower()[:120]
             if normalized in seen:
                 continue
-            points.append(sentence)
+            points.append(EvidencePoint(sentence, result))
             seen.add(normalized)
             if len(points) >= max_points:
                 break
         return points
 
-    def _citation(self, result) -> Citation:
+    def _citation(self, result: RetrievalDebugResult, excerpt: str) -> Citation:
         document = result.document
         page = ""
         if result.chunk.page_start:
@@ -437,9 +439,6 @@ class ResearchService:
             if result.chunk.page_end and result.chunk.page_end != result.chunk.page_start:
                 page = f", pp. {result.chunk.page_start}-{result.chunk.page_end}"
         label = f"{result.company.ticker} {document.title}{page}"
-        excerpt = result.chunk.text[:420].strip()
-        if len(result.chunk.text) > 420:
-            excerpt += "..."
         return Citation(
             label=label,
             document_id=document.id,
@@ -448,6 +447,10 @@ class ResearchService:
             score=result.score,
             company_id=result.company.id,
             title=document.title,
+            company_ticker=result.company.ticker,
+            page_start=result.chunk.page_start,
+            page_end=result.chunk.page_end,
+            section_title=result.chunk.section_title,
         )
 
     def _usage(
@@ -469,17 +472,6 @@ class ResearchService:
             provider=provider,
             retrieval={"retrieved_chunks": retrieval_count, "cited_chunks": cited_count},
         )
-
-
-def _dedupe_citations(citations: list[Citation]) -> list[Citation]:
-    seen: set[UUID] = set()
-    unique: list[Citation] = []
-    for citation in citations:
-        if citation.chunk_id in seen:
-            continue
-        unique.append(citation)
-        seen.add(citation.chunk_id)
-    return unique
 
 
 def _usable_sentence(sentence: str) -> bool:

@@ -200,11 +200,14 @@ def create_app(data_dir: str | Path | None = None, seed: bool = True) -> FastAPI
         if not company:
             raise HTTPException(status_code=404, detail="Company not found")
         documents = repo.list_documents(company_id)
+        counts: dict[UUID, int] = {}
+        for chunk in repo.list_chunks(company_ids=[company_id]):
+            counts[chunk.document_id] = counts.get(chunk.document_id, 0) + 1
         return CompanyDetail(
             **company.model_dump(),
             document_count=len(documents),
             ready_document_count=sum(1 for document in documents if document.status == DocumentStatus.ready),
-            documents=documents,
+            documents=[DocumentDetail(**document.model_dump(), chunk_count=counts.get(document.id, 0)) for document in documents],
         )
 
     @api.post("/companies/{company_id}/documents", response_model=DocumentDetail, status_code=201)
