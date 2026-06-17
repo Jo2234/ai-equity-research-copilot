@@ -1,6 +1,6 @@
 # Filings-First Research Agent Walkthrough
 
-This is a short follow-up artifact for AI agent, forward-deployed engineering, and AI application roles. It shows the product loop behind the AI Equity Research Copilot: ask a finance question, retrieve filing evidence first, synthesize only from cited context, and expose limitations when evidence is weak.
+This document shows the product loop behind the AI Equity Research Copilot: ask a finance question, retrieve filing evidence first, synthesize only from cited context, and expose limitations when evidence is weak.
 
 ## Demo Question
 
@@ -49,9 +49,9 @@ Confidence: `high`
 - Ollama/Gemma can be used through `AIERC_LLM_PROVIDER=auto` or `ollama`.
 - If model output is invalid, uncited, or low-confidence, the app falls back to deterministic cited synthesis.
 
-## Why This Matters For FDE Work
+## Design Notes
 
-Forward-deployed AI work usually fails in the messy middle: source quality, user trust, unsupported questions, and workflow fit. This project is designed around those seams:
+Applied AI tools usually fail in the messy middle: source quality, user trust, unsupported questions, and workflow fit. This project is designed around those seams:
 
 - filings-first corpus building through SEC EDGAR,
 - visible retrieval and citations,
@@ -59,4 +59,4 @@ Forward-deployed AI work usually fails in the messy middle: source quality, user
 - explicit refusal behavior when evidence is not enough,
 - finance QA evals for regression-style checks.
 
-The useful FDE angle: turn an expert workflow into an inspectable AI tool rather than a black-box chat demo.
+The design goal: turn an expert workflow into an inspectable AI tool rather than a black-box chat demo.
