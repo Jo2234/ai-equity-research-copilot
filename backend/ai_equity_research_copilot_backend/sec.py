@@ -26,6 +26,7 @@ SUPPORTED_FORMS = {
     "10-Q/A": DocumentType.ten_q,
     "8-K": DocumentType.eight_k,
     "8-K/A": DocumentType.eight_k,
+    "DEF 14A": DocumentType.other,
 }
 
 
@@ -91,31 +92,70 @@ class SecEdgarClient:
         return [company for _, company in ranked[:limit]]
 
     def latest_filing(self, cik: int, forms: list[str]) -> SecFiling:
+        filings = self.recent_filings(cik, forms=forms, limit=1)
+        if not filings:
+            raise LookupError(f"No recent {'/'.join(forms)} filing found for CIK {cik}")
+        return filings[0]
+
+    def recent_filings(self, cik: int, forms: list[str], limit: int = 1) -> list[SecFiling]:
         wanted = {form.upper() for form in forms}
         payload = self._get_json(SUBMISSIONS_URL.format(cik=str(cik).zfill(10)))
         recent = payload.get("filings", {}).get("recent", {})
         rows = _transpose_recent_filings(recent)
+        filings: list[SecFiling] = []
+        seen_accessions: set[str] = set()
         for row in rows:
             form = str(row.get("form") or "").upper()
             primary_document = str(row.get("primaryDocument") or "")
             accession_number = str(row.get("accessionNumber") or "")
             filing_date = _parse_date(row.get("filingDate"))
-            if form in wanted and accession_number and primary_document and filing_date:
+            if form in wanted and accession_number and primary_document and filing_date and accession_number not in seen_accessions:
                 source_url = ARCHIVE_URL.format(
                     cik=int(cik),
                     accession=accession_number.replace("-", ""),
                     document=primary_document,
                 )
                 report_date = _parse_date(row.get("reportDate"))
-                return SecFiling(
-                    accession_number=accession_number,
-                    filing_date=filing_date,
-                    report_date=report_date,
-                    form=form,
-                    primary_document=primary_document,
-                    source_url=source_url,
+                filings.append(
+                    SecFiling(
+                        accession_number=accession_number,
+                        filing_date=filing_date,
+                        report_date=report_date,
+                        form=form,
+                        primary_document=primary_document,
+                        source_url=source_url,
+                    )
                 )
-        raise LookupError(f"No recent {'/'.join(forms)} filing found for CIK {cik}")
+                seen_accessions.add(accession_number)
+                if len(filings) >= limit:
+                    return filings
+        return filings
+
+    def company_corpus_filings(
+        self,
+        cik: int,
+        annual_limit: int = 1,
+        quarterly_limit: int = 4,
+        current_report_limit: int = 6,
+        proxy_limit: int = 1,
+    ) -> list[SecFiling]:
+        groups = [
+            (["10-K", "10-K/A"], annual_limit),
+            (["10-Q", "10-Q/A"], quarterly_limit),
+            (["8-K", "8-K/A"], current_report_limit),
+            (["DEF 14A"], proxy_limit),
+        ]
+        filings: list[SecFiling] = []
+        seen: set[str] = set()
+        for forms, limit in groups:
+            if limit <= 0:
+                continue
+            for filing in self.recent_filings(cik, forms=forms, limit=limit):
+                if filing.accession_number in seen:
+                    continue
+                filings.append(filing)
+                seen.add(filing.accession_number)
+        return filings
 
     def download_filing_text(self, filing: SecFiling) -> str:
         raw = self._get_text(filing.source_url)
@@ -206,7 +246,21 @@ def html_to_text(raw: str) -> str:
     text = html.unescape(text)
     text = re.sub(r"[ \t]+", " ", text)
     text = re.sub(r"\n\s*\n\s*\n+", "\n\n", text)
-    return text.strip()
+    lines = []
+    for line in text.splitlines():
+        cleaned = line.strip()
+        lowered = cleaned.lower()
+        if not cleaned:
+            lines.append("")
+            continue
+        if "table of contents" in lowered and len(cleaned) < 80:
+            continue
+        if re.fullmatch(r"(item\s+\d+[a-z]?\.?\s*)+", lowered):
+            continue
+        if cleaned.count("▪") + cleaned.count("•") > 2:
+            continue
+        lines.append(cleaned)
+    return "\n".join(lines).strip()
 
 
 def _transpose_recent_filings(recent: dict[str, list[Any]]) -> list[dict[str, Any]]:

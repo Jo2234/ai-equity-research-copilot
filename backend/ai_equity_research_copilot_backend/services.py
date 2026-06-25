@@ -8,6 +8,7 @@ from uuid import UUID
 from .chunking import chunk_pages
 from .config import Settings
 from .embeddings import HashingEmbedder, estimate_tokens, tokenize
+from .llm import OllamaClient
 from .parsing import parse_document
 from .retrieval import STOPWORDS, RetrievalService
 from .schemas import (
@@ -99,6 +100,7 @@ class ResearchService:
         self.repo = repo
         self.retrieval = retrieval
         self.settings = settings
+        self.ollama = OllamaClient(settings)
 
     def chat(self, request: ChatRequest) -> ChatResponse:
         started = time.perf_counter()
@@ -114,7 +116,7 @@ class ResearchService:
             fiscal_years=request.fiscal_years,
         )
         citations = [self._citation(result) for result in results[: min(5, len(results))]]
-        answer_payload = self._answer_from_context(request.question, results, citations)
+        answer_payload, synthesis_provider, synthesis_model = self._answer_from_context(request.question, results, citations)
         conversation = (
             self.repo.get_conversation(request.conversation_id)
             if request.conversation_id
@@ -131,6 +133,8 @@ class ResearchService:
             output_text=answer_payload.answer,
             retrieval_count=len(results),
             cited_count=len(citations),
+            model=synthesis_model,
+            provider=synthesis_provider,
         )
         retrieval_debug = [
             {
@@ -300,34 +304,103 @@ class ResearchService:
             usage=usage,
         )
 
-    def _answer_from_context(self, question: str, results: list, citations: list[Citation]) -> ChatAnswerPayload:
+    def _answer_from_context(self, question: str, results: list, citations: list[Citation]) -> tuple[ChatAnswerPayload, str, str]:
         if not results or not citations:
-            return ChatAnswerPayload(
-                answer="I do not have enough cited context to answer that. Upload or select relevant company documents first.",
-                key_points=[],
-                citations=[],
-                confidence=Confidence.low,
-                limitations=["No retrieved chunks cleared the local relevance threshold."],
+            return (
+                ChatAnswerPayload(
+                    answer="I do not have enough cited context to answer that. Upload or select relevant company documents first.",
+                    key_points=[],
+                    citations=[],
+                    confidence=Confidence.low,
+                    limitations=["No retrieved chunks cleared the local relevance threshold."],
+                ),
+                "local",
+                self.settings.local_model_name,
             )
+        if self.settings.llm_provider in {"auto", "ollama"}:
+            try:
+                draft = self.ollama.answer(
+                    question,
+                    [
+                        {
+                            "label": citation.label,
+                            "excerpt": citation.excerpt,
+                            "score": citation.score,
+                        }
+                        for citation in citations
+                    ],
+                )
+                selected_citations = [
+                    citations[index - 1]
+                    for index in draft.citation_indices
+                    if 1 <= index <= len(citations)
+                ] or citations[: min(3, len(citations))]
+                limitations = [
+                    *draft.limitations,
+                    "Answer is synthesized by a local Ollama model using only retrieved filing excerpts.",
+                ]
+                return (
+                    ChatAnswerPayload(
+                        answer=draft.answer,
+                        key_points=draft.key_points,
+                        citations=selected_citations,
+                        confidence=draft.confidence,
+                        limitations=limitations,
+                    ),
+                    draft.provider,
+                    draft.model,
+                )
+            except RuntimeError as exc:
+                if self.settings.llm_provider == "ollama":
+                    return (
+                        ChatAnswerPayload(
+                            answer="The local LLM is configured but unavailable. Start Ollama and pull the configured model, then retry.",
+                            key_points=[],
+                            citations=citations[: min(3, len(citations))],
+                            confidence=Confidence.low,
+                            limitations=[str(exc)],
+                        ),
+                        "ollama",
+                        self.settings.ollama_model,
+                    )
+                fallback_note = f"Local LLM unavailable; deterministic cited synthesis used instead ({exc})."
+            else:
+                fallback_note = ""
+        else:
+            fallback_note = ""
         points = self._points_from_results(question, results, max_points=4)
         if not points:
-            return ChatAnswerPayload(
-                answer="I do not have enough cited context to answer that. The retrieved documents do not directly address the question.",
-                key_points=[],
-                citations=citations,
-                confidence=Confidence.low,
-                limitations=["Retrieved chunks were available but did not contain direct support."],
+            limitations = ["Retrieved chunks were available but did not contain direct support."]
+            if fallback_note:
+                limitations.append(fallback_note)
+            return (
+                ChatAnswerPayload(
+                    answer="I do not have enough cited context to answer that. The retrieved documents do not directly address the question.",
+                    key_points=[],
+                    citations=citations,
+                    confidence=Confidence.low,
+                    limitations=limitations,
+                ),
+                "local",
+                self.settings.local_model_name,
             )
         citation_refs = " ".join(f"[{idx + 1}]" for idx in range(min(len(citations), 3)))
         answer = " ".join(points)
         answer = f"{answer} {citation_refs}".strip()
         confidence = Confidence.high if len(citations) >= 3 else Confidence.medium
-        return ChatAnswerPayload(
-            answer=answer,
-            key_points=points,
-            citations=citations,
-            confidence=confidence,
-            limitations=["Answer is based only on ingested local documents; no live market data was used."],
+        limitations = ["Answer is based only on ingested local documents; no live market data was used."]
+        if fallback_note:
+            limitations.append(fallback_note)
+        return (
+            ChatAnswerPayload(
+                answer=answer,
+                key_points=points,
+                citations=citations,
+                confidence=confidence,
+                limitations=limitations,
+            ),
+            "local",
+            self.settings.local_model_name,
         )
 
     def _points_from_results(self, query: str, results: list, max_points: int) -> list[str]:
@@ -336,7 +409,7 @@ class ResearchService:
         for result in results:
             for sentence in SENTENCE_RE.split(result.chunk.text.replace("\n", " ")):
                 cleaned = " ".join(sentence.split())
-                if len(cleaned) < 35:
+                if not _usable_sentence(cleaned):
                     continue
                 sentence_terms = set(tokenize(cleaned))
                 overlap = len(query_terms & sentence_terms) / max(len(query_terms), 1)
@@ -384,14 +457,16 @@ class ResearchService:
         output_text: str,
         retrieval_count: int,
         cited_count: int,
+        model: str | None = None,
+        provider: str = "local",
     ) -> UsageMetadata:
         return UsageMetadata(
-            model=self.settings.local_model_name,
+            model=model or self.settings.local_model_name,
             latency_ms=max(1, int((time.perf_counter() - started) * 1000)),
             input_tokens=estimate_tokens(input_text),
             output_tokens=estimate_tokens(output_text),
             estimated_cost_usd=0.0,
-            provider="local",
+            provider=provider,
             retrieval={"retrieved_chunks": retrieval_count, "cited_chunks": cited_count},
         )
 
@@ -405,3 +480,17 @@ def _dedupe_citations(citations: list[Citation]) -> list[Citation]:
         unique.append(citation)
         seen.add(citation.chunk_id)
     return unique
+
+
+def _usable_sentence(sentence: str) -> bool:
+    lowered = sentence.lower()
+    if len(sentence) < 35 or len(sentence) > 650:
+        return False
+    if "table of contents" in lowered:
+        return False
+    if lowered.count("▪") + lowered.count("•") > 2:
+        return False
+    if sentence.count(";") > 5:
+        return False
+    alpha = sum(1 for char in sentence if char.isalpha())
+    return alpha / max(len(sentence), 1) > 0.55
