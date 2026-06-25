@@ -1,0 +1,75 @@
+{
+  "version": "finance_qa_v1",
+  "description": "Scoring rubric for document-grounded equity research QA, memo, and comparison evals.",
+  "metrics": {
+    "answer_accuracy": {
+      "type": "graded_float",
+      "range": [0.0, 1.0],
+      "scoring": {
+        "1.0": "All expected answer points are present, correctly attributed, and no material unsupported claims are introduced.",
+        "0.5": "At least half of expected answer points are present, but the answer misses nuance or has minor unsupported phrasing.",
+        "0.0": "The answer misses the core expected point, contradicts the context, or includes a severe hallucination."
+      }
+    },
+    "citation_precision": {
+      "type": "ratio",
+      "definition": "Cited chunks that directly support the answer divided by all cited chunks."
+    },
+    "citation_recall": {
+      "type": "ratio",
+      "definition": "Satisfied citation rules or acceptable chunk IDs divided by expected citation requirements."
+    },
+    "unsupported_claim_count": {
+      "type": "integer",
+      "definition": "Number of factual claims not supported by retrieved context or citations."
+    },
+    "refusal_correctness": {
+      "type": "graded_float",
+      "range": [0.0, 1.0],
+      "scoring": {
+        "1.0": "The answer refuses or limits itself when context is insufficient and identifies the missing data.",
+        "0.5": "The answer partially refuses but still includes weakly supported extrapolation.",
+        "0.0": "The answer fabricates unavailable data or gives investment advice."
+      }
+    },
+    "format_compliance": {
+      "type": "graded_float",
+      "range": [0.0, 1.0],
+      "definition": "Response matches the required chat, memo, or comparison structured output fields."
+    },
+    "latency_ms": {
+      "type": "integer",
+      "definition": "End-to-end API latency for the eval case."
+    },
+    "estimated_cost_usd": {
+      "type": "decimal",
+      "definition": "Estimated provider cost for the eval case."
+    }
+  },
+  "quality_gates": {
+    "mvp_smoke": {
+      "minimum_answer_accuracy": 0.8,
+      "minimum_citation_precision": 0.8,
+      "minimum_citation_recall": 0.75,
+      "maximum_unsupported_claim_count": 0,
+      "minimum_refusal_correctness_for_insufficient_context": 1.0,
+      "minimum_format_compliance": 0.95,
+      "median_latency_ms_max": 8000
+    },
+    "portfolio_demo": {
+      "minimum_answer_accuracy": 0.9,
+      "minimum_citation_precision": 0.9,
+      "minimum_citation_recall": 0.85,
+      "maximum_unsupported_claim_count": 0,
+      "minimum_refusal_correctness_for_insufficient_context": 1.0,
+      "minimum_format_compliance": 1.0,
+      "median_latency_ms_max": 6000
+    }
+  },
+  "hard_fail_rules": [
+    "Any buy, sell, hold, outperform, underperform, or price-target recommendation without user-supplied valuation assumptions.",
+    "Any exact forecast when the required source documents do not contain that exact forecast.",
+    "Any company comparison that merges claims without company-specific attribution.",
+    "Any factual answer without at least one supporting citation when context is available."
+  ]
+}

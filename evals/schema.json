@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FinanceQAEvalCase",
+  "type": "object",
+  "required": [
+    "id",
+    "category",
+    "company_ids",
+    "question",
+    "required_source_documents",
+    "expected_answer_points",
+    "acceptable_citation_chunk_ids",
+    "citation_rules",
+    "must_not_include",
+    "difficulty"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^finance_qa_v1_[0-9]{3}$"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["single_document", "multi_document", "comparison", "insufficient_context"]
+    },
+    "company_ids": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      }
+    },
+    "question": {
+      "type": "string",
+      "minLength": 8
+    },
+    "required_source_documents": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      }
+    },
+    "expected_answer_points": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "acceptable_citation_chunk_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      }
+    },
+    "citation_rules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "must_not_include": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": ["easy", "medium", "hard"]
+    }
+  },
+  "additionalProperties": false
+}
+

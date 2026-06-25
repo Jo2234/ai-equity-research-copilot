@@ -1,0 +1,15 @@
+MANAGEMENT COMMENTARY
+
+Management said Q3 FY2026 cloud demand remained healthy, with Azure AI services contributing to consumption growth. Microsoft 365 commercial seats and average revenue per user improved as customers adopted premium security, analytics, and Copilot features.
+
+GROWTH DRIVERS
+
+Growth drivers included Azure migrations, AI model hosting, Copilot adoption, security consolidation, and Dynamics workflow automation. Management said customers wanted integrated platforms that combine productivity, cloud infrastructure, identity, and data governance.
+
+MARGIN AND SUPPLY
+
+Management said AI infrastructure investment created near-term margin pressure because data center depreciation and power costs increased before all capacity was fully monetized. Software subscription scale partly offset that pressure.
+
+RISKS AND OUTLOOK
+
+The outlook depended on enterprise IT budgets, data center execution, regulatory requirements, cybersecurity performance, and the rate of Copilot monetization. Management did not provide investment advice or a price target.

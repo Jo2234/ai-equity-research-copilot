@@ -1,0 +1,58 @@
+{
+  "question": "Compare NVIDIA and Apple on growth drivers and margin risks.",
+  "comparisons": [
+    {
+      "company": {
+        "ticker": "NVDA",
+        "name": "NVIDIA Corporation"
+      },
+      "summary": "NVIDIA's cited growth driver is AI infrastructure demand, while margin risk is tied to product transitions and supply chain costs.",
+      "key_points": [
+        "Data center growth was driven by generative AI and accelerated computing demand.",
+        "Gross margin could fluctuate during product transitions."
+      ],
+      "citations": [
+        {
+          "label": "NVIDIA FY2025 10-K, p. 42",
+          "document_id": "21111111-1111-4111-8111-111111111111",
+          "chunk_id": "31111111-1111-4111-8111-111111111111",
+          "excerpt": "Data center revenue increased primarily from demand for compute products used in generative AI and accelerated computing workloads.",
+          "score": 0.91
+        }
+      ]
+    },
+    {
+      "company": {
+        "ticker": "AAPL",
+        "name": "Apple Inc."
+      },
+      "summary": "Apple's cited growth driver is services expansion supported by the installed base, while product gross margin is sensitive to component costs, foreign exchange, and product mix.",
+      "key_points": [
+        "Services growth was supported by the active installed base and subscriptions.",
+        "Products gross margin remained sensitive to component costs, foreign exchange, and product mix."
+      ],
+      "citations": [
+        {
+          "label": "Apple FY2025 10-K, pp. 30-31",
+          "document_id": "22222222-2222-4222-8222-222222222221",
+          "chunk_id": "32222222-2222-4222-8222-222222222221",
+          "excerpt": "Apple's services net sales increased due to growth in advertising, cloud services, payment services, and subscriptions.",
+          "score": 0.88
+        }
+      ]
+    }
+  ],
+  "limitations": [],
+  "usage": {
+    "model": "local-deterministic-grounded-v1",
+    "latency_ms": 1300,
+    "input_tokens": 2600,
+    "output_tokens": 520,
+    "estimated_cost_usd": 0.0,
+    "provider": "local",
+    "retrieval": {
+      "top_k_per_company": 5,
+      "returned_chunks": 4
+    }
+  }
+}

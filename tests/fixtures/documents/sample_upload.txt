@@ -1,0 +1,8 @@
+Sample upload fixture for document ingestion tests.
+
+Company: NVIDIA Corporation
+Document type: manual_note
+Fiscal year: 2025
+
+Data center revenue increased primarily from demand for compute products used in generative AI and accelerated computing workloads. This file is intentionally plain text so API upload tests can run without PDF parsing dependencies.
+

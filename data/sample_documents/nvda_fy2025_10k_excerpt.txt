@@ -1,0 +1,19 @@
+BUSINESS OVERVIEW
+
+NVIDIA designs accelerated computing platforms that combine GPUs, networking, systems, software, and development libraries. Data Center revenue was the largest revenue category in fiscal 2025, supported by demand for generative AI training and inference, cloud service provider deployments, and enterprise AI adoption.
+
+RECENT PERFORMANCE
+
+Fiscal 2025 revenue grew sharply as Data Center compute and networking products scaled across hyperscale and enterprise customers. Gaming revenue also improved, while Professional Visualization and Automotive contributed smaller but strategic revenue streams. Management described supply availability, product transitions, and customer deployment timing as important factors for near-term revenue conversion.
+
+MARGIN ANALYSIS
+
+Gross margin expanded in fiscal 2025 because the product mix shifted toward higher-value accelerated computing platforms and software-rich systems. The company also benefited from operating leverage as revenue growth outpaced increases in operating expenses. Management noted that future margin can vary with product mix, new product ramps, component costs, and supply chain conditions.
+
+CAPITAL ALLOCATION
+
+NVIDIA generated strong operating cash flow and used cash for inventory commitments, capital expenditures, share repurchases, and strategic investments. The company maintained flexibility to support supply chain capacity and long-term research and development.
+
+RISK FACTORS
+
+NVIDIA faces risks from export controls, supply concentration, foundry capacity constraints, rapid technology transitions, customer concentration, competition from custom accelerators, and volatility in end-market demand. A disruption at a key supplier or a change in trade rules could reduce the ability to fulfill Data Center demand.

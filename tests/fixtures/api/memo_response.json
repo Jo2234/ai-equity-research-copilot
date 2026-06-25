@@ -1,0 +1,61 @@
+{
+  "company": {
+    "ticker": "NVDA",
+    "name": "NVIDIA Corporation"
+  },
+  "business_summary": "NVIDIA supplies accelerated computing, networking, and software platforms used by cloud, enterprise, consumer internet, and sovereign AI customers.",
+  "recent_performance": [
+    "Data center revenue increased primarily from generative AI and accelerated computing demand."
+  ],
+  "growth_drivers": [
+    "AI training and inference demand",
+    "Networking attach as AI clusters scale"
+  ],
+  "margin_analysis": [
+    "Gross margin benefited from data center mix and platform pricing but may fluctuate during product transitions."
+  ],
+  "capital_allocation": [],
+  "risk_factors": [
+    "Supplier concentration",
+    "Customer concentration",
+    "Export controls",
+    "Product transition execution"
+  ],
+  "management_commentary": [
+    "Management said Blackwell demand exceeded supply during the initial ramp."
+  ],
+  "bull_case": [
+    "Sustained AI infrastructure demand could support data center and networking growth."
+  ],
+  "bear_case": [
+    "Export controls, supply constraints, or transition costs could pressure revenue or margins."
+  ],
+  "open_questions": [
+    "How quickly can supply catch up with Blackwell demand?",
+    "How durable are cloud and sovereign AI spending plans?"
+  ],
+  "source_citations": [
+    {
+      "label": "NVIDIA FY2025 10-K, p. 42",
+      "document_id": "21111111-1111-4111-8111-111111111111",
+      "chunk_id": "31111111-1111-4111-8111-111111111111",
+      "excerpt": "Data center revenue increased primarily from demand for compute products used in generative AI and accelerated computing workloads.",
+      "score": 0.91
+    }
+  ],
+  "limitations": [
+    "Fixture memo excludes valuation and real-time market data."
+  ],
+  "usage": {
+    "model": "local-deterministic-grounded-v1",
+    "latency_ms": 1200,
+    "input_tokens": 2400,
+    "output_tokens": 620,
+    "estimated_cost_usd": 0.0,
+    "provider": "local",
+    "retrieval": {
+      "top_k": 10,
+      "returned_chunks": 3
+    }
+  }
+}

@@ -1,0 +1,302 @@
+[
+  {
+    "id": "single_nvda_001",
+    "company_ids": ["NVDA"],
+    "question": "What was the largest revenue category for NVIDIA in fiscal 2025?",
+    "required_source_documents": ["nvda_fy2025_10k_excerpt.txt"],
+    "expected_answer_points": ["Data Center was the largest revenue category."],
+    "acceptable_citation_rules": ["Must cite NVIDIA FY2025 10-K excerpt business overview."],
+    "must_not_include": ["price target", "buy recommendation"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "single_nvda_002",
+    "company_ids": ["NVDA"],
+    "question": "What supported NVIDIA gross margin expansion?",
+    "required_source_documents": ["nvda_fy2025_10k_excerpt.txt"],
+    "expected_answer_points": ["Product mix shifted toward higher-value accelerated computing platforms.", "Operating leverage helped margins."],
+    "acceptable_citation_rules": ["Must cite NVIDIA margin analysis."],
+    "must_not_include": ["unsupported exact margin percentage"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "single_nvda_003",
+    "company_ids": ["NVDA"],
+    "question": "Which supply constraints did NVIDIA mention?",
+    "required_source_documents": ["nvda_q1_fy2026_transcript_excerpt.txt"],
+    "expected_answer_points": ["Advanced packaging and memory availability remained constraints."],
+    "acceptable_citation_rules": ["Must cite NVIDIA Q1 FY2026 transcript excerpt."],
+    "must_not_include": ["fabricated supplier names"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "single_nvda_004",
+    "company_ids": ["NVDA"],
+    "question": "What are NVIDIA's key risk factors?",
+    "required_source_documents": ["nvda_fy2025_10k_excerpt.txt"],
+    "expected_answer_points": ["Export controls", "Supply concentration", "Foundry capacity constraints", "Competition from custom accelerators"],
+    "acceptable_citation_rules": ["Must cite NVIDIA risk factors."],
+    "must_not_include": ["legal conclusion"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "single_nvda_005",
+    "company_ids": ["NVDA"],
+    "question": "How did management describe AI infrastructure demand?",
+    "required_source_documents": ["nvda_q1_fy2026_transcript_excerpt.txt"],
+    "expected_answer_points": ["Demand remained broad across cloud providers, consumer internet companies, sovereign AI, and enterprises."],
+    "acceptable_citation_rules": ["Must cite NVIDIA management commentary."],
+    "must_not_include": ["real-time order backlog"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "single_msft_001",
+    "company_ids": ["MSFT"],
+    "question": "Which Microsoft segments were major profit contributors?",
+    "required_source_documents": ["msft_fy2025_10k_excerpt.txt"],
+    "expected_answer_points": ["Intelligent Cloud", "Productivity and Business Processes"],
+    "acceptable_citation_rules": ["Must cite Microsoft business overview."],
+    "must_not_include": ["Windows was the only contributor"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "single_msft_002",
+    "company_ids": ["MSFT"],
+    "question": "What drove Microsoft fiscal 2025 revenue growth?",
+    "required_source_documents": ["msft_fy2025_10k_excerpt.txt"],
+    "expected_answer_points": ["Cloud services", "Microsoft 365 commercial subscriptions", "Security", "AI infrastructure demand"],
+    "acceptable_citation_rules": ["Must cite Microsoft recent performance."],
+    "must_not_include": ["unsupported exact growth rate"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "single_msft_003",
+    "company_ids": ["MSFT"],
+    "question": "Why was Microsoft AI infrastructure pressuring gross margin?",
+    "required_source_documents": ["msft_fy2025_10k_excerpt.txt"],
+    "expected_answer_points": ["Depreciation, data center power, and capacity costs increased."],
+    "acceptable_citation_rules": ["Must cite Microsoft margin analysis."],
+    "must_not_include": ["GPU vendor-specific cost estimate"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "single_msft_004",
+    "company_ids": ["MSFT"],
+    "question": "What cash return methods did Microsoft use?",
+    "required_source_documents": ["msft_fy2025_10k_excerpt.txt"],
+    "expected_answer_points": ["Dividends", "Share repurchases"],
+    "acceptable_citation_rules": ["Must cite Microsoft capital allocation."],
+    "must_not_include": ["special dividend"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "single_msft_005",
+    "company_ids": ["MSFT"],
+    "question": "What Q3 FY2026 drivers did Microsoft management cite?",
+    "required_source_documents": ["msft_q3_fy2026_transcript_excerpt.txt"],
+    "expected_answer_points": ["Azure migrations", "AI model hosting", "Copilot adoption", "Security consolidation"],
+    "acceptable_citation_rules": ["Must cite Microsoft Q3 FY2026 transcript excerpt."],
+    "must_not_include": ["unsupported market share figure"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "multi_nvda_001",
+    "company_ids": ["NVDA"],
+    "question": "Compare NVIDIA's fiscal 2025 margin drivers with Q1 FY2026 margin commentary.",
+    "required_source_documents": ["nvda_fy2025_10k_excerpt.txt", "nvda_q1_fy2026_transcript_excerpt.txt"],
+    "expected_answer_points": ["Fiscal 2025 benefited from mix and operating leverage.", "Q1 FY2026 margin was supported by mix and scale but could fluctuate during architecture ramps."],
+    "acceptable_citation_rules": ["Must cite both NVIDIA documents."],
+    "must_not_include": ["buy recommendation"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "multi_nvda_002",
+    "company_ids": ["NVDA"],
+    "question": "Synthesize NVIDIA's AI demand commentary across documents.",
+    "required_source_documents": ["nvda_fy2025_10k_excerpt.txt", "nvda_q1_fy2026_transcript_excerpt.txt"],
+    "expected_answer_points": ["Fiscal 2025 demand was driven by generative AI training and inference.", "Q1 FY2026 demand broadened across cloud, sovereign AI, and enterprise customers."],
+    "acceptable_citation_rules": ["Must cite both NVIDIA documents."],
+    "must_not_include": ["current share price"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "multi_nvda_003",
+    "company_ids": ["NVDA"],
+    "question": "How do NVIDIA's risks connect to its growth drivers?",
+    "required_source_documents": ["nvda_fy2025_10k_excerpt.txt", "nvda_q1_fy2026_transcript_excerpt.txt"],
+    "expected_answer_points": ["Growth depends on AI platforms and full configurations.", "Risks include export controls, supply constraints, and competitive alternatives."],
+    "acceptable_citation_rules": ["Must cite NVIDIA growth and risk sections."],
+    "must_not_include": ["unsupported probability estimate"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "multi_nvda_004",
+    "company_ids": ["NVDA"],
+    "question": "What open questions should an analyst ask about NVIDIA supply and demand?",
+    "required_source_documents": ["nvda_fy2025_10k_excerpt.txt", "nvda_q1_fy2026_transcript_excerpt.txt"],
+    "expected_answer_points": ["Customer data center build schedules", "Advanced packaging and memory availability", "Export restrictions"],
+    "acceptable_citation_rules": ["Must cite NVIDIA outlook and risk factors."],
+    "must_not_include": ["investment advice"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "multi_nvda_005",
+    "company_ids": ["NVDA"],
+    "question": "What supports a bull and bear framing for NVIDIA from the documents?",
+    "required_source_documents": ["nvda_fy2025_10k_excerpt.txt", "nvda_q1_fy2026_transcript_excerpt.txt"],
+    "expected_answer_points": ["Bull: broad AI demand and platform content.", "Bear: export controls, supply constraints, and product ramp margin variability."],
+    "acceptable_citation_rules": ["Must cite NVIDIA demand and risk context."],
+    "must_not_include": ["rating"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "multi_msft_001",
+    "company_ids": ["MSFT"],
+    "question": "Compare Microsoft's fiscal 2025 margin discussion with Q3 FY2026 commentary.",
+    "required_source_documents": ["msft_fy2025_10k_excerpt.txt", "msft_q3_fy2026_transcript_excerpt.txt"],
+    "expected_answer_points": ["Cloud and subscriptions provided scale.", "AI infrastructure caused pressure through depreciation and power costs."],
+    "acceptable_citation_rules": ["Must cite both Microsoft documents."],
+    "must_not_include": ["unsupported margin percentage"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "multi_msft_002",
+    "company_ids": ["MSFT"],
+    "question": "Synthesize Microsoft cloud and AI growth drivers.",
+    "required_source_documents": ["msft_fy2025_10k_excerpt.txt", "msft_q3_fy2026_transcript_excerpt.txt"],
+    "expected_answer_points": ["Azure consumption and migrations", "AI model hosting", "Copilot adoption", "Security"],
+    "acceptable_citation_rules": ["Must cite Microsoft performance and growth drivers."],
+    "must_not_include": ["market share claim"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "multi_msft_003",
+    "company_ids": ["MSFT"],
+    "question": "How do Microsoft's capital allocation priorities relate to AI strategy?",
+    "required_source_documents": ["msft_fy2025_10k_excerpt.txt", "msft_q3_fy2026_transcript_excerpt.txt"],
+    "expected_answer_points": ["Microsoft invested in data centers and AI infrastructure while returning cash.", "AI infrastructure capacity supports cloud and Copilot demand."],
+    "acceptable_citation_rules": ["Must cite capital allocation and Q3 FY2026 growth drivers."],
+    "must_not_include": ["unsupported capex number"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "multi_msft_004",
+    "company_ids": ["MSFT"],
+    "question": "What risks should an analyst track for Microsoft cloud growth?",
+    "required_source_documents": ["msft_fy2025_10k_excerpt.txt", "msft_q3_fy2026_transcript_excerpt.txt"],
+    "expected_answer_points": ["Cybersecurity", "Regulation", "Data center execution", "Enterprise IT budgets"],
+    "acceptable_citation_rules": ["Must cite Microsoft risk and outlook sections."],
+    "must_not_include": ["legal advice"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "multi_msft_005",
+    "company_ids": ["MSFT"],
+    "question": "What open questions should an analyst ask about Copilot monetization?",
+    "required_source_documents": ["msft_fy2025_10k_excerpt.txt", "msft_q3_fy2026_transcript_excerpt.txt"],
+    "expected_answer_points": ["Adoption rate", "Average revenue per user", "Infrastructure cost versus monetization"],
+    "acceptable_citation_rules": ["Must cite Q3 FY2026 management commentary and margin section."],
+    "must_not_include": ["current subscriber count"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "compare_001",
+    "company_ids": ["NVDA", "MSFT"],
+    "question": "Compare NVIDIA and Microsoft AI growth drivers.",
+    "required_source_documents": ["nvda_q1_fy2026_transcript_excerpt.txt", "msft_q3_fy2026_transcript_excerpt.txt"],
+    "expected_answer_points": ["NVIDIA: GPUs, networking, software libraries, AI factories.", "Microsoft: Azure, AI model hosting, Copilot, security."],
+    "acceptable_citation_rules": ["Must provide company-specific citations."],
+    "must_not_include": ["winner without caveat"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "compare_002",
+    "company_ids": ["NVDA", "MSFT"],
+    "question": "Compare margin pressures at NVIDIA and Microsoft.",
+    "required_source_documents": ["nvda_q1_fy2026_transcript_excerpt.txt", "msft_q3_fy2026_transcript_excerpt.txt"],
+    "expected_answer_points": ["NVIDIA: architecture ramps and component constraints.", "Microsoft: data center depreciation and power costs."],
+    "acceptable_citation_rules": ["Must cite both margin sections."],
+    "must_not_include": ["exact margin forecast"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "compare_003",
+    "company_ids": ["NVDA", "MSFT"],
+    "question": "Compare key risks for NVIDIA and Microsoft.",
+    "required_source_documents": ["nvda_fy2025_10k_excerpt.txt", "msft_fy2025_10k_excerpt.txt"],
+    "expected_answer_points": ["NVIDIA: export controls and supply concentration.", "Microsoft: cybersecurity, regulation, cloud capacity execution."],
+    "acceptable_citation_rules": ["Must cite risk factors for each company."],
+    "must_not_include": ["risk ranking without support"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "compare_004",
+    "company_ids": ["NVDA", "MSFT"],
+    "question": "Compare capital allocation priorities.",
+    "required_source_documents": ["nvda_fy2025_10k_excerpt.txt", "msft_fy2025_10k_excerpt.txt"],
+    "expected_answer_points": ["NVIDIA: inventory commitments, capex, repurchases, strategic investments.", "Microsoft: dividends, repurchases, data centers, AI infrastructure."],
+    "acceptable_citation_rules": ["Must cite capital allocation sections."],
+    "must_not_include": ["unsupported dividend yield"],
+    "difficulty": "medium"
+  },
+  {
+    "id": "compare_005",
+    "company_ids": ["NVDA", "MSFT"],
+    "question": "Compare business models at a high level.",
+    "required_source_documents": ["nvda_fy2025_10k_excerpt.txt", "msft_fy2025_10k_excerpt.txt"],
+    "expected_answer_points": ["NVIDIA sells accelerated computing platforms.", "Microsoft sells software, cloud services, devices, gaming, and business applications."],
+    "acceptable_citation_rules": ["Must cite business overview for each company."],
+    "must_not_include": ["valuation conclusion"],
+    "difficulty": "easy"
+  },
+  {
+    "id": "insufficient_001",
+    "company_ids": ["NVDA"],
+    "question": "What is NVIDIA's current stock price?",
+    "required_source_documents": [],
+    "expected_answer_points": ["Should refuse because no live market data is ingested."],
+    "acceptable_citation_rules": ["No citation required if refusing."],
+    "must_not_include": ["specific current price"],
+    "difficulty": "hard"
+  },
+  {
+    "id": "insufficient_002",
+    "company_ids": ["MSFT"],
+    "question": "What exact price target did management give?",
+    "required_source_documents": [],
+    "expected_answer_points": ["Should state management did not provide a price target in the ingested excerpts."],
+    "acceptable_citation_rules": ["May cite transcript disclaimer."],
+    "must_not_include": ["made-up price target"],
+    "difficulty": "hard"
+  },
+  {
+    "id": "insufficient_003",
+    "company_ids": ["NVDA", "MSFT"],
+    "question": "Which company will outperform next quarter?",
+    "required_source_documents": [],
+    "expected_answer_points": ["Should refuse to provide investment advice or unsupported forecast."],
+    "acceptable_citation_rules": ["No citation required if refusing."],
+    "must_not_include": ["buy", "sell", "outperform rating"],
+    "difficulty": "hard"
+  },
+  {
+    "id": "insufficient_004",
+    "company_ids": ["MSFT"],
+    "question": "What is Microsoft's exact Azure market share today?",
+    "required_source_documents": [],
+    "expected_answer_points": ["Should say the ingested documents do not include current market share."],
+    "acceptable_citation_rules": ["No citation required if refusing."],
+    "must_not_include": ["specific market share"],
+    "difficulty": "hard"
+  },
+  {
+    "id": "insufficient_005",
+    "company_ids": ["NVDA"],
+    "question": "What are NVIDIA's customer names and order sizes?",
+    "required_source_documents": [],
+    "expected_answer_points": ["Should say the available excerpts do not provide customer names and order sizes."],
+    "acceptable_citation_rules": ["No citation required if refusing."],
+    "must_not_include": ["fabricated customer list"],
+    "difficulty": "hard"
+  }
+]
