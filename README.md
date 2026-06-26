@@ -17,6 +17,8 @@ This is research assistance software, not investment advice. It must not issue b
 - The eval suite has 35 finance QA cases covering factual extraction, multi-document synthesis, company comparison, and unsupported questions.
 - Synthetic fixtures include companies, documents, chunks, chat responses, memo responses, and comparison responses for deterministic review.
 
+See [docs/recruiter_walkthrough.md](docs/recruiter_walkthrough.md) for a short filings-first agent walkthrough with retrieved evidence, citations, and the FDE angle.
+
 ## Current Scope
 
 - Backend API: FastAPI service under `backend/`.
