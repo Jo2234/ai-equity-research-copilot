@@ -65,9 +65,9 @@ def create_app(data_dir: str | Path | None = None, seed: bool = True) -> FastAPI
     )
     api.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_origins=list(settings.cors_origins),
+        allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type"],
     )
     api.state.settings = settings
     api.state.repo = repo
@@ -207,7 +207,7 @@ def create_app(data_dir: str | Path | None = None, seed: bool = True) -> FastAPI
     async def upload_document(company_id: UUID, request: Request) -> DocumentDetail:
         if not repo.get_company(company_id):
             raise HTTPException(status_code=404, detail="Company not found")
-        form = await _parse_document_upload(request)
+        form = await _parse_document_upload(request, settings)
         payload = DocumentCreate(
             title=_required_field(form, "title"),
             document_type=DocumentType(_required_field(form, "document_type")),
@@ -220,7 +220,7 @@ def create_app(data_dir: str | Path | None = None, seed: bool = True) -> FastAPI
         file_info = form.get("file")
         if not isinstance(file_info, dict):
             raise HTTPException(status_code=422, detail="Upload requires a file field")
-        stored_path = _store_upload(settings.raw_dir, company_id, file_info)
+        stored_path = _store_upload(settings, company_id, file_info)
         document = repo.create_document(company_id, payload, str(stored_path))
         ingestion.ingest_document(document.id)
         return _document_detail(repo, document.id)
@@ -249,7 +249,9 @@ def create_app(data_dir: str | Path | None = None, seed: bool = True) -> FastAPI
             raise HTTPException(status_code=404, detail="Document not found")
         deleted = repo.delete_document(document_id)
         if document.file_path:
-            Path(document.file_path).unlink(missing_ok=True)
+            file_path = Path(document.file_path)
+            if _is_path_within(file_path, settings.raw_dir):
+                file_path.unlink(missing_ok=True)
         if not deleted:
             raise HTTPException(status_code=404, detail="Document not found")
         return Response(status_code=204)
@@ -318,9 +320,14 @@ def create_app(data_dir: str | Path | None = None, seed: bool = True) -> FastAPI
     return api
 
 
-async def _parse_document_upload(request: Request) -> dict[str, Any]:
+async def _parse_document_upload(request: Request, settings: Settings) -> dict[str, Any]:
     content_type = request.headers.get("content-type", "")
+    content_length = request.headers.get("content-length")
+    if content_length and int(content_length) > settings.max_upload_bytes:
+        raise HTTPException(status_code=413, detail=f"Upload exceeds {settings.max_upload_bytes} byte limit")
     body = await request.body()
+    if len(body) > settings.max_upload_bytes:
+        raise HTTPException(status_code=413, detail=f"Upload exceeds {settings.max_upload_bytes} byte limit")
     if content_type.startswith("application/json"):
         payload = await request.json()
         text = payload.pop("text", None)
@@ -378,20 +385,49 @@ def _parse_multipart(body: bytes, boundary: bytes) -> dict[str, Any]:
     return parsed
 
 
-def _store_upload(raw_dir: Path, company_id: UUID, file_info: dict[str, Any]) -> Path:
-    filename = Path(str(file_info["filename"])).name
+def _store_upload(settings: Settings, company_id: UUID, file_info: dict[str, Any]) -> Path:
+    filename = _safe_upload_filename(str(file_info.get("filename", "upload.bin")))
     suffix = Path(filename).suffix.lower()
-    if suffix not in {".txt", ".md", ".text", ".pdf"}:
-        raise HTTPException(status_code=422, detail="Only .txt, .md, and .pdf uploads are supported")
-    company_dir = raw_dir / str(company_id)
+    if suffix not in settings.allowed_upload_suffixes:
+        allowed = ", ".join(settings.allowed_upload_suffixes)
+        raise HTTPException(status_code=422, detail=f"Only {allowed} uploads are supported")
+    content_type = str(file_info.get("content_type", "application/octet-stream")).split(";", 1)[0].strip().lower()
+    if content_type not in settings.allowed_upload_content_types:
+        raise HTTPException(status_code=415, detail=f"Unsupported upload content type '{content_type}'")
+    content = file_info.get("content")
+    if not isinstance(content, bytes):
+        raise HTTPException(status_code=422, detail="Upload content must be bytes")
+    if len(content) > settings.max_upload_bytes:
+        raise HTTPException(status_code=413, detail=f"Upload exceeds {settings.max_upload_bytes} byte limit")
+    if not content:
+        raise HTTPException(status_code=422, detail="Upload file must not be empty")
+    company_dir = (settings.raw_dir / str(company_id)).resolve()
     company_dir.mkdir(parents=True, exist_ok=True)
-    destination = company_dir / filename
+    if not _is_path_within(company_dir, settings.raw_dir):
+        raise HTTPException(status_code=400, detail="Unsafe upload path")
+    destination = (company_dir / filename).resolve()
     counter = 1
     while destination.exists():
-        destination = company_dir / f"{Path(filename).stem}-{counter}{suffix}"
+        destination = (company_dir / f"{Path(filename).stem}-{counter}{suffix}").resolve()
         counter += 1
-    destination.write_bytes(file_info["content"])
+    if not _is_path_within(destination, company_dir):
+        raise HTTPException(status_code=400, detail="Unsafe upload path")
+    destination.write_bytes(content)
     return destination
+
+
+def _safe_upload_filename(filename: str) -> str:
+    name = Path(filename).name.strip().replace("\x00", "") or "upload.bin"
+    sanitized = re.sub(r"[^A-Za-z0-9._ -]", "_", name).strip(". ")
+    return sanitized or "upload.bin"
+
+
+def _is_path_within(path: Path, root: Path) -> bool:
+    try:
+        path.resolve().relative_to(root.resolve())
+        return True
+    except ValueError:
+        return False
 
 
 def _document_detail(repo: JsonRepository, document_id: UUID) -> DocumentDetail:

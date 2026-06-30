@@ -117,6 +117,79 @@ def test_duplicate_ticker_rejected(tmp_path: Path) -> None:
     assert duplicate.status_code == 409
 
 
+def test_cors_uses_configured_allowlist(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("AIERC_CORS_ORIGINS", "https://research.example.com")
+    client = TestClient(create_app(tmp_path, seed=False))
+
+    allowed = client.options(
+        "/health",
+        headers={
+            "Origin": "https://research.example.com",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+    denied = client.options(
+        "/health",
+        headers={
+            "Origin": "https://evil.example.com",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+
+    assert allowed.status_code == 200
+    assert allowed.headers["access-control-allow-origin"] == "https://research.example.com"
+    assert "access-control-allow-origin" not in denied.headers
+
+
+def test_upload_security_rejects_unsafe_types_and_oversized_payloads(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("AIERC_MAX_UPLOAD_MB", "0.0001")
+    client = TestClient(create_app(tmp_path, seed=False))
+    company_id = client.post("/companies", json={"ticker": "SAFE", "name": "Safe Upload Corp"}).json()["id"]
+
+    oversized = client.post(
+        f"/companies/{company_id}/documents",
+        json={
+            "title": "Oversized Note",
+            "document_type": "manual_note",
+            "text": "x" * 2000,
+            "filename": "note.txt",
+        },
+    )
+    assert oversized.status_code == 413
+
+    monkeypatch.setenv("AIERC_MAX_UPLOAD_MB", "1")
+    client = TestClient(create_app(tmp_path / "fresh", seed=False))
+    company_id = client.post("/companies", json={"ticker": "TYPE", "name": "Type Safety Corp"}).json()["id"]
+    unsupported = client.post(
+        f"/companies/{company_id}/documents",
+        data={"title": "Script", "document_type": "manual_note"},
+        files={"file": ("../evil.sh", b"echo unsafe", "application/x-sh")},
+    )
+
+    assert unsupported.status_code in {415, 422}
+
+
+def test_upload_filename_is_sanitized_inside_raw_storage(tmp_path: Path) -> None:
+    app = create_app(tmp_path, seed=False)
+    client = TestClient(app)
+    company_id = client.post("/companies", json={"ticker": "PATH", "name": "Path Safety Corp"}).json()["id"]
+
+    response = client.post(
+        f"/companies/{company_id}/documents",
+        json={
+            "title": "Safe Path Note",
+            "document_type": "manual_note",
+            "text": "Path traversal in filenames should not escape storage.",
+            "filename": "../../unsafe name?.txt",
+        },
+    )
+
+    assert response.status_code == 201
+    stored_path = Path(response.json()["file_path"]).resolve()
+    assert stored_path.name == "unsafe name_.txt"
+    assert stored_path.is_relative_to(app.state.settings.raw_dir.resolve())
+
+
 def test_sec_company_search_and_discover_imports_latest_filing(tmp_path: Path, monkeypatch) -> None:
     app = create_app(tmp_path, seed=False)
     match = SecCompanyMatch(ticker="AAPL", name="Apple Inc.", cik=320193)
