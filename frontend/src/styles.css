@@ -341,6 +341,20 @@ textarea {
   font-size: 0.78rem;
 }
 
+.demo-notice {
+  border: 1px solid #d9c56f;
+  border-radius: 8px;
+  background: #fff9df;
+  color: #694f00;
+  padding: 10px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.demo-notice p {
+  margin-top: 4px;
+}
+
 .coverage-panel {
   background: #fbfcfd;
 }
@@ -508,6 +522,16 @@ textarea {
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 8px;
+}
+
+.demo-badge {
+  border-radius: 999px;
+  background: #173a4f;
+  color: #ffffff;
+  padding: 5px 9px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
 }
 
 .filter-bar {
