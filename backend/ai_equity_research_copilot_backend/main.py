@@ -101,6 +101,8 @@ def create_app(data_dir: str | Path | None = None, seed: bool = True) -> FastAPI
             for company in local[:limit]
         ]
         seen = {row.ticker for row in rows}
+        if settings.demo_mode:
+            return rows
         try:
             for match in sec_client.search_companies(q, limit=limit):
                 local_match = next((company for company in repo.list_companies() if company.ticker == match.ticker), None)
@@ -126,6 +128,7 @@ def create_app(data_dir: str | Path | None = None, seed: bool = True) -> FastAPI
 
     @api.post("/companies/discover", response_model=CompanyDiscoverResponse, status_code=201)
     def discover_company(payload: CompanyDiscoverRequest) -> CompanyDiscoverResponse:
+        _require_mutable_workspace(settings, "SEC corpus discovery")
         form_map = {
             DocumentType.ten_k: ["10-K", "10-K/A"],
             DocumentType.ten_q: ["10-Q", "10-Q/A"],
@@ -185,6 +188,7 @@ def create_app(data_dir: str | Path | None = None, seed: bool = True) -> FastAPI
 
     @api.post("/companies", response_model=Company, status_code=201)
     def create_company(payload: CompanyCreate) -> Company:
+        _require_mutable_workspace(settings, "Creating companies")
         try:
             return repo.create_company(payload)
         except ValueError as exc:
@@ -205,6 +209,7 @@ def create_app(data_dir: str | Path | None = None, seed: bool = True) -> FastAPI
 
     @api.post("/companies/{company_id}/documents", response_model=DocumentDetail, status_code=201)
     async def upload_document(company_id: UUID, request: Request) -> DocumentDetail:
+        _require_mutable_workspace(settings, "Document uploads")
         if not repo.get_company(company_id):
             raise HTTPException(status_code=404, detail="Company not found")
         form = await _parse_document_upload(request, settings)
@@ -244,6 +249,7 @@ def create_app(data_dir: str | Path | None = None, seed: bool = True) -> FastAPI
 
     @api.delete("/documents/{document_id}", status_code=204)
     def delete_document(document_id: UUID) -> Response:
+        _require_mutable_workspace(settings, "Deleting documents")
         document = repo.get_document(document_id)
         if not document:
             raise HTTPException(status_code=404, detail="Document not found")
@@ -318,6 +324,17 @@ def create_app(data_dir: str | Path | None = None, seed: bool = True) -> FastAPI
             raise HTTPException(status_code=404, detail=str(exc)) from exc
 
     return api
+
+
+def _require_mutable_workspace(settings: Settings, action: str) -> None:
+    if settings.demo_mode:
+        raise HTTPException(
+            status_code=403,
+            detail=(
+                f"{action} is disabled in the public demo. "
+                "The bundled corpus is read-only; chat, citations, memos, comparisons, and chunk viewing remain available."
+            ),
+        )
 
 
 async def _parse_document_upload(request: Request, settings: Settings) -> dict[str, Any]:
