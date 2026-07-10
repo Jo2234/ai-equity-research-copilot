@@ -63,6 +63,7 @@ const documentTypeOptions = [
 ];
 
 const starterQuestion = "What drove recent revenue growth, and which risks should I verify before drafting a memo?";
+const publicDemoMode = import.meta.env.VITE_PUBLIC_DEMO === "true";
 
 const questionPresets = [
   "Bridge revenue growth to volume, price, mix, and segment commentary.",
@@ -394,7 +395,7 @@ export function App() {
               />
               <button disabled={isCompanySearching || !companyQuery.trim()} type="submit">
                 {isCompanySearching ? <Loader2 className="spin" size={14} /> : <Search size={14} />}
-                SEC
+                {publicDemoMode ? "Seeded" : "SEC"}
               </button>
             </div>
           </form>
@@ -456,31 +457,38 @@ export function App() {
             <Upload size={16} aria-hidden="true" />
             <h2 id="upload-heading">Upload Document</h2>
           </div>
-          <form onSubmit={handleUpload}>
-            <input name="title" placeholder="Document title" aria-label="Document title" />
-            <select name="document_type" defaultValue="" aria-label="Document type">
-              <option value="" disabled>
-                Document type
-              </option>
-              {documentTypeOptions.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-            <div className="form-grid">
-              <input name="filing_date" type="date" aria-label="Filing date" />
-              <input name="fiscal_year" placeholder="FY" inputMode="numeric" aria-label="Fiscal year" />
+          {publicDemoMode ? (
+            <div className="demo-notice">
+              <strong>Read-only public demo</strong>
+              <p>The bundled filing corpus is fixed. Uploads and SEC imports are disabled; research workflows remain live.</p>
             </div>
-            <input name="fiscal_quarter" placeholder="Quarter, e.g. 1" inputMode="numeric" aria-label="Fiscal quarter" />
-            <input name="source_url" placeholder="Source URL" aria-label="Source URL" />
-            <input name="file" type="file" accept=".pdf,.txt,.md" aria-label="Document file" />
-            {uploadError ? <p className="form-error">{uploadError}</p> : null}
-            <button className="primary-button" disabled={isUploading} type="submit">
-              {isUploading ? <Loader2 className="spin" size={16} /> : <Plus size={16} />}
-              Add to ingestion queue
-            </button>
-          </form>
+          ) : (
+            <form onSubmit={handleUpload}>
+              <input name="title" placeholder="Document title" aria-label="Document title" />
+              <select name="document_type" defaultValue="" aria-label="Document type">
+                <option value="" disabled>
+                  Document type
+                </option>
+                {documentTypeOptions.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+              <div className="form-grid">
+                <input name="filing_date" type="date" aria-label="Filing date" />
+                <input name="fiscal_year" placeholder="FY" inputMode="numeric" aria-label="Fiscal year" />
+              </div>
+              <input name="fiscal_quarter" placeholder="Quarter, e.g. 1" inputMode="numeric" aria-label="Fiscal quarter" />
+              <input name="source_url" placeholder="Source URL" aria-label="Source URL" />
+              <input name="file" type="file" accept=".pdf,.txt,.md" aria-label="Document file" />
+              {uploadError ? <p className="form-error">{uploadError}</p> : null}
+              <button className="primary-button" disabled={isUploading} type="submit">
+                {isUploading ? <Loader2 className="spin" size={16} /> : <Plus size={16} />}
+                Add to ingestion queue
+              </button>
+            </form>
+          )}
         </section>
 
         <section className="document-panel" aria-labelledby="documents-heading">
@@ -518,9 +526,10 @@ export function App() {
             <p className="source-posture">No news or media coverage. Answers are based on company filings and uploaded source documents.</p>
           </div>
           <div className="topbar-controls">
+            {publicDemoMode ? <span className="demo-badge">DEMO</span> : null}
             <StatusPill tone={apiMode === "live" ? "good" : "warn"}>
               <Gauge size={14} />
-              {apiMode === "live" ? "API live" : "Demo fallback"}
+              {apiMode === "live" ? (publicDemoMode ? "Keyless deterministic API" : "API live") : "Browser fallback"}
             </StatusPill>
             <StatusPill tone={readyDocuments.length ? "good" : "warn"}>
               <CheckCircle2 size={14} />
