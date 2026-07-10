@@ -1,16 +1,20 @@
 from __future__ import annotations
 
 from pathlib import Path
+from uuid import UUID, uuid5
 
 from .config import Settings
 from .schemas import CompanyCreate, DocumentCreate, DocumentType
 from .storage import JsonRepository
 
 
+SEED_NAMESPACE = UUID("8c88f4bc-24e3-4f56-9a12-81d774c21ff5")
+
+
 def seed_repository(repo: JsonRepository, ingestion, settings: Settings) -> None:
     if repo.list_companies():
         return
-    sample_dir = settings.data_dir / "sample_documents"
+    sample_dir = settings.seed_dir
     companies = [
         CompanyCreate(
             ticker="NVDA",
@@ -27,7 +31,13 @@ def seed_repository(repo: JsonRepository, ingestion, settings: Settings) -> None
             industry="Software and Cloud Infrastructure",
         ),
     ]
-    created = {company.ticker: repo.upsert_company(company) for company in companies}
+    created = {
+        company.ticker: repo.upsert_company(
+            company,
+            company_id=uuid5(SEED_NAMESPACE, f"company:{company.ticker}"),
+        )
+        for company in companies
+    }
     documents = [
         (
             "NVDA",
@@ -76,9 +86,17 @@ def seed_repository(repo: JsonRepository, ingestion, settings: Settings) -> None
         if not source.exists():
             continue
         company = created[ticker]
-        destination = settings.raw_dir / str(company.id) / source.name
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        if not destination.exists():
-            destination.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
-        document = repo.create_document(company.id, payload, str(destination))
+        if settings.demo_mode:
+            document_path = source
+        else:
+            document_path = settings.raw_dir / str(company.id) / source.name
+            document_path.parent.mkdir(parents=True, exist_ok=True)
+            if not document_path.exists():
+                document_path.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
+        document = repo.create_document(
+            company.id,
+            payload,
+            str(document_path),
+            document_id=uuid5(SEED_NAMESPACE, f"document:{ticker}:{source.name}"),
+        )
         ingestion.ingest_document(document.id)
