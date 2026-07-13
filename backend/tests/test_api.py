@@ -141,6 +141,31 @@ def test_cors_uses_configured_allowlist(tmp_path: Path, monkeypatch) -> None:
     assert "access-control-allow-origin" not in denied.headers
 
 
+def test_public_demo_is_seeded_deterministically_and_read_only(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("AIERC_DEMO_MODE", "true")
+    first = TestClient(create_app(tmp_path / "first", seed=True))
+    second = TestClient(create_app(tmp_path / "second", seed=True))
+
+    first_companies = first.get("/companies").json()
+    second_companies = second.get("/companies").json()
+    assert [(row["id"], row["ticker"]) for row in first_companies] == [
+        (row["id"], row["ticker"]) for row in second_companies
+    ]
+
+    company_id = first_companies[0]["id"]
+    assert first.get(f"/companies/{company_id}").json()["ready_document_count"] >= 1
+    assert first.post("/companies", json={"ticker": "NEW", "name": "New Corp"}).status_code == 403
+    assert first.post(
+        f"/companies/{company_id}/documents",
+        json={
+            "title": "Blocked note",
+            "document_type": "manual_note",
+            "filename": "note.txt",
+            "text": "This write should be blocked in demo mode.",
+        },
+    ).status_code == 403
+
+
 def test_upload_security_rejects_unsafe_types_and_oversized_payloads(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("AIERC_MAX_UPLOAD_MB", "0.0001")
     client = TestClient(create_app(tmp_path, seed=False))

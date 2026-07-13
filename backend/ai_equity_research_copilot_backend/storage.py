@@ -54,22 +54,22 @@ class JsonRepository:
             ]
         return sorted(companies, key=lambda company: company.ticker)
 
-    def create_company(self, payload: CompanyCreate) -> Company:
+    def create_company(self, payload: CompanyCreate, company_id: UUID | None = None) -> Company:
         with self._lock:
             state = self._read_state()
             ticker = payload.ticker.upper()
             if any(item["ticker"].upper() == ticker for item in state["companies"]):
                 raise ValueError(f"Company ticker '{ticker}' already exists")
-            company = Company(**payload.model_dump())
+            company = Company(id=company_id, **payload.model_dump()) if company_id else Company(**payload.model_dump())
             state["companies"].append(company.model_dump(mode="json"))
             self._write_state(state)
             return company
 
-    def upsert_company(self, payload: CompanyCreate) -> Company:
+    def upsert_company(self, payload: CompanyCreate, company_id: UUID | None = None) -> Company:
         existing = next((company for company in self.list_companies() if company.ticker == payload.ticker), None)
         if existing:
             return existing
-        return self.create_company(payload)
+        return self.create_company(payload, company_id=company_id)
 
     def get_company(self, company_id: UUID) -> Company | None:
         return self._get_model("companies", company_id, Company)
@@ -81,10 +81,17 @@ class JsonRepository:
             documents = [document for document in documents if document.company_id == company_id]
         return sorted(documents, key=lambda document: document.created_at)
 
-    def create_document(self, company_id: UUID, payload: DocumentCreate, file_path: str | None) -> Document:
+    def create_document(
+        self,
+        company_id: UUID,
+        payload: DocumentCreate,
+        file_path: str | None,
+        document_id: UUID | None = None,
+    ) -> Document:
         if not self.get_company(company_id):
             raise KeyError(f"Company '{company_id}' not found")
-        document = Document(company_id=company_id, file_path=file_path, **payload.model_dump())
+        document_kwargs = {"company_id": company_id, "file_path": file_path, **payload.model_dump()}
+        document = Document(id=document_id, **document_kwargs) if document_id else Document(**document_kwargs)
         with self._lock:
             state = self._read_state()
             state["documents"].append(document.model_dump(mode="json"))

@@ -12,6 +12,7 @@ DEFAULT_DATA_DIR = PROJECT_ROOT / "data"
 @dataclass(frozen=True)
 class Settings:
     data_dir: Path
+    seed_dir: Path
     raw_dir: Path
     state_dir: Path
     state_file: Path
@@ -38,6 +39,7 @@ class Settings:
         "application/pdf",
         "application/octet-stream",
     )
+    demo_mode: bool = False
 
 
 def _csv_env(name: str, default: tuple[str, ...]) -> tuple[str, ...]:
@@ -49,13 +51,22 @@ def _csv_env(name: str, default: tuple[str, ...]) -> tuple[str, ...]:
     return tuple(item.strip() for item in raw.split(",") if item.strip())
 
 
+def _bool_env(name: str, default: bool = False) -> bool:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
 def get_settings(data_dir: str | Path | None = None) -> Settings:
     root = Path(data_dir or os.getenv("AIERC_DATA_DIR", DEFAULT_DATA_DIR)).resolve()
+    seed_dir = Path(os.getenv("AIERC_SEED_DIR", DEFAULT_DATA_DIR / "sample_documents")).resolve()
     raw_dir = root / "storage" / "raw"
     state_dir = root / "storage" / "state"
     max_upload_mb = float(os.getenv("AIERC_MAX_UPLOAD_MB", os.getenv("MAX_UPLOAD_MB", "10")))
     return Settings(
         data_dir=root,
+        seed_dir=seed_dir,
         raw_dir=raw_dir,
         state_dir=state_dir,
         state_file=state_dir / "store.json",
@@ -89,4 +100,5 @@ def get_settings(data_dir: str | Path | None = None) -> Settings:
                 ("text/plain", "text/markdown", "application/pdf", "application/octet-stream"),
             )
         ),
+        demo_mode=_bool_env("AIERC_DEMO_MODE"),
     )
