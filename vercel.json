@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "cd frontend && npm ci",
+  "framework": "vite",
+  "installCommand": "uv pip install --system -r requirements.txt && cd frontend && npm ci",
   "buildCommand": "cd frontend && VITE_PUBLIC_DEMO=true npm run build",
   "outputDirectory": "frontend/dist",
   "functions": {
