@@ -304,6 +304,24 @@ def create_app(data_dir: str | Path | None = None, seed: bool = True) -> FastAPI
 
     @api.post("/research/chat", response_model=ChatResponse)
     def research_chat(payload: ChatRequest) -> ChatResponse:
+        resolved: list[UUID] = []
+        for company_id in payload.company_ids:
+            if isinstance(company_id, UUID):
+                resolved.append(company_id)
+                continue
+            try:
+                resolved.append(UUID(company_id))
+                continue
+            except ValueError:
+                pass
+            match = next(
+                (c for c in repo.list_companies() if c.ticker.upper() == company_id.upper()),
+                None,
+            )
+            if match is None:
+                raise HTTPException(status_code=404, detail=f"Company ticker '{company_id}' not found")
+            resolved.append(match.id)
+        payload = payload.model_copy(update={"company_ids": resolved})
         try:
             return research.chat(payload)
         except KeyError as exc:

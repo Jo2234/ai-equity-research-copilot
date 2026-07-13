@@ -158,7 +158,7 @@ class UsageMetadata(BaseModel):
 
 class ChatRequest(BaseModel):
     conversation_id: UUID | None = None
-    company_ids: list[UUID] = Field(min_length=1)
+    company_ids: list[UUID | str] = Field(min_length=1)
     question: str = Field(min_length=1)
     document_types: list[DocumentType] | None = None
     fiscal_years: list[int] | None = None
