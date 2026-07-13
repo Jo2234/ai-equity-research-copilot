@@ -17,7 +17,7 @@ This is research assistance software, not investment advice. It must not issue b
 - The eval suite has 35 finance QA cases covering factual extraction, multi-document synthesis, company comparison, and unsupported questions.
 - Synthetic fixtures include companies, documents, chunks, chat responses, memo responses, and comparison responses for deterministic review.
 
-See [docs/recruiter_walkthrough.md](docs/recruiter_walkthrough.md) for a short filings-first agent walkthrough with retrieved evidence, citations, and the FDE angle.
+See [docs/walkthrough.md](docs/walkthrough.md) for an end-to-end walkthrough: a finance question, the retrieved filing evidence, and the cited answer it produces.
 
 ## Current Scope
 
@@ -29,7 +29,7 @@ See [docs/recruiter_walkthrough.md](docs/recruiter_walkthrough.md) for a short f
 
 ## API Contract Summary
 
-The backend should expose these MVP endpoints:
+The backend exposes these endpoints:
 
 - `GET /companies`
 - `GET /companies/search?q=AAPL`
@@ -44,7 +44,7 @@ The backend should expose these MVP endpoints:
 - `POST /research/memo`
 - `POST /research/compare`
 
-See [docs/api-contract.md](/Users/johanvaz/Documents/Portfolio/projects/ai-equity-research-copilot/docs/api-contract.md) for request and response shapes aligned with the project spec.
+See [docs/api-contract.md](./docs/api-contract.md) for request and response shapes aligned with the project spec.
 
 ## SEC Company Discovery
 
@@ -147,7 +147,7 @@ Expected local URLs:
 
 ## Eval Dataset
 
-The MVP eval set lives in [evals/finance_qa_v1.jsonl](/Users/johanvaz/Documents/Portfolio/projects/ai-equity-research-copilot/evals/finance_qa_v1.jsonl). It includes 35 cases:
+The MVP eval set lives in [evals/finance_qa_v1.jsonl](./evals/finance_qa_v1.jsonl). It includes 35 cases:
 
 - 12 single-document factual questions
 - 10 multi-document synthesis questions
@@ -158,9 +158,9 @@ Each case includes `id`, `company_ids`, `question`, `required_source_documents`,
 
 Supporting eval docs:
 
-- [evals/coverage_matrix.md](/Users/johanvaz/Documents/Portfolio/projects/ai-equity-research-copilot/evals/coverage_matrix.md)
-- [evals/runbook.md](/Users/johanvaz/Documents/Portfolio/projects/ai-equity-research-copilot/evals/runbook.md)
-- [evals/scoring_rubric.json](/Users/johanvaz/Documents/Portfolio/projects/ai-equity-research-copilot/evals/scoring_rubric.json)
+- [evals/coverage_matrix.md](./evals/coverage_matrix.md)
+- [evals/runbook.md](./evals/runbook.md)
+- [evals/scoring_rubric.json](./evals/scoring_rubric.json)
 
 Recommended MVP pass criteria:
 
@@ -174,14 +174,14 @@ Recommended MVP pass criteria:
 
 Fixtures and sample data are synthetic and intentionally small:
 
-- [tests/fixtures/companies.json](/Users/johanvaz/Documents/Portfolio/projects/ai-equity-research-copilot/tests/fixtures/companies.json)
-- [tests/fixtures/documents.json](/Users/johanvaz/Documents/Portfolio/projects/ai-equity-research-copilot/tests/fixtures/documents.json)
-- [tests/fixtures/chunks/retrieval_chunks.json](/Users/johanvaz/Documents/Portfolio/projects/ai-equity-research-copilot/tests/fixtures/chunks/retrieval_chunks.json)
-- [tests/fixtures/api/chat_request.json](/Users/johanvaz/Documents/Portfolio/projects/ai-equity-research-copilot/tests/fixtures/api/chat_request.json)
-- [tests/fixtures/api/chat_response.json](/Users/johanvaz/Documents/Portfolio/projects/ai-equity-research-copilot/tests/fixtures/api/chat_response.json)
-- [tests/fixtures/api/memo_response.json](/Users/johanvaz/Documents/Portfolio/projects/ai-equity-research-copilot/tests/fixtures/api/memo_response.json)
-- [tests/fixtures/api/compare_response.json](/Users/johanvaz/Documents/Portfolio/projects/ai-equity-research-copilot/tests/fixtures/api/compare_response.json)
-- [data/sample_documents/manifest.json](/Users/johanvaz/Documents/Portfolio/projects/ai-equity-research-copilot/data/sample_documents/manifest.json)
+- [tests/fixtures/companies.json](./tests/fixtures/companies.json)
+- [tests/fixtures/documents.json](./tests/fixtures/documents.json)
+- [tests/fixtures/chunks/retrieval_chunks.json](./tests/fixtures/chunks/retrieval_chunks.json)
+- [tests/fixtures/api/chat_request.json](./tests/fixtures/api/chat_request.json)
+- [tests/fixtures/api/chat_response.json](./tests/fixtures/api/chat_response.json)
+- [tests/fixtures/api/memo_response.json](./tests/fixtures/api/memo_response.json)
+- [tests/fixtures/api/compare_response.json](./tests/fixtures/api/compare_response.json)
+- [data/sample_documents/manifest.json](./data/sample_documents/manifest.json)
 
 Use these fixtures for backend API tests, retrieval scoring smoke tests, and frontend contract mocks.
 
