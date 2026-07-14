@@ -372,9 +372,13 @@ export function App() {
 
   return (
     <div className="app-shell">
+      <div className="masthead">
+        <b>VAZ RESEARCH · AI EQUITY RESEARCH COPILOT</b>
+        <span>FILINGS-FIRST · CITED EVIDENCE</span>
+      </div>
       <aside className="sidebar" aria-label="Company and document navigation">
         <div className="brand-row">
-          <div className="brand-mark">ER</div>
+          <div className="brand-mark">VR</div>
           <div>
             <h1>Equity Research Copilot</h1>
             <p>Filings-first company research</p>
@@ -621,10 +625,10 @@ export function App() {
                   <p>{message.content}</p>
                   {message.citations?.length ? (
                     <div className="citation-buttons">
-                      {message.citations.map((citation) => (
+                      {message.citations.map((citation, index) => (
                         <button key={citation.chunk_id} onClick={() => setSelectedCitation(citation)} type="button">
-                          <BookOpenText size={14} />
-                          {citation.label}
+                          <sup>{index + 1}</sup>
+                          <span>{citation.label}</span>
                         </button>
                       ))}
                     </div>
@@ -787,15 +791,19 @@ export function App() {
         )}
         {activeCitations.length ? (
           <div className="drawer-list">
-            {activeCitations.map((citation) => (
+            {activeCitations.map((citation, index) => (
               <button key={citation.chunk_id} onClick={() => setSelectedCitation(citation)} type="button">
-                <span>{citation.label}</span>
+                <span><sup>{index + 1}</sup> {citation.label}</span>
                 <small>{Math.round(citation.score * 100)}% relevance</small>
               </button>
             ))}
           </div>
         ) : null}
       </aside>
+      <footer className="site-footer">
+        <span>Johan Vaz · <a href="https://johan-vaz-site.vercel.app" rel="noreferrer" target="_blank">johan-vaz-site.vercel.app</a></span>
+        <a href="https://github.com/Jo2234/ai-equity-research-copilot" rel="noreferrer" target="_blank">Source on GitHub</a>
+      </footer>
     </div>
   );
 }
@@ -960,10 +968,10 @@ function MemoView({ memo, onCitation }: { memo: MemoResponse; onCitation: (citat
         ))}
       </div>
       <div className="citation-buttons">
-        {memo.source_citations.map((citation) => (
+        {memo.source_citations.map((citation, index) => (
           <button key={citation.chunk_id} onClick={() => onCitation(citation)} type="button">
-            <BookOpenText size={14} />
-            {citation.label}
+            <sup>{index + 1}</sup>
+            <span>{citation.label}</span>
           </button>
         ))}
       </div>
@@ -1006,9 +1014,14 @@ function ComparisonView({
               </span>
             ))}
             <span className="source-cell" role="cell">
-              {row.citations.map((citation) => (
-                <button key={citation.chunk_id} onClick={() => onCitation(citation)} type="button">
-                  {citation.company_ticker ?? "Source"}
+              {row.citations.map((citation, index) => (
+                <button
+                  aria-label={citation.company_ticker ?? "Source"}
+                  key={citation.chunk_id}
+                  onClick={() => onCitation(citation)}
+                  type="button"
+                >
+                  {citation.company_ticker ?? "Source"}<sup>{index + 1}</sup>
                 </button>
               ))}
             </span>
