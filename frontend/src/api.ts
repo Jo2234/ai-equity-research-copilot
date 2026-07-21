@@ -1,112 +1,78 @@
 import {
-  buildDemoChatResponse,
-  buildDemoCompare,
-  buildDemoMemo,
-  buildDemoUploadedDocument,
-  demoCompanies,
-  demoDocuments
+  buildDemoChatResponse, buildDemoCompare, buildDemoMemo,
+  demoCompanies, demoDocuments
 } from "./demoData";
 import type {
-  ChatResponse,
-  Company,
-  CompanyDiscoverResponse,
-  CompanyLookupResult,
-  CompareResponse,
-  Citation,
-  MemoResponse,
-  ResearchDocument,
-  UploadPayload
+  ChatResponse, Company, CompanyDiscoverResponse, CompanyLookupResult,
+  CompareResponse, Citation, MemoResponse, ResearchDocument, UploadPayload
 } from "./types";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "/api";
+export const browserDemoMode = import.meta.env.VITE_BROWSER_DEMO === "true";
+
+type QuestionParams = {
+  companyIds: string[];
+  question: string;
+  documentTypes: string[];
+  fiscalYears: number[];
+  topK: number;
+};
+
+type BackendComparison = {
+  question: string;
+  comparisons: Array<{
+    company: Pick<Company, "ticker" | "name">;
+    summary: string;
+    key_points: string[];
+    citations: Citation[];
+  }>;
+  limitations?: string[];
+  usage: CompareResponse["usage"];
+};
 
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${apiBaseUrl}${path}`, {
     headers: init?.body instanceof FormData ? undefined : { "Content-Type": "application/json" },
     ...init
   });
-
   if (!response.ok) {
-    throw new Error(`API ${response.status}: ${response.statusText}`);
+    let detail = response.statusText;
+    try {
+      const body: { detail?: unknown } = await response.json();
+      if (typeof body.detail === "string") detail = body.detail;
+      else if (Array.isArray(body.detail)) {
+        detail = body.detail.map((item) => typeof item?.msg === "string" ? item.msg : "Invalid request").join("; ");
+      }
+    } catch {
+      // Non-JSON error pages still retain their HTTP status.
+    }
+    throw new Error(`API ${response.status}: ${detail || "Request failed"}`);
   }
-
   return response.json() as Promise<T>;
 }
 
-export async function fetchCompanies(): Promise<{ companies: Company[]; demo: boolean }> {
-  try {
-    const companies = await requestJson<Company[]>("/companies");
-    return { companies, demo: false };
-  } catch {
-    return { companies: demoCompanies, demo: true };
-  }
-}
-
-export async function searchCompanyUniverse(
-  query: string
-): Promise<{ results: CompanyLookupResult[]; demo: boolean }> {
-  try {
+const liveApi = {
+  async fetchCompanies() {
+    return { companies: await requestJson<Company[]>("/companies"), demo: false };
+  },
+  async searchCompanyUniverse(query: string) {
     const params = new URLSearchParams({ q: query, limit: "8" });
-    const results = await requestJson<CompanyLookupResult[]>(`/companies/search?${params.toString()}`);
+    const results = await requestJson<CompanyLookupResult[]>(`/companies/search?${params}`);
     return { results, demo: false };
-  } catch {
-    const needle = query.trim().toLowerCase();
-    return {
-      results: demoCompanies
-        .filter((company) => company.ticker.toLowerCase().includes(needle) || company.name.toLowerCase().includes(needle))
-        .map((company) => ({
-          ticker: company.ticker,
-          name: company.name,
-          source: "local",
-          local_company_id: company.id,
-          already_in_workspace: true
-        })),
-      demo: true
-    };
-  }
-}
-
-export async function discoverCompany(
-  query: string,
-  formType = "10-k"
-): Promise<{ discovery: CompanyDiscoverResponse; demo: boolean }> {
-  const discovery = await requestJson<CompanyDiscoverResponse>("/companies/discover", {
-    method: "POST",
-    body: JSON.stringify({
-      query,
-      form_type: formType,
-      build_corpus: true,
-      annual_limit: 1,
-      quarterly_limit: 4,
-      current_report_limit: 6,
-      proxy_limit: 1
-    })
-  });
-  return { discovery, demo: false };
-}
-
-export async function fetchDocuments(companyId?: string): Promise<{ documents: ResearchDocument[]; demo: boolean }> {
-  try {
-    if (!companyId) {
-      throw new Error("Company id is required until the backend exposes a document index endpoint.");
-    }
-    const detail = await requestJson<{ documents?: ResearchDocument[]; document_summary?: ResearchDocument[] }>(
-      `/companies/${companyId}`
-    );
-    return { documents: detail.documents ?? detail.document_summary ?? [], demo: false };
-  } catch {
-    return {
-      documents: companyId ? demoDocuments.filter((document) => document.company_id === companyId) : demoDocuments,
-      demo: true
-    };
-  }
-}
-
-export async function uploadDocument(
-  companyId: string,
-  payload: UploadPayload
-): Promise<{ document: ResearchDocument; demo: boolean }> {
-  try {
+  },
+  async discoverCompany(query: string, formType = "10-k") {
+    const discovery = await requestJson<CompanyDiscoverResponse>("/companies/discover", {
+      method: "POST",
+      body: JSON.stringify({ query, form_type: formType, build_corpus: true,
+        annual_limit: 1, quarterly_limit: 4, current_report_limit: 6, proxy_limit: 1 })
+    });
+    return { discovery, demo: false };
+  },
+  async fetchDocuments(companyId: string) {
+    const detail = await requestJson<{ documents: ResearchDocument[] }>(`/companies/${companyId}`);
+    return { documents: detail.documents, demo: false };
+  },
+  async uploadDocument(companyId: string, payload: UploadPayload) {
     const formData = new FormData();
     formData.append("file", payload.file);
     formData.append("title", payload.title);
@@ -115,102 +81,63 @@ export async function uploadDocument(
     if (payload.fiscal_year) formData.append("fiscal_year", payload.fiscal_year);
     if (payload.fiscal_quarter) formData.append("fiscal_quarter", payload.fiscal_quarter);
     if (payload.source_url) formData.append("source_url", payload.source_url);
-
     const document = await requestJson<ResearchDocument>(`/companies/${companyId}/documents`, {
-      method: "POST",
-      body: formData
+      method: "POST", body: formData
     });
     return { document, demo: false };
-  } catch {
-    return { document: buildDemoUploadedDocument(companyId, payload), demo: true };
-  }
-}
-
-export async function askResearchQuestion(params: {
-  companyIds: string[];
-  question: string;
-  documentTypes: string[];
-  fiscalYears: number[];
-  topK: number;
-}): Promise<{ response: ChatResponse; demo: boolean }> {
-  try {
+  },
+  async askResearchQuestion(params: QuestionParams) {
     const response = await requestJson<ChatResponse>("/research/chat", {
-      method: "POST",
-      body: JSON.stringify({
-        company_ids: params.companyIds,
-        question: params.question,
-        document_types: params.documentTypes,
-        fiscal_years: params.fiscalYears,
-        top_k: params.topK
-      })
+      method: "POST", body: JSON.stringify({ company_ids: params.companyIds,
+        question: params.question, document_types: params.documentTypes,
+        fiscal_years: params.fiscalYears, top_k: params.topK })
     });
-    const citations = response.citations.map(normalizeCitation);
-    return {
-      response: {
-        ...response,
-        citations,
-        retrieval_debug:
-          response.retrieval_debug ??
-          buildRetrievalDebug(params.question, params.topK, citations)
-      },
-      demo: false
-    };
-  } catch {
-    return { response: buildDemoChatResponse(params.question), demo: true };
-  }
-}
-
-export async function generateMemo(company: Company): Promise<{ memo: MemoResponse; demo: boolean }> {
-  try {
+    return { response: { ...response, citations: response.citations.map(normalizeCitation) }, demo: false };
+  },
+  async generateMemo(company: Company) {
     const memo = await requestJson<MemoResponse>("/research/memo", {
-      method: "POST",
-      body: JSON.stringify({
-        company_id: company.id,
-        template: "standard_equity_research_memo"
-      })
+      method: "POST", body: JSON.stringify({ company_id: company.id })
     });
-    return {
-      memo: {
-        ...memo,
-        source_citations: memo.source_citations.map(normalizeCitation)
-      },
-      demo: false
-    };
-  } catch {
-    return { memo: buildDemoMemo(company), demo: true };
+    return { memo: { ...memo, source_citations: memo.source_citations.map(normalizeCitation) }, demo: false };
+  },
+  async compareCompanies(companies: Company[], question: string) {
+    const raw = await requestJson<BackendComparison>("/research/compare", {
+      method: "POST", body: JSON.stringify({ company_ids: companies.map((company) => company.id),
+        question, top_k_per_company: 5 })
+    });
+    return { comparison: normalizeComparison(raw, companies, question), demo: false };
   }
-}
+};
 
-export async function compareCompanies(
-  companies: Company[],
-  question: string
-): Promise<{ comparison: CompareResponse; demo: boolean }> {
-  try {
-    const rawComparison = await requestJson<
-      CompareResponse | {
-        question: string;
-        comparisons: Array<{
-          company: Pick<Company, "ticker" | "name">;
-          summary: string;
-          key_points: string[];
-          citations: Citation[];
-        }>;
-        limitations?: string[];
-        usage: CompareResponse["usage"];
-      }
-    >("/research/compare", {
-      method: "POST",
-      body: JSON.stringify({
-        company_ids: companies.map((company) => company.id),
-        question,
-        top_k_per_company: 5
-      })
-    });
-    return { comparison: normalizeComparison(rawComparison, companies, question), demo: false };
-  } catch {
+const demoApi: typeof liveApi = {
+  async fetchCompanies() { return { companies: demoCompanies, demo: true }; },
+  async searchCompanyUniverse(query) {
+    const needle = query.trim().toLowerCase();
+    const results = demoCompanies.filter((company) =>
+      company.ticker.toLowerCase().includes(needle) || company.name.toLowerCase().includes(needle)
+    ).map((company) => ({ ticker: company.ticker, name: company.name, source: "local",
+      local_company_id: company.id, already_in_workspace: true }));
+    return { results, demo: true };
+  },
+  async fetchDocuments(companyId) {
+    return { documents: demoDocuments.filter((document) => document.company_id === companyId), demo: true };
+  },
+  async discoverCompany() { throw new Error("SEC imports require the live API; browser demo is read-only."); },
+  async uploadDocument() { throw new Error("Uploads require the live API; browser demo is read-only."); },
+  async askResearchQuestion(params) {
+    return { response: buildDemoChatResponse(params.question, params.companyIds), demo: true };
+  },
+  async generateMemo(company) { return { memo: buildDemoMemo(company), demo: true }; },
+  async compareCompanies(companies, question) {
     return { comparison: buildDemoCompare(companies, question), demo: true };
   }
-}
+};
+
+// Mode is chosen once, before any requests. HTTP failure never changes adapters.
+export const {
+  fetchCompanies, searchCompanyUniverse, discoverCompany, fetchDocuments,
+  uploadDocument, askResearchQuestion, generateMemo, compareCompanies
+} = browserDemoMode ? demoApi : liveApi;
 
 function normalizeCitation(citation: Citation): Citation {
   return {
@@ -227,50 +154,11 @@ function pageFromLabel(label: string): number | undefined {
   return match ? Number(match[1]) : undefined;
 }
 
-function buildRetrievalDebug(query: string, topK: number, citations: Citation[]): ChatResponse["retrieval_debug"] {
-  return {
-    query,
-    top_k: topK,
-    threshold: 0,
-    chunks: citations.map((citation) => ({
-      id: citation.chunk_id,
-      document_id: citation.document_id,
-      company_ticker: citation.company_ticker ?? "Source",
-      document_title: citation.title ?? citation.label,
-      section_title: citation.section_title,
-      page_start: citation.page_start,
-      score: citation.score,
-      excerpt: citation.excerpt,
-      cited: true
-    }))
-  };
-}
-
 function normalizeComparison(
-  raw: CompareResponse | {
-    question: string;
-    comparisons: Array<{
-      company: Pick<Company, "ticker" | "name">;
-      summary: string;
-      key_points: string[];
-      citations: Citation[];
-    }>;
-    limitations?: string[];
-    usage: CompareResponse["usage"];
-  },
+  raw: BackendComparison,
   companies: Company[],
   question: string
 ): CompareResponse {
-  if ("rows" in raw) {
-    return {
-      ...raw,
-      rows: raw.rows.map((row) => ({
-        ...row,
-        citations: row.citations.map(normalizeCitation)
-      }))
-    };
-  }
-
   return {
     question: raw.question || question,
     summary: raw.limitations?.join(" ") || "Comparison is limited to ingested documents.",
