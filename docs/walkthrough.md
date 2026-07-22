@@ -47,7 +47,7 @@ Confidence: `high`
 - The chat endpoint retrieves evidence before synthesis.
 - Local deterministic synthesis is available through `AIERC_LLM_PROVIDER=local`.
 - Ollama/Gemma can be used through `AIERC_LLM_PROVIDER=auto` or `ollama`.
-- If model output is invalid, uncited, or low-confidence, the app falls back to deterministic cited synthesis.
+- If model output has an invalid schema or invalid/missing citation references, the app falls back to deterministic cited synthesis. A valid low-confidence model response remains low-confidence; it is not promoted by adding extra citations.
 
 ## Design Notes
 
