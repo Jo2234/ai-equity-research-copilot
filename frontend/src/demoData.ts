@@ -4,8 +4,7 @@ import type {
   CompareResponse,
   MemoResponse,
   ResearchDocument,
-  RetrievalDebug,
-  UploadPayload
+  RetrievalDebug
 } from "./types";
 
 export const demoCompanies: Company[] = [
@@ -134,8 +133,16 @@ export const demoRetrieval = (query: string): RetrievalDebug => ({
   ]
 });
 
-export const buildDemoChatResponse = (question: string): ChatResponse => {
+export const buildDemoChatResponse = (question: string, companyIds = ["cmp-nvda"]): ChatResponse => {
+  const tickers = demoCompanies.filter((company) => companyIds.includes(company.id)).map((company) => company.ticker);
   const retrieval = demoRetrieval(question);
+  retrieval.chunks = retrieval.chunks.filter((chunk) => tickers.includes(chunk.company_ticker));
+  if (!tickers.includes("NVDA")) {
+    return { message_id: `demo-${Date.now()}`, answer: "No prepared answer exists for this company in the browser demo. Connect the live API to research your question.",
+      key_points: [], confidence: "low", limitations: ["Explicit browser demo; no live retrieval was performed."],
+      citations: [], usage: { model: "browser-demo", latency_ms: 0, input_tokens: 0, output_tokens: 0, estimated_cost_usd: 0 },
+      retrieval_debug: { ...retrieval, chunks: [] } };
+  }
   return {
     message_id: `demo-${Date.now()}`,
     answer:
@@ -146,7 +153,7 @@ export const buildDemoChatResponse = (question: string): ChatResponse => {
       "A complete answer would require the latest 10-Q and earnings call transcript to reconcile margin and mix effects."
     ],
     confidence: "medium",
-    limitations: ["Demo mode uses seeded excerpts until the backend returns live retrieval results."],
+    limitations: ["Explicit browser demo: this is a prepared synthetic example, not an answer retrieved for your question."],
     citations: retrieval.chunks.filter((chunk) => chunk.cited).map((chunk) => ({
       label: `${chunk.company_ticker} ${chunk.document_title}, p. ${chunk.page_start}`,
       document_id: chunk.document_id,
@@ -188,8 +195,8 @@ export const buildDemoMemo = (company: Company): MemoResponse => ({
     "What portion of growth is volume versus price/mix?",
     "How much incremental capex is required to support demand?"
   ],
-  source_citations: buildDemoChatResponse("memo").citations,
-  limitations: ["Generated from demo data because the backend was unavailable."]
+  source_citations: buildDemoChatResponse("memo", [company.id]).citations,
+  limitations: ["Explicit browser demo with synthetic examples; no live retrieval was performed."]
 });
 
 export const buildDemoCompare = (companies: Company[], question: string): CompareResponse => ({
@@ -205,7 +212,7 @@ export const buildDemoCompare = (companies: Company[], question: string): Compar
           company.ticker === "MSFT" ? "Cloud services and enterprise software demand." : "Accelerated compute and product-cycle demand."
         ])
       ),
-      citations: buildDemoChatResponse(question).citations
+      citations: buildDemoChatResponse(question, companies.map((company) => company.id)).citations
     },
     {
       dimension: "Key risk",
@@ -215,7 +222,7 @@ export const buildDemoCompare = (companies: Company[], question: string): Compar
           company.ticker === "MSFT" ? "Infrastructure cost and platform competition." : "Supply, export-control, and demand concentration risk."
         ])
       ),
-      citations: buildDemoChatResponse(question).citations.slice(0, 1)
+      citations: buildDemoChatResponse(question, companies.map((company) => company.id)).citations.slice(0, 1)
     }
   ],
   usage: {
@@ -225,20 +232,4 @@ export const buildDemoCompare = (companies: Company[], question: string): Compar
     output_tokens: 486,
     estimated_cost_usd: 0
   }
-});
-
-export const buildDemoUploadedDocument = (
-  companyId: string,
-  payload: UploadPayload
-): ResearchDocument => ({
-  id: `doc-upload-${Date.now()}`,
-  company_id: companyId,
-  title: payload.title,
-  document_type: payload.document_type,
-  filing_date: payload.filing_date,
-  fiscal_year: payload.fiscal_year ? Number(payload.fiscal_year) : undefined,
-  fiscal_quarter: payload.fiscal_quarter ? Number(payload.fiscal_quarter) : undefined,
-  source_url: payload.source_url,
-  status: "uploaded",
-  chunk_count: 0
 });

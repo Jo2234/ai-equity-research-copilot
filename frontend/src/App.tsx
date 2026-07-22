@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import {
   askResearchQuestion,
+  browserDemoMode,
   compareCompanies,
   discoverCompany,
   fetchCompanies,
@@ -123,7 +124,13 @@ export function App() {
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
   const [documents, setDocuments] = useState<ResearchDocument[]>([]);
   const [mode, setMode] = useState<WorkspaceMode>("chat");
-  const [apiMode, setApiMode] = useState<"live" | "demo">("live");
+  const [apiMode, setApiMode] = useState<"live" | "demo">(browserDemoMode ? "demo" : "live");
+  const [workspaceError, setWorkspaceError] = useState("");
+  const [documentsError, setDocumentsError] = useState("");
+  const [chatError, setChatError] = useState("");
+  const [memoError, setMemoError] = useState("");
+  const [compareError, setCompareError] = useState("");
+  const [reloadVersion, setReloadVersion] = useState(0);
   const [question, setQuestion] = useState(starterQuestion);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -156,21 +163,26 @@ export function App() {
 
   useEffect(() => {
     let mounted = true;
+    setWorkspaceError("");
     fetchCompanies().then(({ companies: nextCompanies, demo }) => {
       if (!mounted) return;
       setCompanies(nextCompanies);
       setSelectedCompanyId(nextCompanies[0]?.id ?? "");
       setSelectedCompareIds(nextCompanies.slice(0, 2).map((company) => company.id));
       setApiMode(demo ? "demo" : "live");
+    }).catch((error: unknown) => {
+      if (mounted) setWorkspaceError(errorMessage(error));
     });
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [reloadVersion]);
 
   useEffect(() => {
     if (!selectedCompanyId) return;
     let mounted = true;
+    setDocuments([]);
+    setDocumentsError("");
     fetchDocuments(selectedCompanyId).then(({ documents: nextDocuments, demo }) => {
       if (!mounted) return;
       setDocuments((current) => {
@@ -183,11 +195,13 @@ export function App() {
         return [...localPending, ...nextDocuments];
       });
       if (demo) setApiMode("demo");
+    }).catch((error: unknown) => {
+      if (mounted) setDocumentsError(errorMessage(error));
     });
     return () => {
       mounted = false;
     };
-  }, [selectedCompanyId]);
+  }, [selectedCompanyId, reloadVersion]);
 
   const selectedCompany = companies.find((company) => company.id === selectedCompanyId) ?? companies[0];
   const selectedCompareCompanies = companies.filter((company) => selectedCompareIds.includes(company.id));
@@ -210,7 +224,7 @@ export function App() {
   ];
   const corpusTypes = [...new Set(readyDocuments.map((document) => document.document_type))];
   const selectedSnapshot = selectedCompany
-    ? companySnapshots[selectedCompany.ticker] ?? {
+    ? (browserDemoMode ? companySnapshots[selectedCompany.ticker] : undefined) ?? {
         metrics: [
           { label: "Corpus", value: String(readyDocuments.reduce((sum, document) => sum + (document.chunk_count ?? 0), 0)), sublabel: "ready chunks" },
           { label: "Coverage", value: `${readyDocuments.length}/${documents.length}`, sublabel: "ready documents" },
@@ -230,42 +244,55 @@ export function App() {
       content: question.trim()
     };
     setMessages((current) => [...current, userMessage]);
-    setQuestion("");
+    setChatError("");
     setIsChatLoading(true);
+    try {
 
-    const { response, demo } = await askResearchQuestion({
-      companyIds: [selectedCompany.id],
-      question: userMessage.content,
-      documentTypes: selectedDocumentTypes,
-      fiscalYears: selectedFiscalYears,
-      topK: 8
-    });
+      const { response, demo } = await askResearchQuestion({
+        companyIds: [selectedCompany.id],
+        question: userMessage.content,
+        documentTypes: selectedDocumentTypes,
+        fiscalYears: selectedFiscalYears,
+        topK: 8
+      });
 
-    const assistantMessage: ChatMessage = {
-      id: response.message_id,
-      role: "assistant",
-      content: response.answer,
-      citations: response.citations,
-      usage: response.usage,
-      confidence: response.confidence,
-      limitations: response.limitations
-    };
+      const assistantMessage: ChatMessage = {
+        id: response.message_id,
+        role: "assistant",
+        content: response.answer,
+        citations: response.citations,
+        usage: response.usage,
+        confidence: response.confidence,
+        limitations: response.limitations
+      };
 
-    setMessages((current) => [...current, assistantMessage]);
-    setSelectedCitation(response.citations[0] ?? null);
-    setRetrievalDebug(response.retrieval_debug ?? null);
-    if (demo) setApiMode("demo");
-    setIsChatLoading(false);
+      setMessages((current) => [...current, assistantMessage]);
+      setSelectedCitation(response.citations[0] ?? null);
+      setRetrievalDebug(response.retrieval_debug ?? null);
+      if (demo) setApiMode("demo");
+      setQuestion((current) => current.trim() === userMessage.content ? "" : current);
+    } catch (error) {
+      setMessages((current) => current.filter((message) => message.id !== userMessage.id));
+      setChatError(errorMessage(error));
+    } finally {
+      setIsChatLoading(false);
+    }
   }
 
   async function handleGenerateMemo() {
     if (!selectedCompany) return;
     setIsMemoLoading(true);
-    const { memo: nextMemo, demo } = await generateMemo(selectedCompany);
-    setMemo(nextMemo);
-    setSelectedCitation(nextMemo.source_citations[0] ?? null);
-    if (demo) setApiMode("demo");
-    setIsMemoLoading(false);
+    setMemoError("");
+    try {
+      const { memo: nextMemo, demo } = await generateMemo(selectedCompany);
+      setMemo(nextMemo);
+      setSelectedCitation(nextMemo.source_citations[0] ?? null);
+      if (demo) setApiMode("demo");
+    } catch (error) {
+      setMemoError(errorMessage(error));
+    } finally {
+      setIsMemoLoading(false);
+    }
   }
 
   function handleExportMemo() {
@@ -284,11 +311,17 @@ export function App() {
     event.preventDefault();
     if (selectedCompareCompanies.length < 2 || !compareQuestion.trim()) return;
     setIsCompareLoading(true);
-    const { comparison: nextComparison, demo } = await compareCompanies(selectedCompareCompanies, compareQuestion);
-    setComparison(nextComparison);
-    setSelectedCitation(nextComparison.rows[0]?.citations[0] ?? null);
-    if (demo) setApiMode("demo");
-    setIsCompareLoading(false);
+    setCompareError("");
+    try {
+      const { comparison: nextComparison, demo } = await compareCompanies(selectedCompareCompanies, compareQuestion);
+      setComparison(nextComparison);
+      setSelectedCitation(nextComparison.rows[0]?.citations[0] ?? null);
+      if (demo) setApiMode("demo");
+    } catch (error) {
+      setCompareError(errorMessage(error));
+    } finally {
+      setIsCompareLoading(false);
+    }
   }
 
   async function handleUpload(event: FormEvent<HTMLFormElement>) {
@@ -297,7 +330,8 @@ export function App() {
 
     const formElement = event.currentTarget;
     const form = new FormData(formElement);
-    const file = form.get("file");
+    const fileInput = formElement.elements.namedItem("file") as HTMLInputElement | null;
+    const file = fileInput?.files?.[0];
     const title = String(form.get("title") ?? "").trim();
     const documentType = String(form.get("document_type") ?? "");
 
@@ -317,11 +351,16 @@ export function App() {
       fiscal_quarter: String(form.get("fiscal_quarter") ?? ""),
       source_url: String(form.get("source_url") ?? "")
     };
-    const { document, demo } = await uploadDocument(selectedCompany.id, payload);
-    setDocuments((current) => [document, ...current]);
-    if (demo) setApiMode("demo");
-    setIsUploading(false);
-    formElement.reset();
+    try {
+      const { document, demo } = await uploadDocument(selectedCompany.id, payload);
+      setDocuments((current) => [document, ...current]);
+      if (demo) setApiMode("demo");
+      formElement.reset();
+    } catch (error) {
+      setUploadError(errorMessage(error));
+    } finally {
+      setIsUploading(false);
+    }
   }
 
   async function handleCompanySearch(event: FormEvent<HTMLFormElement>) {
@@ -330,11 +369,17 @@ export function App() {
     if (!query) return;
     setCompanySearchError("");
     setIsCompanySearching(true);
-    const { results, demo } = await searchCompanyUniverse(query);
-    setCompanyLookupResults(results);
-    if (demo) setApiMode("demo");
-    if (!results.length) setCompanySearchError(`No company matches found for "${query}".`);
-    setIsCompanySearching(false);
+    try {
+      const { results, demo } = await searchCompanyUniverse(query);
+      setCompanyLookupResults(results);
+      if (demo) setApiMode("demo");
+      if (!results.length) setCompanySearchError(`No company matches found for "${query}".`);
+    } catch (error) {
+      setCompanyLookupResults([]);
+      setCompanySearchError(errorMessage(error));
+    } finally {
+      setIsCompanySearching(false);
+    }
   }
 
   async function handleImportCompany(result: CompanyLookupResult) {
@@ -399,13 +444,13 @@ export function App() {
               />
               <button disabled={isCompanySearching || !companyQuery.trim()} type="submit">
                 {isCompanySearching ? <Loader2 className="spin" size={14} /> : <Search size={14} />}
-                {publicDemoMode ? "Seeded" : "SEC"}
+                {publicDemoMode || browserDemoMode ? "Seeded" : "SEC"}
               </button>
             </div>
           </form>
         </div>
 
-        {companySearchError ? <p className="company-search-error">{companySearchError}</p> : null}
+        {companySearchError ? <p role="alert" className="company-search-error">{companySearchError}</p> : null}
         {companyLookupResults.length ? (
           <div className="company-lookup-list" aria-label="Company search results">
             {companyLookupResults.map((result) => (
@@ -461,10 +506,10 @@ export function App() {
             <Upload size={16} aria-hidden="true" />
             <h2 id="upload-heading">Upload Document</h2>
           </div>
-          {publicDemoMode ? (
+          {publicDemoMode || browserDemoMode ? (
             <div className="demo-notice">
-              <strong>Read-only public demo</strong>
-              <p>The bundled filing corpus is fixed. Uploads and SEC imports are disabled; research workflows remain live.</p>
+              <strong>{browserDemoMode ? "Read-only browser preview" : "Read-only public demo"}</strong>
+              <p>{browserDemoMode ? "Synthetic examples only. No requests are sent and documents cannot be uploaded." : "The bundled filing corpus is fixed. Uploads and SEC imports are disabled; research workflows remain live."}</p>
             </div>
           ) : (
             <form onSubmit={handleUpload}>
@@ -486,7 +531,7 @@ export function App() {
               <input name="fiscal_quarter" placeholder="Quarter, e.g. 1" inputMode="numeric" aria-label="Fiscal quarter" />
               <input name="source_url" placeholder="Source URL" aria-label="Source URL" />
               <input name="file" type="file" accept=".pdf,.txt,.md" aria-label="Document file" />
-              {uploadError ? <p className="form-error">{uploadError}</p> : null}
+              {uploadError ? <p role="alert" className="form-error">{uploadError}</p> : null}
               <button className="primary-button" disabled={isUploading} type="submit">
                 {isUploading ? <Loader2 className="spin" size={16} /> : <Plus size={16} />}
                 Add to ingestion queue
@@ -500,6 +545,7 @@ export function App() {
             <FileText size={16} aria-hidden="true" />
             <h2 id="documents-heading">Documents</h2>
           </div>
+          {documentsError ? <p role="alert" className="form-error">Documents unavailable: {documentsError}</p> : null}
           <div className="readiness-strip">
             <span>{readyDocuments.length} ready</span>
             <span>{documents.length} total</span>
@@ -522,6 +568,10 @@ export function App() {
       </aside>
 
       <main className="workspace">
+        {workspaceError ? <div role="alert" className="form-error">
+          Workspace unavailable: {workspaceError}
+          <button className="ghost-button" type="button" onClick={() => setReloadVersion((current) => current + 1)}>Retry connection</button>
+        </div> : null}
         <header className="topbar">
           <div>
             <span className="eyebrow">Selected company</span>
@@ -533,7 +583,7 @@ export function App() {
             {publicDemoMode ? <span className="demo-badge">DEMO</span> : null}
             <StatusPill tone={apiMode === "live" ? "good" : "warn"}>
               <Gauge size={14} />
-              {apiMode === "live" ? (publicDemoMode ? "Keyless deterministic API" : "API live") : "Browser fallback"}
+              {workspaceError ? "API unavailable" : apiMode === "live" ? (publicDemoMode ? "Keyless deterministic API" : "API live") : "Synthetic browser preview"}
             </StatusPill>
             <StatusPill tone={readyDocuments.length ? "good" : "warn"}>
               <CheckCircle2 size={14} />
@@ -656,6 +706,7 @@ export function App() {
                 </article>
               ) : null}
             </div>
+            {chatError ? <p role="alert" className="form-error">Research unavailable: {chatError}</p> : null}
             <form className="chat-input" onSubmit={handleAsk}>
               <div className="prompt-strip" aria-label="Question presets">
                 {questionPresets.map((preset) => (
@@ -709,6 +760,7 @@ export function App() {
                 </button>
               </div>
             </div>
+            {memoError ? <p role="alert" className="form-error">Memo unavailable: {memoError}</p> : null}
             {memo ? <MemoView memo={memo} onCitation={setSelectedCitation} /> : <EmptyState text="Generate a memo after documents are indexed and ready." />}
           </section>
         ) : null}
@@ -725,6 +777,7 @@ export function App() {
                 {selectedCompareCompanies.length >= 2 ? "Ready to compare" : "Select two or more"}
               </StatusPill>
             </div>
+            {compareError ? <p role="alert" className="form-error">Comparison unavailable: {compareError}</p> : null}
             <form className="compare-form" onSubmit={handleCompare}>
               <div className="compare-company-grid">
                 {companies.map((company) => (
@@ -806,6 +859,10 @@ export function App() {
       </footer>
     </div>
   );
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "Request failed. Please retry.";
 }
 
 function DocumentRow({ document }: { document: ResearchDocument }) {
