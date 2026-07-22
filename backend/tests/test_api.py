@@ -302,8 +302,8 @@ def test_chat_uses_ollama_provider_when_configured_and_grounded(tmp_path: Path, 
         from ai_equity_research_copilot_backend.schemas import Confidence
 
         return GroundedDraft(
-            answer="Micron's cited filing excerpt points to data center demand as a revenue driver, with cyclical pricing and capital intensity as risks.",
-            key_points=["Data center demand supported revenue growth.", "Pricing cyclicality and capital intensity are risk factors."],
+            answer="Micron's cited filing excerpt points to data center demand as a revenue driver, with cyclical pricing and capital intensity as risks. [1]",
+            key_points=["Data center demand supported revenue growth. [1]", "Pricing cyclicality and capital intensity are risk factors. [1]"],
             citation_indices=[1],
             confidence=Confidence.high,
             limitations=[],
