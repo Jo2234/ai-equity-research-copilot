@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import dataclass
 from pathlib import Path
 from threading import RLock
 from typing import Any
@@ -28,6 +29,13 @@ EMPTY_STATE: dict[str, list[dict[str, Any]]] = {
     "messages": [],
     "citations": [],
 }
+
+
+@dataclass(frozen=True)
+class CorpusSnapshot:
+    companies: dict[UUID, Company]
+    documents: dict[UUID, Document]
+    chunks: list[DocumentChunk]
 
 
 class JsonRepository:
@@ -135,6 +143,30 @@ class JsonRepository:
             company_set = set(company_ids)
             chunks = [chunk for chunk in chunks if chunk.company_id in company_set]
         return sorted(chunks, key=lambda chunk: (str(chunk.document_id), chunk.chunk_index))
+
+    def corpus_snapshot(self, company_ids: list[UUID]) -> CorpusSnapshot:
+        """Read one coherent corpus, filtering raw rows before model validation."""
+        state = self._read_state()
+        scope = {str(company_id) for company_id in company_ids}
+        companies = {
+            company.id: company
+            for row in state["companies"] if row["id"] in scope
+            for company in [Company.model_validate(row)]
+        }
+        documents = {
+            document.id: document
+            for row in state["documents"]
+            if row["company_id"] in scope and row["status"] == DocumentStatus.ready
+            for document in [Document.model_validate(row)]
+        }
+        document_ids = {str(document_id) for document_id in documents}
+        chunks = [
+            DocumentChunk.model_validate(row)
+            for row in state["chunks"]
+            if row["company_id"] in scope and row["document_id"] in document_ids
+        ]
+        chunks.sort(key=lambda chunk: (str(chunk.document_id), chunk.chunk_index))
+        return CorpusSnapshot(companies, documents, chunks)
 
     def create_conversation(self, title: str) -> Conversation:
         conversation = Conversation(title=title[:80] or "Research conversation")
