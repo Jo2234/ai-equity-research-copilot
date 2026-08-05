@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import {
   AlertTriangle,
@@ -19,13 +19,13 @@ import {
   Layers3,
   Loader2,
   MessageSquareText,
-  PanelRightOpen,
   Plus,
   RefreshCw,
   Search,
   ShieldCheck,
   TrendingUp,
   Upload,
+  X,
   XCircle
 } from "lucide-react";
 import {
@@ -63,13 +63,23 @@ const documentTypeOptions = [
   "other"
 ];
 
-const starterQuestion = "What drove recent revenue growth, and which risks should I verify before drafting a memo?";
+const starterQuestion =
+  "What drove recent revenue growth, and which risks should I verify before drafting a memo?";
 const publicDemoMode = import.meta.env.VITE_PUBLIC_DEMO === "true";
 
 const questionPresets = [
-  "Bridge revenue growth to volume, price, mix, and segment commentary.",
-  "List the most material risk-factor changes versus the prior filing.",
-  "What evidence supports or weakens the margin expansion narrative?"
+  {
+    label: "Revenue drivers",
+    question: "Bridge revenue growth to volume, price, mix, and segment commentary."
+  },
+  {
+    label: "Material risks",
+    question: "List the most material risk-factor changes versus the prior filing."
+  },
+  {
+    label: "Margin outlook",
+    question: "What evidence supports or weakens the margin expansion narrative?"
+  }
 ];
 
 const memoTemplates = [
@@ -80,10 +90,22 @@ const memoTemplates = [
 ];
 
 const researchStages = [
-  { label: "Corpus", detail: "documents indexed", icon: <DatabaseZap size={15} /> },
+  {
+    label: "Corpus",
+    detail: "documents indexed",
+    icon: <DatabaseZap size={15} />
+  },
   { label: "Retrieve", detail: "top-k passages", icon: <Search size={15} /> },
-  { label: "Synthesize", detail: "facts vs. interpretation", icon: <FileCheck2 size={15} /> },
-  { label: "Audit", detail: "citations required", icon: <ShieldCheck size={15} /> }
+  {
+    label: "Synthesize",
+    detail: "facts vs. interpretation",
+    icon: <FileCheck2 size={15} />
+  },
+  {
+    label: "Audit",
+    detail: "citations required",
+    icon: <ShieldCheck size={15} />
+  }
 ];
 
 const companySnapshots: Record<
@@ -142,7 +164,8 @@ export function App() {
   ]);
   const [selectedCitation, setSelectedCitation] = useState<Citation | null>(null);
   const [retrievalDebug, setRetrievalDebug] = useState<RetrievalDebug | null>(null);
-  const [debugVisible, setDebugVisible] = useState(true);
+  const [debugVisible, setDebugVisible] = useState(false);
+  const citationDialog = useRef<HTMLDialogElement>(null);
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [isMemoLoading, setIsMemoLoading] = useState(false);
   const [memoTemplate, setMemoTemplate] = useState(memoTemplates[0]);
@@ -164,15 +187,17 @@ export function App() {
   useEffect(() => {
     let mounted = true;
     setWorkspaceError("");
-    fetchCompanies().then(({ companies: nextCompanies, demo }) => {
-      if (!mounted) return;
-      setCompanies(nextCompanies);
-      setSelectedCompanyId(nextCompanies[0]?.id ?? "");
-      setSelectedCompareIds(nextCompanies.slice(0, 2).map((company) => company.id));
-      setApiMode(demo ? "demo" : "live");
-    }).catch((error: unknown) => {
-      if (mounted) setWorkspaceError(errorMessage(error));
-    });
+    fetchCompanies()
+      .then(({ companies: nextCompanies, demo }) => {
+        if (!mounted) return;
+        setCompanies(nextCompanies);
+        setSelectedCompanyId(nextCompanies[0]?.id ?? "");
+        setSelectedCompareIds(nextCompanies.slice(0, 2).map((company) => company.id));
+        setApiMode(demo ? "demo" : "live");
+      })
+      .catch((error: unknown) => {
+        if (mounted) setWorkspaceError(errorMessage(error));
+      });
     return () => {
       mounted = false;
     };
@@ -183,21 +208,23 @@ export function App() {
     let mounted = true;
     setDocuments([]);
     setDocumentsError("");
-    fetchDocuments(selectedCompanyId).then(({ documents: nextDocuments, demo }) => {
-      if (!mounted) return;
-      setDocuments((current) => {
-        const localPending = current.filter(
-          (document) =>
-            document.company_id === selectedCompanyId &&
-            !nextDocuments.some((nextDocument) => nextDocument.id === document.id) &&
-            (document.status === "uploaded" || document.status === "processing")
-        );
-        return [...localPending, ...nextDocuments];
+    fetchDocuments(selectedCompanyId)
+      .then(({ documents: nextDocuments, demo }) => {
+        if (!mounted) return;
+        setDocuments((current) => {
+          const localPending = current.filter(
+            (document) =>
+              document.company_id === selectedCompanyId &&
+              !nextDocuments.some((nextDocument) => nextDocument.id === document.id) &&
+              (document.status === "uploaded" || document.status === "processing")
+          );
+          return [...localPending, ...nextDocuments];
+        });
+        if (demo) setApiMode("demo");
+      })
+      .catch((error: unknown) => {
+        if (mounted) setDocumentsError(errorMessage(error));
       });
-      if (demo) setApiMode("demo");
-    }).catch((error: unknown) => {
-      if (mounted) setDocumentsError(errorMessage(error));
-    });
     return () => {
       mounted = false;
     };
@@ -211,28 +238,47 @@ export function App() {
     return company.ticker.toLowerCase().includes(needle) || company.name.toLowerCase().includes(needle);
   });
   const readyDocuments = documents.filter((document) => document.status === "ready");
-  const processingDocuments = documents.filter((document) => document.status === "processing" || document.status === "uploaded");
-  const failedDocuments = documents.filter((document) => document.status === "failed");
-  const readinessPercent = documents.length ? Math.round((readyDocuments.length / documents.length) * 100) : 0;
-  const activeCitations = useMemo(
-    () => messages.flatMap((message) => message.citations ?? []),
-    [messages]
+  const processingDocuments = documents.filter(
+    (document) => document.status === "processing" || document.status === "uploaded"
   );
+  const failedDocuments = documents.filter((document) => document.status === "failed");
+  const readinessPercent = documents.length
+    ? Math.round((readyDocuments.length / documents.length) * 100)
+    : 0;
+  const activeCitations = useMemo(() => messages.flatMap((message) => message.citations ?? []), [messages]);
   const selectedDocumentTypes = [...new Set(documents.map((document) => document.document_type))];
   const selectedFiscalYears = [
-    ...new Set(documents.map((document) => document.fiscal_year).filter((year): year is number => Boolean(year)))
+    ...new Set(
+      documents.map((document) => document.fiscal_year).filter((year): year is number => Boolean(year))
+    )
   ];
-  const corpusTypes = [...new Set(readyDocuments.map((document) => document.document_type))];
   const selectedSnapshot = selectedCompany
-    ? (browserDemoMode ? companySnapshots[selectedCompany.ticker] : undefined) ?? {
+    ? ((browserDemoMode ? companySnapshots[selectedCompany.ticker] : undefined) ?? {
         metrics: [
-          { label: "Corpus", value: String(readyDocuments.reduce((sum, document) => sum + (document.chunk_count ?? 0), 0)), sublabel: "ready chunks" },
-          { label: "Coverage", value: `${readyDocuments.length}/${documents.length}`, sublabel: "ready documents" },
-          { label: "Watch", value: selectedCompany.sector ?? "N/A", sublabel: "sector context" }
+          {
+            label: "Corpus",
+            value: String(readyDocuments.reduce((sum, document) => sum + (document.chunk_count ?? 0), 0)),
+            sublabel: "ready chunks"
+          },
+          {
+            label: "Coverage",
+            value: `${readyDocuments.length}/${documents.length}`,
+            sublabel: "ready documents"
+          },
+          {
+            label: "Watch",
+            value: selectedCompany.sector ?? "N/A",
+            sublabel: "sector context"
+          }
         ],
         focus: ["document coverage", "margin drivers", "risk disclosures"]
-      }
+      })
     : null;
+
+  function openCitation(citation: Citation) {
+    setSelectedCitation(citation);
+    citationDialog.current?.showModal();
+  }
 
   async function handleAsk(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -247,7 +293,6 @@ export function App() {
     setChatError("");
     setIsChatLoading(true);
     try {
-
       const { response, demo } = await askResearchQuestion({
         companyIds: [selectedCompany.id],
         question: userMessage.content,
@@ -270,7 +315,7 @@ export function App() {
       setSelectedCitation(response.citations[0] ?? null);
       setRetrievalDebug(response.retrieval_debug ?? null);
       if (demo) setApiMode("demo");
-      setQuestion((current) => current.trim() === userMessage.content ? "" : current);
+      setQuestion((current) => (current.trim() === userMessage.content ? "" : current));
     } catch (error) {
       setMessages((current) => current.filter((message) => message.id !== userMessage.id));
       setChatError(errorMessage(error));
@@ -313,7 +358,10 @@ export function App() {
     setIsCompareLoading(true);
     setCompareError("");
     try {
-      const { comparison: nextComparison, demo } = await compareCompanies(selectedCompareCompanies, compareQuestion);
+      const { comparison: nextComparison, demo } = await compareCompanies(
+        selectedCompareCompanies,
+        compareQuestion
+      );
       setComparison(nextComparison);
       setSelectedCitation(nextComparison.rows[0]?.citations[0] ?? null);
       if (demo) setApiMode("demo");
@@ -399,11 +447,17 @@ export function App() {
       });
       setSelectedCompanyId(importedCompany.id);
       setSelectedCompareIds((current) => [...new Set([importedCompany.id, ...current])].slice(0, 4));
-      setDocuments(discovery.company.documents ?? discovery.imported_documents ?? [discovery.imported_document]);
+      setDocuments(
+        discovery.company.documents ?? discovery.imported_documents ?? [discovery.imported_document]
+      );
       setCompanyLookupResults((current) =>
         current.map((item) =>
           item.ticker === result.ticker
-            ? { ...item, local_company_id: importedCompany.id, already_in_workspace: true }
+            ? {
+                ...item,
+                local_company_id: importedCompany.id,
+                already_in_workspace: true
+              }
             : item
         )
       );
@@ -417,23 +471,32 @@ export function App() {
 
   return (
     <div className="app-shell">
-      <div className="masthead">
-        <b>VAZ RESEARCH · AI EQUITY RESEARCH COPILOT</b>
-        <span>FILINGS-FIRST · CITED EVIDENCE</span>
-      </div>
+      <a className="skip-link" href="#research-workspace">
+        Skip to research
+      </a>
+      <header className="masthead">
+        <a className="brand-link" href="#research-workspace">
+          <span className="brand-mark">VR</span>
+          <span>
+            <b>Equity Research Copilot</b>
+            <small>By Johan Vaz</small>
+          </span>
+        </a>
+        <span className="masthead-note">
+          <BookOpenText size={16} /> Company filings. Clearer research.
+        </span>
+      </header>
       <aside className="sidebar" aria-label="Company and document navigation">
-        <div className="brand-row">
-          <div className="brand-mark">VR</div>
-          <div>
-            <h1>Equity Research Copilot</h1>
-            <p>Filings-first company research</p>
-          </div>
+        <div className="library-heading">
+          <span className="eyebrow">Your workspace</span>
+          <h1>Companies</h1>
         </div>
-
         <div className="sidebar-search">
           <Search size={16} aria-hidden="true" />
           <form onSubmit={handleCompanySearch}>
-            <label htmlFor="company-search">Companies</label>
+            <label className="sr-only" htmlFor="company-search">
+              Find a company
+            </label>
             <div className="company-search-row">
               <input
                 id="company-search"
@@ -450,7 +513,11 @@ export function App() {
           </form>
         </div>
 
-        {companySearchError ? <p role="alert" className="company-search-error">{companySearchError}</p> : null}
+        {companySearchError ? (
+          <p role="alert" className="company-search-error">
+            {companySearchError}
+          </p>
+        ) : null}
         {companyLookupResults.length ? (
           <div className="company-lookup-list" aria-label="Company search results">
             {companyLookupResults.map((result) => (
@@ -464,7 +531,13 @@ export function App() {
                   <strong>{result.ticker}</strong>
                   <small>{result.name}</small>
                 </span>
-                <em>{result.already_in_workspace ? "Open" : importingTicker === result.ticker ? "Building" : "Build corpus"}</em>
+                <em>
+                  {result.already_in_workspace
+                    ? "Open"
+                    : importingTicker === result.ticker
+                      ? "Building"
+                      : "Build corpus"}
+                </em>
               </button>
             ))}
           </div>
@@ -475,41 +548,55 @@ export function App() {
             <button
               className={`company-row ${company.id === selectedCompanyId ? "selected" : ""}`}
               key={company.id}
+              aria-pressed={company.id === selectedCompanyId}
               onClick={() => setSelectedCompanyId(company.id)}
               type="button"
             >
               <span className="ticker">{company.ticker}</span>
               <span>
                 <strong>{company.name}</strong>
-                <small>{company.sector ?? "Unclassified"} · {company.exchange ?? "N/A"}</small>
+                <small>
+                  {company.sector ?? "Unclassified"} · {company.exchange ?? "N/A"}
+                </small>
               </span>
               <ChevronRight size={16} aria-hidden="true" />
             </button>
           ))}
-          {!visibleCompanies.length ? <EmptyState text="No local workspace companies match this search. Use SEC search to import one." compact /> : null}
+          {!visibleCompanies.length ? (
+            <EmptyState
+              text="No matching workspace companies. Search by another ticker or company name."
+              compact
+            />
+          ) : null}
         </div>
 
-        <section className="coverage-panel" aria-label="Research focus">
-          <div className="section-title">
+        <details className="coverage-panel" aria-label="Research focus">
+          <summary>
             <TrendingUp size={16} aria-hidden="true" />
-            <h2>Research Focus</h2>
-          </div>
+            Research focus
+            <ChevronRight size={14} />
+          </summary>
           <div className="focus-list">
             {(selectedSnapshot?.focus ?? []).map((item) => (
               <span key={item}>{item}</span>
             ))}
           </div>
-        </section>
+        </details>
 
-        <section className="upload-panel" aria-labelledby="upload-heading">
-          <div className="section-title">
+        <details className="upload-panel" aria-labelledby="upload-heading">
+          <summary id="upload-heading">
             <Upload size={16} aria-hidden="true" />
-            <h2 id="upload-heading">Upload Document</h2>
-          </div>
+            {publicDemoMode || browserDemoMode ? "About this demo" : "Upload document"}
+            <ChevronRight size={14} />
+          </summary>
           {publicDemoMode || browserDemoMode ? (
             <div className="demo-notice">
               <strong>{browserDemoMode ? "Read-only browser preview" : "Read-only public demo"}</strong>
-              <p>{browserDemoMode ? "Synthetic examples only. No requests are sent and documents cannot be uploaded." : "The bundled filing corpus is fixed. Uploads and SEC imports are disabled; research workflows remain live."}</p>
+              <p>
+                {browserDemoMode
+                  ? "Synthetic examples only. No requests are sent and documents cannot be uploaded."
+                  : "The bundled filing corpus is fixed. Uploads and SEC imports are disabled; research workflows remain live."}
+              </p>
             </div>
           ) : (
             <form onSubmit={handleUpload}>
@@ -528,24 +615,38 @@ export function App() {
                 <input name="filing_date" type="date" aria-label="Filing date" />
                 <input name="fiscal_year" placeholder="FY" inputMode="numeric" aria-label="Fiscal year" />
               </div>
-              <input name="fiscal_quarter" placeholder="Quarter, e.g. 1" inputMode="numeric" aria-label="Fiscal quarter" />
+              <input
+                name="fiscal_quarter"
+                placeholder="Quarter, e.g. 1"
+                inputMode="numeric"
+                aria-label="Fiscal quarter"
+              />
               <input name="source_url" placeholder="Source URL" aria-label="Source URL" />
               <input name="file" type="file" accept=".pdf,.txt,.md" aria-label="Document file" />
-              {uploadError ? <p role="alert" className="form-error">{uploadError}</p> : null}
+              {uploadError ? (
+                <p role="alert" className="form-error">
+                  {uploadError}
+                </p>
+              ) : null}
               <button className="primary-button" disabled={isUploading} type="submit">
                 {isUploading ? <Loader2 className="spin" size={16} /> : <Plus size={16} />}
                 Add to ingestion queue
               </button>
             </form>
           )}
-        </section>
+        </details>
 
-        <section className="document-panel" aria-labelledby="documents-heading">
-          <div className="section-title">
+        <details className="document-panel" aria-labelledby="documents-heading">
+          <summary id="documents-heading">
             <FileText size={16} aria-hidden="true" />
-            <h2 id="documents-heading">Documents</h2>
-          </div>
-          {documentsError ? <p role="alert" className="form-error">Documents unavailable: {documentsError}</p> : null}
+            Documents<span className="count-badge">{documents.length}</span>
+            <ChevronRight size={14} />
+          </summary>
+          {documentsError ? (
+            <p role="alert" className="form-error">
+              Documents unavailable: {documentsError}
+            </p>
+          ) : null}
           <div className="readiness-strip">
             <span>{readyDocuments.length} ready</span>
             <span>{documents.length} total</span>
@@ -557,98 +658,152 @@ export function App() {
           </div>
           <div className="document-list">
             {documents.length ? (
-              documents.map((document) => (
-                <DocumentRow key={document.id} document={document} />
-              ))
+              documents.map((document) => <DocumentRow key={document.id} document={document} />)
             ) : (
-              <EmptyState text="Upload a filing, transcript, presentation, or note to create a searchable corpus." compact />
+              <EmptyState
+                text="Upload a filing, transcript, presentation, or note to create a searchable corpus."
+                compact
+              />
             )}
           </div>
-        </section>
+        </details>
+        <p className="sidebar-footnote">
+          Start with a question.
+          <br />
+          Follow the evidence to its source.
+        </p>
       </aside>
 
-      <main className="workspace">
-        {workspaceError ? <div role="alert" className="form-error">
-          Workspace unavailable: {workspaceError}
-          <button className="ghost-button" type="button" onClick={() => setReloadVersion((current) => current + 1)}>Retry connection</button>
-        </div> : null}
+      <main className="workspace" id="research-workspace">
+        {workspaceError ? (
+          <div role="alert" className="form-error">
+            Workspace unavailable: {workspaceError}
+            <button
+              className="ghost-button"
+              type="button"
+              onClick={() => setReloadVersion((current) => current + 1)}
+            >
+              Retry connection
+            </button>
+          </div>
+        ) : null}
         <header className="topbar">
           <div>
-            <span className="eyebrow">Selected company</span>
-            <h2>{selectedCompany ? `${selectedCompany.ticker} · ${selectedCompany.name}` : "Loading company universe"}</h2>
-            <p>{selectedCompany ? `${selectedCompany.industry ?? selectedCompany.sector ?? "Coverage universe"} · ${readinessPercent}% corpus ready` : "No company selected"}</p>
-            <p className="source-posture">No news or media coverage. Answers are based on company filings and uploaded source documents.</p>
+            <span className="eyebrow">Company research / {selectedCompany?.ticker ?? "Workspace"}</span>
+            <h2>
+              {selectedCompany
+                ? selectedCompany.name
+                : workspaceError
+                  ? "Connect your workspace"
+                  : "Loading companies…"}
+            </h2>
+            <p>
+              {selectedCompany
+                ? `${selectedCompany.industry ?? selectedCompany.sector ?? "Coverage universe"} · ${readinessPercent}% corpus ready`
+                : "No company selected"}
+            </p>
+            <p className="source-posture">
+              Explore the business through its filings. Every factual claim should lead back to evidence.
+            </p>
           </div>
           <div className="topbar-controls">
             {publicDemoMode ? <span className="demo-badge">DEMO</span> : null}
             <StatusPill tone={apiMode === "live" ? "good" : "warn"}>
               <Gauge size={14} />
-              {workspaceError ? "API unavailable" : apiMode === "live" ? (publicDemoMode ? "Keyless deterministic API" : "API live") : "Synthetic browser preview"}
+              {workspaceError
+                ? "API unavailable"
+                : apiMode === "live"
+                  ? publicDemoMode
+                    ? "Keyless deterministic API"
+                    : "API live"
+                  : "Synthetic browser preview"}
             </StatusPill>
             <StatusPill tone={readyDocuments.length ? "good" : "warn"}>
               <CheckCircle2 size={14} />
               {readyDocuments.length ? "Ready corpus" : "No ready docs"}
             </StatusPill>
-            <button className="ghost-button" onClick={() => setDebugVisible((visible) => !visible)} type="button">
+            <button
+              className="ghost-button debug-toggle"
+              aria-expanded={debugVisible}
+              onClick={() => setDebugVisible((visible) => !visible)}
+              type="button"
+            >
               <Code2 size={16} />
               Retrieval debug
             </button>
           </div>
         </header>
 
-        <section className="market-strip" aria-label="Company research snapshot">
-          {(selectedSnapshot?.metrics ?? []).map((metric) => (
-            <MetricCard key={metric.label} label={metric.label} value={metric.value} sublabel={metric.sublabel} />
-          ))}
-          <div className="risk-note">
-            <ShieldCheck size={16} aria-hidden="true" />
-            <span>No investment advice. Factual claims require retrieved evidence.</span>
-          </div>
-        </section>
-
-        <section className="workflow-strip" aria-label="Research workflow">
-          {researchStages.map((stage, index) => (
-            <div className="workflow-step" key={stage.label}>
-              <span>{stage.icon}</span>
-              <div>
-                <strong>{index + 1}. {stage.label}</strong>
-                <small>{stage.detail}</small>
+        <details className="research-scope">
+          <summary>
+            <DatabaseZap size={16} />
+            <span>
+              <strong>{readyDocuments.length} ready documents</strong> ·{" "}
+              {readyDocuments.reduce((sum, document) => sum + (document.chunk_count ?? 0), 0)} evidence chunks
+            </span>
+            <span className="scope-action">View coverage</span>
+            <ChevronRight size={15} />
+          </summary>
+          <div className="scope-content">
+            <section className="market-strip" aria-label="Company research snapshot">
+              {(selectedSnapshot?.metrics ?? []).map((metric) => (
+                <MetricCard
+                  key={metric.label}
+                  label={metric.label}
+                  value={metric.value}
+                  sublabel={metric.sublabel}
+                />
+              ))}
+              <div className="risk-note">
+                <ShieldCheck size={16} aria-hidden="true" />
+                <span>No investment advice. Factual claims require retrieved evidence.</span>
               </div>
+            </section>
+
+            <section className="workflow-strip" aria-label="Research workflow">
+              {researchStages.map((stage, index) => (
+                <div className="workflow-step" key={stage.label}>
+                  <span>{stage.icon}</span>
+                  <div>
+                    <strong>
+                      {index + 1}. {stage.label}
+                    </strong>
+                    <small>{stage.detail}</small>
+                  </div>
+                </div>
+              ))}
+            </section>
+
+            <div className="filter-bar" aria-label="Active filters">
+              <Filter size={16} aria-hidden="true" />
+              <FilterChip label="Types" value={selectedDocumentTypes.join(", ") || "none"} />
+              <FilterChip label="Fiscal years" value={selectedFiscalYears.join(", ") || "all"} />
+              <FilterChip label="Top K" value="8" />
+              <FilterChip label="Citation policy" value="Required for factual claims" />
             </div>
-          ))}
-        </section>
-
-        <div className="filter-bar" aria-label="Active filters">
-          <Filter size={16} aria-hidden="true" />
-          <FilterChip label="Types" value={selectedDocumentTypes.join(", ") || "none"} />
-          <FilterChip label="Fiscal years" value={selectedFiscalYears.join(", ") || "all"} />
-          <FilterChip label="Top K" value="8" />
-          <FilterChip label="Citation policy" value="Required for factual claims" />
-        </div>
-
-        <section className="corpus-overview" aria-label="Corpus overview">
-          <article>
-            <strong>{readyDocuments.length}</strong>
-            <span>ready filings</span>
-          </article>
-          <article>
-            <strong>{corpusTypes.length ? corpusTypes.join(", ") : "none"}</strong>
-            <span>source types</span>
-          </article>
-          <article>
-            <strong>{readyDocuments.reduce((sum, document) => sum + (document.chunk_count ?? 0), 0)}</strong>
-            <span>evidence chunks</span>
-          </article>
-        </section>
+          </div>
+        </details>
 
         <nav className="mode-tabs" aria-label="Workspace mode">
-          <ModeButton active={mode === "chat"} icon={<MessageSquareText size={16} />} onClick={() => setMode("chat")}>
+          <ModeButton
+            active={mode === "chat"}
+            icon={<MessageSquareText size={16} />}
+            onClick={() => setMode("chat")}
+          >
             Chat
           </ModeButton>
-          <ModeButton active={mode === "memo"} icon={<ClipboardList size={16} />} onClick={() => setMode("memo")}>
+          <ModeButton
+            active={mode === "memo"}
+            icon={<ClipboardList size={16} />}
+            onClick={() => setMode("memo")}
+          >
             Memo
           </ModeButton>
-          <ModeButton active={mode === "compare"} icon={<Layers3 size={16} />} onClick={() => setMode("compare")}>
+          <ModeButton
+            active={mode === "compare"}
+            icon={<Layers3 size={16} />}
+            onClick={() => setMode("compare")}
+          >
             Compare
           </ModeButton>
         </nav>
@@ -657,75 +812,122 @@ export function App() {
           <section className="work-panel" aria-label="Research chat">
             <div className="panel-heading">
               <div>
-                <h3>Grounded Q&A</h3>
-                <p>{readyDocuments.length} ready documents · {activeCitations.length} active citations · top 8 retrieval</p>
+                <h3>What would you like to understand?</h3>
+                <p>Ask about growth, margins, or the risks worth investigating.</p>
               </div>
               <StatusPill tone={readyDocuments.length ? "good" : "warn"}>
                 <BookOpenText size={14} />
                 {readyDocuments.length ? "Evidence available" : "Evidence pending"}
               </StatusPill>
             </div>
-            <div className="chat-log">
-              {messages.map((message) => (
-                <article className={`message ${message.role}`} key={message.id}>
-                  <div className="message-header">
-                    <strong>{message.role === "user" ? "Analyst" : "Copilot"}</strong>
-                    {message.confidence ? <span className="confidence">{message.confidence} confidence</span> : null}
-                  </div>
-                  <p>{message.content}</p>
-                  {message.citations?.length ? (
-                    <div className="citation-buttons">
-                      {message.citations.map((citation, index) => (
-                        <button key={citation.chunk_id} onClick={() => setSelectedCitation(citation)} type="button">
-                          <sup>{index + 1}</sup>
-                          <span>{citation.label}</span>
-                        </button>
-                      ))}
+            <details
+              className={`question-composer ${messages.length === 1 ? "initial" : ""}`}
+              open={messages.length === 1 || isChatLoading}
+            >
+              <summary>
+                <MessageSquareText size={16} />
+                Ask another question
+                <ChevronRight size={15} />
+              </summary>
+              <form className="chat-input" onSubmit={handleAsk}>
+                <label className="input-label" htmlFor="research-question">
+                  Research question
+                </label>
+                <div className="prompt-strip" aria-label="Question presets">
+                  {questionPresets.map((preset) => (
+                    <button key={preset.label} onClick={() => setQuestion(preset.question)} type="button">
+                      {preset.label}
+                      <ArrowUpRight size={14} />
+                    </button>
+                  ))}
+                </div>
+                <textarea
+                  id="research-question"
+                  aria-label="Research question"
+                  onChange={(event) => setQuestion(event.target.value)}
+                  placeholder="Ask a cited research question..."
+                  value={question}
+                />
+                <div className="composer-footer">
+                  <span>
+                    <ShieldCheck size={14} /> Answers grounded in your document corpus
+                  </span>
+                  <button
+                    className="primary-button"
+                    disabled={!selectedCompany || !question.trim() || isChatLoading}
+                    type="submit"
+                  >
+                    <ArrowUpRight size={16} />
+                    {isChatLoading ? "Researching…" : "Ask"}
+                  </button>
+                </div>
+              </form>
+            </details>
+            <div className="chat-log" aria-live="polite" aria-busy={isChatLoading}>
+              {messages
+                .filter((message) => message.id !== "welcome")
+                .map((message) => (
+                  <article className={`message ${message.role}`} key={message.id}>
+                    <div className="message-header">
+                      <strong>{message.role === "user" ? "Analyst" : "Copilot"}</strong>
+                      {message.confidence ? (
+                        <span className="confidence">{message.confidence} confidence</span>
+                      ) : null}
                     </div>
-                  ) : null}
-                  {message.usage ? (
-                    <div className="usage-row">
-                      <span>{message.usage.model}</span>
-                      <span>{message.usage.latency_ms} ms</span>
-                      <span>${message.usage.estimated_cost_usd.toFixed(4)}</span>
-                    </div>
-                  ) : null}
-                  {message.limitations?.length ? (
-                    <ul className="limitations">
-                      {message.limitations.map((limitation) => (
-                        <li key={limitation}>{limitation}</li>
-                      ))}
-                    </ul>
-                  ) : null}
-                </article>
-              ))}
+                    <p>{message.content}</p>
+                    {message.citations?.length ? (
+                      <div className="citation-buttons">
+                        {message.citations.map((citation, index) => (
+                          <button
+                            key={citation.chunk_id}
+                            onClick={() => openCitation(citation)}
+                            type="button"
+                          >
+                            <sup>{index + 1}</sup>
+                            <span>{citation.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                    {message.usage ? (
+                      <div className="usage-row">
+                        <span>{message.usage.model}</span>
+                        <span>{message.usage.latency_ms} ms</span>
+                        <span>${message.usage.estimated_cost_usd.toFixed(4)}</span>
+                      </div>
+                    ) : null}
+                    {message.limitations?.length ? (
+                      <ul className="limitations">
+                        {message.limitations.map((limitation) => (
+                          <li key={limitation}>{limitation}</li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </article>
+                ))}
               {isChatLoading ? (
                 <article className="message assistant loading">
                   <Loader2 className="spin" size={16} />
                   Retrieving passages and drafting a cited answer
                 </article>
               ) : null}
+              {messages.length === 1 && !isChatLoading ? (
+                <div className="research-empty">
+                  <BookOpenText size={24} />
+                  <div>
+                    <h4>Your next insight starts here</h4>
+                    <p>
+                      Ask a question, read the cited answer, then open a source to check the original passage.
+                    </p>
+                  </div>
+                </div>
+              ) : null}
             </div>
-            {chatError ? <p role="alert" className="form-error">Research unavailable: {chatError}</p> : null}
-            <form className="chat-input" onSubmit={handleAsk}>
-              <div className="prompt-strip" aria-label="Question presets">
-                {questionPresets.map((preset) => (
-                  <button key={preset} onClick={() => setQuestion(preset)} type="button">
-                    {preset}
-                  </button>
-                ))}
-              </div>
-              <textarea
-                aria-label="Research question"
-                onChange={(event) => setQuestion(event.target.value)}
-                placeholder="Ask a cited research question..."
-                value={question}
-              />
-              <button className="primary-button" disabled={!question.trim() || isChatLoading} type="submit">
-                <ArrowUpRight size={16} />
-                Ask
-              </button>
-            </form>
+            {chatError ? (
+              <p role="alert" className="form-error">
+                Research unavailable: {chatError}
+              </p>
+            ) : null}
           </section>
         ) : null}
 
@@ -734,7 +936,7 @@ export function App() {
             <div className="panel-heading">
               <div>
                 <h3>Standard Research Memo</h3>
-                <p>{memoTemplate} · editable analyst-style sections with source citations.</p>
+                <p>{memoTemplate} · analyst-style sections with source citations.</p>
               </div>
               <div className="panel-actions">
                 <select
@@ -754,14 +956,27 @@ export function App() {
                     Export
                   </button>
                 ) : null}
-                <button className="primary-button" disabled={isMemoLoading || !selectedCompany} onClick={handleGenerateMemo} type="button">
+                <button
+                  className="primary-button"
+                  disabled={isMemoLoading || !selectedCompany}
+                  onClick={handleGenerateMemo}
+                  type="button"
+                >
                   {isMemoLoading ? <Loader2 className="spin" size={16} /> : <RefreshCw size={16} />}
                   Generate memo
                 </button>
               </div>
             </div>
-            {memoError ? <p role="alert" className="form-error">Memo unavailable: {memoError}</p> : null}
-            {memo ? <MemoView memo={memo} onCitation={setSelectedCitation} /> : <EmptyState text="Generate a memo after documents are indexed and ready." />}
+            {memoError ? (
+              <p role="alert" className="form-error">
+                Memo unavailable: {memoError}
+              </p>
+            ) : null}
+            {memo ? (
+              <MemoView memo={memo} onCitation={openCitation} />
+            ) : (
+              <EmptyState text="Generate a memo after documents are indexed and ready." />
+            )}
           </section>
         ) : null}
 
@@ -777,8 +992,13 @@ export function App() {
                 {selectedCompareCompanies.length >= 2 ? "Ready to compare" : "Select two or more"}
               </StatusPill>
             </div>
-            {compareError ? <p role="alert" className="form-error">Comparison unavailable: {compareError}</p> : null}
+            {compareError ? (
+              <p role="alert" className="form-error">
+                Comparison unavailable: {compareError}
+              </p>
+            ) : null}
             <form className="compare-form" onSubmit={handleCompare}>
+              <span className="input-label">Choose companies</span>
               <div className="compare-company-grid">
                 {companies.map((company) => (
                   <label className="checkbox-row" key={company.id}>
@@ -797,7 +1017,11 @@ export function App() {
                   </label>
                 ))}
               </div>
+              <label className="input-label" htmlFor="comparison-question">
+                What would you like to compare?
+              </label>
               <textarea
+                id="comparison-question"
                 aria-label="Comparison question"
                 onChange={(event) => setCompareQuestion(event.target.value)}
                 value={compareQuestion}
@@ -812,7 +1036,11 @@ export function App() {
               </button>
             </form>
             {comparison ? (
-              <ComparisonView comparison={comparison} tickers={selectedCompareCompanies.map((company) => company.ticker)} onCitation={setSelectedCitation} />
+              <ComparisonView
+                comparison={comparison}
+                tickers={selectedCompareCompanies.map((company) => company.ticker)}
+                onCitation={openCitation}
+              />
             ) : (
               <EmptyState text="Select at least two companies and run a sourced comparison." />
             )}
@@ -822,18 +1050,28 @@ export function App() {
         {debugVisible ? <RetrievalDebugPanel debug={retrievalDebug} /> : null}
       </main>
 
-      <aside className="citation-drawer" aria-label="Citation drawer">
+      <dialog ref={citationDialog} className="citation-drawer" aria-labelledby="citation-heading">
         <div className="drawer-heading">
           <div>
             <span className="eyebrow">Source audit</span>
-            <h2>Citations</h2>
+            <h2 id="citation-heading">Source evidence</h2>
           </div>
-          <PanelRightOpen size={18} aria-hidden="true" />
+          <button
+            className="icon-button"
+            aria-label="Close source evidence"
+            onClick={() => citationDialog.current?.close()}
+            type="button"
+          >
+            <X size={20} />
+          </button>
         </div>
         <div className="audit-summary">
-          <MetricBadge label="Claims" value={activeCitations.length} />
+          <MetricBadge label="Citations" value={activeCitations.length} />
           <MetricBadge label="Ready docs" value={readyDocuments.length} />
-          <MetricBadge label="Score" value={selectedCitation ? `${Math.round(selectedCitation.score * 100)}%` : "N/A"} />
+          <MetricBadge
+            label="Score"
+            value={selectedCitation ? `${Math.round(selectedCitation.score * 100)}%` : "N/A"}
+          />
         </div>
         {selectedCitation ? (
           <CitationDetail citation={selectedCitation} />
@@ -845,17 +1083,26 @@ export function App() {
         {activeCitations.length ? (
           <div className="drawer-list">
             {activeCitations.map((citation, index) => (
-              <button key={citation.chunk_id} onClick={() => setSelectedCitation(citation)} type="button">
-                <span><sup>{index + 1}</sup> {citation.label}</span>
+              <button key={citation.chunk_id} onClick={() => openCitation(citation)} type="button">
+                <span>
+                  <sup>{index + 1}</sup> {citation.label}
+                </span>
                 <small>{Math.round(citation.score * 100)}% relevance</small>
               </button>
             ))}
           </div>
         ) : null}
-      </aside>
+      </dialog>
       <footer className="site-footer">
-        <span>Johan Vaz · <a href="https://johan-vaz-site.vercel.app" rel="noreferrer" target="_blank">johan-vaz-site.vercel.app</a></span>
-        <a href="https://github.com/Jo2234/ai-equity-research-copilot" rel="noreferrer" target="_blank">Source on GitHub</a>
+        <span>
+          Johan Vaz ·{" "}
+          <a href="https://johan-vaz-site.vercel.app" rel="noreferrer" target="_blank">
+            johan-vaz-site.vercel.app
+          </a>
+        </span>
+        <a href="https://github.com/Jo2234/ai-equity-research-copilot" rel="noreferrer" target="_blank">
+          Source on GitHub
+        </a>
       </footer>
     </div>
   );
@@ -867,10 +1114,26 @@ function errorMessage(error: unknown): string {
 
 function DocumentRow({ document }: { document: ResearchDocument }) {
   const statusMap = {
-    ready: { icon: <CheckCircle2 size={15} />, label: "Ready", className: "ready" },
-    processing: { icon: <Loader2 className="spin" size={15} />, label: "Processing", className: "processing" },
-    uploaded: { icon: <Clock3 size={15} />, label: "Uploaded", className: "uploaded" },
-    failed: { icon: <XCircle size={15} />, label: "Failed", className: "failed" }
+    ready: {
+      icon: <CheckCircle2 size={15} />,
+      label: "Ready",
+      className: "ready"
+    },
+    processing: {
+      icon: <Loader2 className="spin" size={15} />,
+      label: "Processing",
+      className: "processing"
+    },
+    uploaded: {
+      icon: <Clock3 size={15} />,
+      label: "Uploaded",
+      className: "uploaded"
+    },
+    failed: {
+      icon: <XCircle size={15} />,
+      label: "Failed",
+      className: "failed"
+    }
   } as const;
   const status = statusMap[document.status];
 
@@ -950,7 +1213,7 @@ function ModeButton({
   onClick: () => void;
 }) {
   return (
-    <button className={active ? "active" : ""} onClick={onClick} type="button">
+    <button className={active ? "active" : ""} aria-pressed={active} onClick={onClick} type="button">
       {icon}
       {children}
     </button>
@@ -1052,7 +1315,7 @@ function ComparisonView({
   return (
     <article className="comparison-output">
       <p>{comparison.summary}</p>
-      <div className="comparison-table" role="table" aria-label="Company comparison results">
+      <div className="comparison-table" role="table" tabIndex={0} aria-label="Company comparison results">
         <div className="comparison-header" role="row" style={gridStyle}>
           <strong role="columnheader">Dimension</strong>
           {tickers.map((ticker) => (
@@ -1078,7 +1341,8 @@ function ComparisonView({
                   onClick={() => onCitation(citation)}
                   type="button"
                 >
-                  {citation.company_ticker ?? "Source"}<sup>{index + 1}</sup>
+                  {citation.company_ticker ?? "Source"}
+                  <sup>{index + 1}</sup>
                 </button>
               ))}
             </span>
@@ -1104,11 +1368,17 @@ function RetrievalDebugPanel({ debug }: { debug: RetrievalDebug | null }) {
           {debug.chunks.map((chunk) => (
             <article key={chunk.id} className={chunk.cited ? "cited" : ""}>
               <div>
-                <strong>{chunk.company_ticker} · {chunk.document_title}</strong>
-                <span>{Math.round(chunk.score * 100)}% · {chunk.cited ? "cited" : "retrieved only"}</span>
+                <strong>
+                  {chunk.company_ticker} · {chunk.document_title}
+                </strong>
+                <span>
+                  {Math.round(chunk.score * 100)}% · {chunk.cited ? "cited" : "retrieved only"}
+                </span>
               </div>
               <p>{chunk.excerpt}</p>
-              <small>{chunk.section_title ?? "No section"} · p. {chunk.page_start ?? "N/A"}</small>
+              <small>
+                {chunk.section_title ?? "No section"} · p. {chunk.page_start ?? "N/A"}
+              </small>
             </article>
           ))}
         </div>
