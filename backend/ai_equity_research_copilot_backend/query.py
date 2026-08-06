@@ -31,7 +31,6 @@ class QuestionScope:
     types: frozenset[DocumentType]
     periods: tuple[tuple[int, int | None], ...]
     quarters: frozenset[int]
-    annual_unspecified: bool
     diversify: bool
 
     def matches(self, document: Document) -> bool:
@@ -41,17 +40,26 @@ class QuestionScope:
             DocumentType.ten_k,
             DocumentType.annual_report,
         }
-        if self.annual_unspecified and annual:
-            return True
-        if self.periods and not any(
+        periods = self.periods
+        annual_requested = DocumentType.ten_k in self.types
+        if annual_requested and self.quarters:
+            # Keep annual years separate from explicitly paired quarterly years.
+            if annual:
+                periods = tuple((year, q) for year, q in periods if q is None)
+                if not periods:
+                    return True
+            elif any(q is not None for _, q in periods):
+                periods = tuple((year, q) for year, q in periods if q is not None)
+        if periods and not any(
             document.fiscal_year == year
             and (quarter is None or document.fiscal_quarter == quarter)
-            for year, quarter in self.periods
+            for year, quarter in periods
         ):
             return False
         if (
             self.quarters
-            and not self.periods
+            and not annual
+            and not any(q is not None for _, q in periods)
             and document.fiscal_quarter not in self.quarters
         ):
             return False
@@ -84,16 +92,10 @@ def question_scope(query: str) -> QuestionScope:
         if not any(start <= match.start() < end for start, end in spans):
             periods.append((int(match[0]), None))
     quarters = frozenset(int(value) for value in re.findall(r"\bq([1-4])\b", text))
-    # An annual-vs-Q1 comparison may specify only the quarterly fiscal year.
-    # Do not silently assign that year to the unspecified annual report.
-    annual_unspecified = (
-        annual and bool(periods) and all(q is not None for _, q in periods)
-    )
     return QuestionScope(
         frozenset(types),
         tuple(dict.fromkeys(periods)),
         quarters,
-        annual_unspecified,
         bool(re.search(r"\bcompare|\bacross|\bevolve|\bversus", text)),
     )
 
