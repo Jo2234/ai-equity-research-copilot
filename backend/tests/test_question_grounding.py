@@ -120,6 +120,13 @@ def test_annual_quarter_comparison_retains_both_documents(workspace):
         quarter=2,
         kind=DocumentType.ten_q,
     )
+    add(
+        "Distractor Q1 2024",
+        "Subscription revenue grew 90 percent because enterprise demand increased.",
+        year=2024,
+        quarter=1,
+        kind=DocumentType.ten_q,
+    )
     answer = ask(
         "Compare annual subscription revenue growth with fiscal 2025 Q2 subscription revenue growth."
     )
@@ -131,6 +138,13 @@ def test_annual_quarter_comparison_retains_both_documents(workspace):
         "Compare FY2024 annual subscription revenue with Q2 FY2025 subscription revenue."
     )
     assert {c["document_id"] for c in explicit["citations"]} == {
+        str(annual.id),
+        str(quarter.id),
+    }
+    unspecified = ask(
+        "Compare annual subscription revenue with Q2 subscription revenue."
+    )
+    assert {c["document_id"] for c in unspecified["citations"]} == {
         str(annual.id),
         str(quarter.id),
     }
