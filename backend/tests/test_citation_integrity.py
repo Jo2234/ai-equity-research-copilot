@@ -120,16 +120,25 @@ def test_model_references_are_renumbered_and_full_context_is_available(tmp_path,
     assert payload["usage"]["retrieval"]["cited_chunks"] == 2
 
 
-def test_required_unavailable_model_does_not_invent_citations(tmp_path, monkeypatch):
+@pytest.mark.parametrize("error, expected", [
+    ("Ollama unavailable", "unavailable"),
+    ("Ollama request timed out", "timed out"),
+])
+def test_required_unavailable_model_does_not_invent_citations(tmp_path, monkeypatch, error, expected):
     monkeypatch.setenv("AIERC_LLM_PROVIDER", "ollama")
     app, company, _ = corpus_app(tmp_path, monkeypatch)
     def unavailable(*args):
-        raise RuntimeError("Ollama unavailable")
+        raise RuntimeError(error)
     monkeypatch.setattr(app.state.research.ollama, "_post", unavailable)
     payload = TestClient(app).post("/research/chat", json={"company_ids": [str(company.id)], "question": "Revenue growth"}).json()
     assert payload["usage"]["provider"] == "ollama"
-    assert "unavailable" in payload["answer"]
+    assert expected in payload["answer"]
     assert payload["citations"] == []
+    assert payload["key_points"] == []
+    assert payload["limitations"] == [error]
+    if expected == "timed out":
+        assert "Start Ollama" not in payload["answer"]
+        assert "pull" not in payload["answer"]
 
 
 @pytest.mark.parametrize("body", [b"<html>bad gateway</html>", b"[]"])
