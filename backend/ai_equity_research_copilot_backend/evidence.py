@@ -59,13 +59,14 @@ def evidence_passages(text: str) -> list[str]:
 
 
 def usable_prose(sentence: str) -> bool:
-    if not 35 <= len(sentence) <= 650 or "table of contents" in sentence.lower():
+    if (not 35 <= len(sentence) <= 650 or "table of contents" in sentence.lower()
+            or sentence.rstrip().endswith(":")):
         return False
     if sentence.count("▪") + sentence.count("•") > 2 or sentence.count(";") > 5:
         return False
     # Rows without known column headings must not masquerade as prose.
     if len(re.findall(r"(?<!\w)\(?-?\d[\d,.]*\)?", sentence)) >= 2 and not re.search(
-        r"\b(?:was|were|is|are|grew|rose|fell|increased|decreased|declined|totaled|reached)\b|\b(?:in|for|during)\s*(?:FY)?20\d{2}\b", sentence, re.I
+        r"\b(?:was|were|is|are|grew|rose|fell|increased|decreased|declined|totaled|reached|achieved|generated|reported|recorded|represented|repurchased|spent|paid|returned|amounted)\b|\b(?:in|for|during)\s*(?:FY)?20\d{2}\b", sentence, re.I
     ):
         return False
     return sum(char.isalpha() for char in sentence) / len(sentence) > 0.55

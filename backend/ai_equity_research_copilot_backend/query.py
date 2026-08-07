@@ -13,7 +13,9 @@ in into is it its of on or that the their these this those to was were what whic
 why with would you your according cite cites cited describe described disclose disclosed
 disclosure disclosures discussion commentary position trend explain identify main primary report reported say says summarize
 compare comparison drove driven driver drivers factor factors change changes recent
-annual quarterly fiscal year filing filings document documents fy q1 q2 q3 q4""".split()
+annual quarterly fiscal year filing filings document documents fy q1 q2 q3 q4
+about related key said comments comment update provide information based only
+call transcript transcripts official""".split()
 )
 
 
@@ -89,7 +91,7 @@ def question_scope(query: str) -> QuestionScope:
     quarterly = bool(re.search(r"\b(?:quarterly|10[- ]?q|q[1-4])\b", text))
     if annual:
         types.update((DocumentType.ten_k, DocumentType.annual_report))
-    if quarterly and (annual or re.search(r"quarterly\s+filing|10[- ]?q", text)):
+    if quarterly and (annual or re.search(r"quarterly\s+(?:filing|report)|10[- ]?q", text)):
         types.add(DocumentType.ten_q)
     if re.search(r"earnings\s+call|transcript", text):
         types.add(DocumentType.earnings_transcript)

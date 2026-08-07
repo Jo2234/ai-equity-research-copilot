@@ -25,7 +25,12 @@ def parse_pdf(path: Path) -> list[ParsedPage]:
         pages: list[ParsedPage] = []
         with fitz.open(path) as doc:
             for idx, page in enumerate(doc, start=1):
-                pages.append(ParsedPage(page_number=idx, text=page.get_text("text")))
+                # Preserve layout paragraph boundaries. Plain page text loses
+                # them, causing the chunker to treat every wrapped PDF line as
+                # a separate paragraph and truncate financial sentences.
+                blocks = [block[4].strip() for block in page.get_text("blocks")
+                          if block[6] == 0 and block[4].strip()]
+                pages.append(ParsedPage(page_number=idx, text="\n\n".join(blocks), paragraphs=tuple(blocks)))
         if any(page.text.strip() for page in pages):
             return pages
         errors.append("PyMuPDF extracted no text")
