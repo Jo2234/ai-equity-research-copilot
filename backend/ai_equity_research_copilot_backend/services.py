@@ -426,44 +426,116 @@ class ResearchService:
         query_terms = content_terms(query) - company_terms
         anchors = required_evidence_patterns(query)
         explanatory = bool(re.search(r"\b(?:why|drove|driver|drivers|factor|factors|discussion|commentary)\b", query, re.I))
-        scored: list[tuple[float, str, RetrievalDebugResult]] = []
+        # Preserve query word order for phrase matches: a "gross margin"
+        # passage is stronger evidence than unrelated mentions of either word.
+        def sequence(text: str) -> list[str]:
+            return [next(iter(terms)) if terms else ""
+                    for token in re.findall(r"[A-Za-z]+", text)
+                    for terms in [content_terms(token)]]
+
+        query_sequence = sequence(query)
+        phrases = {(left, right) for left, right in zip(query_sequence, query_sequence[1:])
+                   if left in query_terms and right in query_terms}
+        scope = question_scope(query)
+        requested_periods = set(scope.periods)
+        if scope.quarters and not any(quarter is not None for _, quarter in scope.periods):
+            # A quarter can be separated from its year by the requested metric,
+            # e.g. "Q1 revenue in fiscal 2024". Preserve an annual component only
+            # when the question actually requests both annual and quarter data.
+            requested_periods = {(year, quarter) for year, _ in scope.periods for quarter in scope.quarters}
+            if re.search(r"\b(?:annual|full[- ]year|10[- ]?k)\b", query, re.I):
+                requested_periods.update(scope.periods)
+        facets = [content_terms(part) - company_terms for part in re.split(r"\band\b|\bor\b", query, flags=re.I)]
+        scored: list[tuple[float, str, RetrievalDebugResult, set[str], set[tuple[str, ...]]]] = []
         for result in results:
+            # A fiscal-year release may contain both Q4 and full-year sections.
+            # Use an explicit local heading when present; metadata alone cannot
+            # distinguish those figures. Unknown section periods remain unknown.
+            blocks = []
+            local_period = None
+            for block in re.split(r"\n\s*\n", result.chunk.text):
+                text = " ".join(block.split())
+                if len(text) < 120 and re.search(r"(?:highlights|results|performance)$", text, re.I):
+                    year = re.search(r"\b20\d{2}\b", text)
+                    if year:
+                        quarter = re.search(r"\b(first|second|third|fourth)\s+quarter|\bq([1-4])\b", text, re.I)
+                        quarter_number = None
+                        if quarter:
+                            quarter_number = (int(quarter[2]) if quarter[2] else
+                                              {"first": 1, "second": 2, "third": 3, "fourth": 4}[quarter[1].lower()])
+                        local_period = (int(year[0]), quarter_number)
+                blocks.append((text, local_period))
             for cleaned in evidence_passages(result.chunk.text):
                 sentence_terms = content_terms(cleaned)
                 matched = query_terms & sentence_terms
-                overlap = len(matched) / max(len(query_terms), 1)
-                score = result.score + overlap - (0.2 if explanatory and "\n...\n" in cleaned else 0.0)
+                if not (query_terms and (len(matched) >= min(2, len(query_terms))
+                                        or any(facet and facet <= matched for facet in facets))
+                        and all(re.search(pattern, cleaned, re.I) for pattern in anchors)):
+                    continue
+                overlap = len(matched) / len(query_terms)
+                words = sequence(cleaned)
+                phrase_overlap = len(phrases & set(zip(words, words[1:]))) / max(len(phrases), 1)
+                score = result.score + overlap + 0.3 * phrase_overlap
+                score -= 0.2 if explanatory and "\n...\n" in cleaned else 0.0
                 # Actual amounts and causal explanations answer financial
                 # questions more directly than repeated accounting definitions.
                 score += 0.05 * min(3, len(set(QUANTITY_RE.findall(cleaned))))
                 if explanatory and CAUSE_RE.search(cleaned):
                     score += 0.2
-                if (query_terms and len(matched) >= min(2, len(query_terms))
-                        and all(re.search(pattern, cleaned, re.I) for pattern in anchors)):
-                    scored.append((score, cleaned, result))
+                # Full-year releases can also contain their final quarter. Do
+                # not treat an explicitly quarterly figure as a full-year total.
+                normalized = " ".join(cleaned.split())
+                local_period = next((period for text, period in blocks if normalized in text), None)
+                # A release can switch to full-year results in prose without
+                # introducing a new heading. The passage's explicit period is
+                # stronger evidence than an inherited section label.
+                if not re.search(r"\b(?:quarter|q[1-4]|three months)\b", cleaned, re.I):
+                    explicit_years = set(re.findall(
+                        r"\b(?:in|for|during)\s+(?:the\s+)?fiscal(?:\s+year)?\s+(20\d{2})\b", cleaned, re.I))
+                    if len(explicit_years) == 1:
+                        local_period = (int(next(iter(explicit_years))), None)
+                if requested_periods and local_period:
+                    if local_period not in requested_periods:
+                        continue
+                    score += 0.2
+                tokens = re.findall(r"\w+", cleaned.lower())
+                shingles = {tuple(tokens[i:i + 5]) for i in range(max(1, len(tokens) - 4))}
+                scored.append((score, cleaned, result, matched, shingles))
         scored.sort(key=lambda item: item[0], reverse=True)
-        if question_scope(query).diversify or len({r.company.id for r in results}) > 1:
-            preferred = []
-            for attribute in ("company_id", "document_id"):
-                seen_ids = {getattr(row[2].chunk, attribute) for row in preferred}
-                for row in scored:
-                    identity = getattr(row[2].chunk, attribute)
-                    if identity not in seen_ids:
-                        preferred.append(row)
-                        seen_ids.add(identity)
-            scored = preferred + [row for row in scored if row not in preferred]
-        points: list[EvidencePoint] = []
-        seen: set[tuple[str, str]] = set()
-        for _, sentence, result in scored:
-            normalized = (str(result.document.id), " ".join(sentence.lower().split()))
-            if any(document == normalized[0] and (text in normalized[1] or normalized[1] in text)
-                   for document, text in seen):
+        selected = []
+        diversify = scope.diversify or len({r.company.id for r in results}) > 1
+        while scored and len(selected) < max_points:
+            def priority(row):
+                score, _, result, terms, shingles = row
+                comparable = [item for item in selected if item[2].document.id == result.document.id]
+                redundancy = max((len(shingles & item[4]) / max(1, min(len(shingles), len(item[4])))
+                                  for item in comparable), default=0.0)
+                covered = set().union(*(item[3] for item in comparable))
+                novelty = len(terms - covered) / max(1, len(query_terms))
+                # Reserve room for requested companies and documents without
+                # letting four overlapping sentence windows fill the answer.
+                coverage = 0.0
+                if diversify:
+                    if result.company.id not in {item[2].company.id for item in selected}:
+                        coverage += 1.0
+                    if result.document.id not in {item[2].document.id for item in selected}:
+                        coverage += 0.5
+                # Redundancy matters when it crowds out another requested
+                # topic. For one topic, overlapping context may supply its
+                # essential explanation or offsetting factors.
+                penalty = 0.8 * redundancy if len(facets) > 1 else 0.0
+                return score + 0.2 * novelty + coverage - penalty
+
+            row = max(scored, key=priority)
+            scored.remove(row)
+            normalized = " ".join(row[1].lower().split())
+            if any(item[2].document.id == row[2].document.id
+                   and (normalized in " ".join(item[1].lower().split())
+                        or " ".join(item[1].lower().split()) in normalized)
+                   for item in selected):
                 continue
-            points.append(EvidencePoint(sentence, result))
-            seen.add(normalized)
-            if len(points) >= max_points:
-                break
-        return points
+            selected.append(row)
+        return [EvidencePoint(row[1], row[2]) for row in selected]
 
     def _citation(self, result: RetrievalDebugResult, excerpt: str) -> Citation:
         document = result.document
