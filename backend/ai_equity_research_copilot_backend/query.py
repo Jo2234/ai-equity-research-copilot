@@ -4,8 +4,17 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from uuid import UUID
 
 from .schemas import Document, DocumentType
+
+QUARTER_WORDS = {"first": 1, "second": 2, "third": 3, "fourth": 4}
+
+
+def _normalize_quarters(text: str) -> str:
+    return re.sub(r"\b(first|second|third|fourth)\s+quarter\b",
+                  lambda match: f"Q{QUARTER_WORDS[match[1].lower()]}", text, flags=re.I)
+
 
 STOPWORDS = set(
     """a an and are as at be been by can did do does for from had has have how
@@ -20,6 +29,7 @@ call transcript transcripts official""".split()
 
 
 def content_terms(text: str) -> set[str]:
+    text = _normalize_quarters(text)
     # Source-type instructions do not describe the requested financial topic.
     text = re.sub(r"\b(?:management(?:'s)?\s+)?earnings\s+(?:call|release)\b", " ", text, flags=re.I)
     terms = set(re.findall(r"[a-z]+|\d+(?:\.\d+)?", text.lower())) - STOPWORDS
@@ -87,7 +97,7 @@ class QuestionScope:
 
 
 def question_scope(query: str) -> QuestionScope:
-    text = query.lower()
+    text = _normalize_quarters(query).lower()
     types = set()
     annual = bool(re.search(r"\b(?:annual|10[- ]?k)\b", text))
     quarterly = bool(re.search(r"\b(?:quarterly|10[- ]?q|q[1-4])\b", text))
@@ -99,11 +109,30 @@ def question_scope(query: str) -> QuestionScope:
         types.add(DocumentType.earnings_transcript)
     if re.search(r"earnings\s+release", text):
         types.add(DocumentType.eight_k)
+    # A named call/release in one side of a comparison is supplementary to
+    # the financial disclosure requested on the other side.
+    clauses = re.split(r"\bwith\b|\bversus\b", text, maxsplit=1)
+    supplement = r"earnings\s+(?:call|release)|transcript"
+    if (len(clauses) == 2 and re.search(r"\bcompare|\bacross|\bversus", text)
+            and not re.search(supplement, clauses[0]) and re.search(supplement, clauses[1])
+            and re.search(r"\b(?:quarterly|q[1-4])\b", clauses[0])):
+        types.add(DocumentType.ten_q)
+    # A comparison can ask for management's separate commentary without
+    # naming its recording format. Permit earnings-call transcripts alongside
+    # the filing, but do not override a source explicitly named in that clause.
+    management = r"\bmanagement(?:['’]s)?\s+(?:commentary|comments|remarks)\b"
+    if (len(clauses) == 2 and re.search(r"\bcompare|\bacross|\bversus", text)
+            and re.search(management, clauses[1]) and not re.search(management, clauses[0])
+            and re.search(r"\b(?:quarterly|annual|filing|q[1-4]|10[- ]?[qk])\b", clauses[0])
+            and not re.search(r"\b(?:filing|report|release|10[- ]?[qk])\b", clauses[1])):
+        types.add(DocumentType.earnings_transcript)
+        if re.search(r"\b(?:quarterly|q[1-4]|10[- ]?q)\b", clauses[0]):
+            types.add(DocumentType.ten_q)
     periods = []
     spans = []
     for pattern, year_group, quarter_group in (
         (r"\b(?:fy|fiscal(?:\s+year)?)\s*(20\d{2})\s*[,/-]?\s*q([1-4])\b", 1, 2),
-        (r"\bq([1-4])\s*(?:(?:fy|fiscal(?:\s+year)?)\s*)?(20\d{2})\b", 2, 1),
+        (r"\bq([1-4])\s*(?:of\s+)?(?:(?:fy|fiscal(?:\s+year)?)\s*)?(20\d{2})\b", 2, 1),
     ):
         for match in re.finditer(pattern, text):
             periods.append((int(match[year_group]), int(match[quarter_group])))
@@ -156,3 +185,130 @@ def required_evidence_patterns(question: str) -> list[str]:
         if re.search(request, question, re.I):
             patterns.append(evidence)
     return patterns
+
+
+ANNUAL_TYPES = frozenset({DocumentType.ten_k, DocumentType.annual_report})
+
+
+def explicit_periods(text: str, document_year: int | None = None) -> set[tuple[int, int | None]]:
+    """Read stated fiscal periods; a short FY year must agree with metadata."""
+    normalized = _normalize_quarters(text)
+    normalized = re.sub(r"\bFY\s*(\d{2})(?!\d)",
+                        lambda m: f"FY{document_year}" if document_year is not None
+                        and document_year % 100 == int(m[1]) else m[0], normalized, flags=re.I)
+    periods = set()
+    paired_spans = []
+    for pattern, quarter_group, year_group in (
+        (r"\bQ([1-4])\s*(?:of\s+)?(?:(?:FY|fiscal(?:\s+year)?)\s*)?(20\d{2})\b", 1, 2),
+        (r"\b(?:FY|fiscal(?:\s+year)?)\s*(20\d{2})\s*[,/-]?\s*Q([1-4])\b", 2, 1),
+    ):
+        for match in re.finditer(pattern, normalized, re.I):
+            periods.add((int(match[year_group]), int(match[quarter_group])))
+            paired_spans.append(match.span())
+    for match in re.finditer(r"\b(?:FY|fiscal(?:\s+year)?|full[- ]year)\s*(20\d{2})\b", normalized, re.I):
+        if not any(start <= match.start() < end for start, end in paired_spans):
+            periods.add((int(match[1]), None))
+    return periods
+
+
+def passage_period(text: str, inherited: tuple[int, int | None] | None = None,
+                   document_year: int | None = None) -> tuple[int, int | None] | None:
+    """Prefer an explicit passage period to its surrounding section label."""
+    # An explicit short year cannot become a bare quarter if it fails to
+    # resolve against document metadata. Do not guess its century or inherit.
+    short_years = re.findall(r"\bFY\s*(\d{2})(?!\d)", text, re.I)
+    if any(document_year is None or document_year % 100 != int(year) for year in short_years):
+        return None
+    periods = explicit_periods(text, document_year)
+    if len(periods) > 1:
+        return None  # A multi-period passage has no single exclusive period.
+    if periods and next(iter(periods))[1] is not None:
+        return next(iter(periods))
+    if len(periods) == 1 and not re.search(r"\b(?:quarter|Q[1-4]|three months)\b", text, re.I):
+        return next(iter(periods))
+    # A standalone Q4 may inherit its year only from verified surrounding text.
+    local_quarters = {int(q) for q in re.findall(r"\bQ([1-4])\b", _normalize_quarters(text), re.I)}
+    if periods and local_quarters:
+        return None  # An unpaired annual year and quarter do not establish scope.
+    if inherited and len(local_quarters) == 1:
+        return inherited[0], next(iter(local_quarters))
+    return inherited
+
+
+def document_period_policy(query: str, documents: list[Document], *,
+                           filtered_types: bool = False, filtered_years: bool = False) -> dict[UUID, str]:
+    """Choose reproducible source periods, with assumptions returned for display.
+
+    Inputs already satisfy explicit user filters. No answer relevance or expected
+    facts enter the policy. A missing date never becomes an invented fiscal year.
+    """
+    scope = question_scope(query)
+    by_company: dict[UUID, list[Document]] = {}
+    for document in documents:
+        by_company.setdefault(document.company_id, []).append(document)
+    selected: dict[UUID, str] = {}
+    quarterly = bool(scope.quarters or re.search(r"\bquarterly\b", query, re.I))
+    latest_requested = bool(re.search(r"\b(?:latest|most recent|current)\b", query, re.I))
+
+    def family(document: Document) -> str:
+        return "annual" if document.document_type in ANNUAL_TYPES else document.document_type.value
+
+    def latest(rows: list[Document]) -> tuple[list[Document], bool]:
+        if all(document.period_end_date is not None for document in rows):
+            newest = max(document.period_end_date for document in rows)
+            return [document for document in rows if document.period_end_date == newest], False
+        # Fiscal ordering is the fallback when end dates are incomplete. A full
+        # annual period ends in Q4; an unlabelled release is not an annual period.
+        years = [document.fiscal_year for document in rows if document.fiscal_year is not None]
+        if not years:
+            return rows, True
+        newest_year = max(years)
+        current = [document for document in rows if document.fiscal_year == newest_year]
+        unknown = [document for document in rows if document.fiscal_year is None]
+        quarters = {document.id: 4 if document.document_type in ANNUAL_TYPES else document.fiscal_quarter
+                    for document in current}
+        known_quarters = [quarter for quarter in quarters.values() if quarter is not None]
+        newest_quarter = max(known_quarters, default=None)
+        selected = [document for document in current if quarters[document.id] in {None, newest_quarter}]
+        ambiguous = bool(unknown or any(quarter is None for quarter in quarters.values()))
+        return selected + unknown, ambiguous
+
+    for company_documents in by_company.values():
+        candidates = company_documents
+        assumption = ""
+        if not scope.types and not filtered_types:
+            preferred = []
+            if quarterly:
+                preferred = [d for d in candidates if d.document_type == DocumentType.ten_q]
+                if preferred:
+                    assumption = "Quarterly disclosure questions use the quarterly filing when one is available."
+            elif not latest_requested:
+                preferred = [d for d in candidates if d.document_type in ANNUAL_TYPES]
+                if preferred:
+                    assumption = ("No source type was specified; using annual filings for the requested fiscal period."
+                                  if scope.periods or filtered_years else
+                                  "No source type was specified; using the latest available annual filing as the research baseline.")
+            if preferred:
+                candidates = preferred
+            if latest_requested and not scope.periods and not filtered_years:
+                candidates, ambiguous = latest(candidates)
+                assumption = ("Some source periods cannot be ordered from the available metadata; retaining those sources alongside the latest identifiable fiscal period."
+                              if ambiguous else "Using the latest available fiscal period requested, across available source types.")
+        # Explicit periods are not replaced by a more recent period. An annual
+        # component left undated in an annual/quarter comparison is independent.
+        groups: dict[str, list[Document]] = {}
+        for document in candidates:
+            groups.setdefault(family(document), []).append(document)
+        for group, rows in groups.items():
+            explicitly_dated = bool(scope.periods or filtered_years)
+            if group == "annual" and scope.quarters and scope.types & ANNUAL_TYPES:
+                explicitly_dated = filtered_years or any(q is None for _, q in scope.periods)
+            if not explicitly_dated:
+                rows, ambiguous = latest(rows)
+                if ambiguous:
+                    assumption = "Some source periods cannot be ordered from the available metadata; retaining those sources alongside the latest identifiable fiscal period."
+                elif not assumption:
+                    assumption = "No period was specified for this source type; using its latest available fiscal period."
+            for document in rows:
+                selected[document.id] = assumption
+    return selected
