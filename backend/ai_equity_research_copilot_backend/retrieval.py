@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from .embeddings import HashingEmbedder, cosine_similarity
+from .evidence import evidence_passages
 from .query import content_terms, question_scope
 from .schemas import DocumentType, RetrievalDebugResult
 from .storage import CorpusSnapshot, JsonRepository
@@ -16,6 +17,7 @@ class PreparedCorpus:
     snapshot: CorpusSnapshot
     terms: dict[UUID, frozenset[str]]
     chunk_frequency: dict[str, int]
+    passage_terms: dict[UUID, tuple[frozenset[str], ...]]
 
 
 class RetrievalService:
@@ -31,6 +33,7 @@ class RetrievalService:
             snapshot=snapshot,
             terms=terms,
             chunk_frequency=dict(Counter(term for row in terms.values() for term in row)),
+            passage_terms={},
         )
 
     def search(
@@ -78,7 +81,13 @@ class RetrievalService:
                 continue
             vector_score = max(0.0, cosine_similarity(query_embedding, chunk.embedding))
             keyword_score = sum(weights[term] for term in overlap) / query_weight
-            score = (0.20 * vector_score) + (0.80 * keyword_score)
+            if chunk.id not in prepared.passage_terms:
+                prepared.passage_terms[chunk.id] = tuple(
+                    frozenset(content_terms(p)) for p in evidence_passages(chunk.text)
+                )
+            passage_score = max((sum(weights[term] for term in query_terms & passage) / query_weight
+                                 for passage in prepared.passage_terms[chunk.id]), default=0.0)
+            score = (0.20 * vector_score) + (0.15 * keyword_score) + (0.65 * passage_score)
             if score >= threshold:
                 results.append(
                     RetrievalDebugResult(
