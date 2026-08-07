@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import math
 from collections import Counter, OrderedDict
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from threading import RLock
 from uuid import UUID
 
 from .embeddings import HashingEmbedder, cosine_similarity
 from .evidence import evidence_passages
-from .query import content_terms, question_scope
+from .query import content_terms, document_period_policy, explicit_periods, question_scope
 from .schemas import DocumentType, RetrievalDebugResult
 from .storage import CorpusSnapshot, JsonRepository
 
@@ -78,6 +78,35 @@ class RetrievalService:
         query_terms -= company_terms
         weights = {term: math.log(1 + len(prepared.terms) / (1 + prepared.chunk_frequency.get(term, 0))) for term in query_terms}
         query_weight = max(sum(weights.values()), 1e-9)
+        # Resolve document periods before relevance scoring, so stronger lexical
+        # matches cannot silently replace a requested or assumed fiscal period.
+        explicit_docs = {document.id: document for document in docs.values()
+                         if document.company_id in scope and document.status == "ready"
+                         and (not document_types or document.document_type in document_types)
+                         and (not fiscal_years or document.fiscal_year in fiscal_years)}
+        eligible = {identity: document for identity, document in explicit_docs.items()
+                    if scope_query.matches(document)}
+        scoped_chunks: dict[UUID, tuple[tuple[int, int], ...]] = {}
+        without_quarters = replace(scope_query,
+                                   periods=tuple((year, None) for year, _ in scope_query.periods),
+                                   quarters=frozenset())
+        if scope_query.quarters:
+            for chunk in prepared.snapshot.chunks:
+                document = explicit_docs.get(chunk.document_id)
+                if (document is None or document.id in eligible or document.fiscal_quarter is not None
+                        or document.fiscal_year is None or not without_quarters.matches(document)):
+                    continue
+                verified = tuple(sorted(period for period in explicit_periods(chunk.text, document.fiscal_year)
+                                        if period[0] == document.fiscal_year and period[1] in scope_query.quarters
+                                        and (not scope_query.periods or period in scope_query.periods
+                                             or (period[0], None) in scope_query.periods)))
+                if verified:
+                    scoped_chunks[chunk.id] = verified
+        for chunk in prepared.snapshot.chunks:
+            if chunk.id in scoped_chunks:
+                eligible[chunk.document_id] = explicit_docs[chunk.document_id]
+        policies = document_period_policy(query, list(eligible.values()),
+                                          filtered_types=bool(document_types), filtered_years=bool(fiscal_years))
         results: list[RetrievalDebugResult] = []
         threshold = self.min_score if min_score is None else min_score
 
@@ -92,7 +121,9 @@ class RetrievalService:
                 continue
             if fiscal_years and document.fiscal_year not in fiscal_years:
                 continue
-            if not scope_query.matches(document):
+            if document.id not in policies:
+                continue
+            if not scope_query.matches(document) and chunk.id not in scoped_chunks:
                 continue
             chunk_terms = prepared.terms[chunk.id]
             overlap = query_terms & chunk_terms
@@ -114,7 +145,12 @@ class RetrievalService:
                 results.append(
                     RetrievalDebugResult(
                         query=query,
-                        chunk=chunk,
+                        chunk=chunk.model_copy(update={"metadata": {
+                            **chunk.metadata,
+                            **({"retrieval_period_policy": policies[document.id]} if policies[document.id] else {}),
+                            **({"retrieval_require_passage_period": [list(period) for period in scoped_chunks[chunk.id]]}
+                               if chunk.id in scoped_chunks else {}),
+                        }}),
                         document=document,
                         company=company,
                         score=round(score, 6),
