@@ -486,6 +486,14 @@ class ResearchService:
                 # not treat an explicitly quarterly figure as a full-year total.
                 normalized = " ".join(cleaned.split())
                 local_period = next((period for text, period in blocks if normalized in text), None)
+                # A release can switch to full-year results in prose without
+                # introducing a new heading. The passage's explicit period is
+                # stronger evidence than an inherited section label.
+                if not re.search(r"\b(?:quarter|q[1-4]|three months)\b", cleaned, re.I):
+                    explicit_years = set(re.findall(
+                        r"\b(?:in|for|during)\s+(?:the\s+)?fiscal(?:\s+year)?\s+(20\d{2})\b", cleaned, re.I))
+                    if len(explicit_years) == 1:
+                        local_period = (int(next(iter(explicit_years))), None)
                 if requested_periods and local_period:
                     if local_period not in requested_periods:
                         continue
@@ -512,7 +520,11 @@ class ResearchService:
                         coverage += 1.0
                     if result.document.id not in {item[2].document.id for item in selected}:
                         coverage += 0.5
-                return score + 0.2 * novelty + coverage - 0.8 * redundancy
+                # Redundancy matters when it crowds out another requested
+                # topic. For one topic, overlapping context may supply its
+                # essential explanation or offsetting factors.
+                penalty = 0.8 * redundancy if len(facets) > 1 else 0.0
+                return score + 0.2 * novelty + coverage - penalty
 
             row = max(scored, key=priority)
             scored.remove(row)

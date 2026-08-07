@@ -85,3 +85,30 @@ def test_explicit_quarter_heading_matches_quarter_separated_from_year(tmp_path):
         assert points
         assert all("$3.40 billion" in point.text for point in points)
         assert all("$12.70 billion" not in point.text for point in points)
+
+
+def test_explicit_annual_prose_overrides_inherited_quarter_heading(tmp_path):
+    points = select(tmp_path, "What was operating cash flow in fiscal 2024?", (
+        "Fourth Quarter Fiscal Year 2024 Financial Highlights\n\n"
+        "Operating cash flow was $3.20 billion during fiscal year 2024, up 11 percent."
+    ))
+    assert len(points) == 1
+    assert "$3.20 billion" in points[0].text
+
+
+def test_source_instructions_do_not_hide_single_topic_evidence(tmp_path):
+    points = select(tmp_path, "Compare the quarterly filing supply disclosures with management's earnings call comments.",
+                    "Supply remains constrained because manufacturing capacity is limited.")
+    assert points
+    assert "manufacturing capacity" in points[0].text
+
+
+def test_overlapping_context_preserves_new_offsetting_cause(tmp_path):
+    points = select(tmp_path, "What factors changed net interest income?", (
+        "The bank reported net income of $70 billion, down 3 percent. "
+        "Net interest income was $120 billion, up 4 percent, driven by higher loan balances. "
+        "These factors were offset by lower deposit margins.\n\n"
+        "Derivatives are classified as net interest income and compensation expense.\n\n"
+        "Markets revenue includes fees and net interest income."
+    ))
+    assert any("lower deposit margins" in point.text for point in points)
