@@ -72,7 +72,7 @@ def test_successful_model_answer_displays_source_policy(research_workspace, monk
     assert any("latest available annual" in limitation for limitation in payload["limitations"])
 
 
-def test_local_answer_displays_policy_without_rewriting_evidence(research_workspace, monkeypatch):
+def test_rendered_answer_preserves_original_evidence(research_workspace, monkeypatch):
     app, company, annual = research_workspace
     app.state.research.settings = replace(app.state.research.settings, llm_provider="local")
 
@@ -85,7 +85,9 @@ def test_local_answer_displays_policy_without_rewriting_evidence(research_worksp
     })
     assert response.status_code == 200
     payload = response.json()
-    assert payload["answer"] == f"{SOURCE} [1]"
+    assert "MAPL 10-k FY2031:" in payload["answer"]
+    assert "$7.42 billion" in payload["answer"] and "16%" in payload["answer"]
+    assert "$ 7.42" not in payload["answer"] and "16 %" not in payload["answer"]
     assert payload["key_points"] == [f"{SOURCE} [1]"]
     assert len(payload["citations"]) == 1
     assert payload["citations"][0]["excerpt"] == SOURCE
