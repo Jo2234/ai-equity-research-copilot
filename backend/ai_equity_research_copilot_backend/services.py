@@ -13,7 +13,7 @@ from .evidence import CAUSE_RE, QUANTITY_RE, evidence_passages
 from .llm import CITATION_REFERENCE, InvalidGroundedDraft, OllamaClient
 from .parsing import parse_document
 from .retrieval import RetrievalService
-from .query import content_terms, question_scope, refusal_reason, required_evidence_patterns
+from .query import content_terms, explicit_periods, passage_period, question_scope, refusal_reason, required_evidence_patterns
 from .schemas import (
     ChatAnswerPayload,
     ChatRequest,
@@ -218,6 +218,7 @@ class ResearchService:
         }
         all_citations: list[Citation] = []
         retrieved_ids: set[UUID] = set()
+        period_policies: list[str] = []
         sections: dict[str, list[str] | str] = {}
         for name, query in section_queries.items():
             results = self.retrieval.search(
@@ -229,6 +230,8 @@ class ResearchService:
                 corpus=corpus,
             )
             retrieved_ids.update(result.chunk.id for result in results)
+            period_policies.extend(result.chunk.metadata["retrieval_period_policy"] for result in results
+                                   if result.chunk.metadata.get("retrieval_period_policy"))
             evidence = self._points_from_results(query, results, max_points=1 if name == "business_summary" else 3)
             points = self._cited_points(evidence, all_citations)
             if name == "business_summary":
@@ -264,7 +267,8 @@ class ResearchService:
                 "Are there newer filings or transcripts that should be ingested?",
             ],
             source_citations=all_citations,
-            limitations=["This memo is document-grounded and does not include live prices or investment advice."],
+            limitations=["This memo is document-grounded and does not include live prices or investment advice.",
+                         *dict.fromkeys(period_policies)],
             usage=usage,
         )
 
@@ -272,6 +276,7 @@ class ResearchService:
         started = time.perf_counter()
         comparisons: list[CompanyComparison] = []
         limitations: list[str] = []
+        period_policies: list[str] = []
         all_output: list[str] = []
         total_retrievals = 0
         total_citations = 0
@@ -290,6 +295,8 @@ class ResearchService:
                 corpus=corpus,
             )
             citations: list[Citation] = []
+            period_policies.extend(f"{company.ticker}: {result.chunk.metadata['retrieval_period_policy']}"
+                                   for result in results if result.chunk.metadata.get("retrieval_period_policy"))
             points = self._cited_points(self._points_from_results(request.question, results, max_points=4), citations)
             if not points:
                 limitations.append(f"{company.ticker}: no sufficiently relevant cited context was found.")
@@ -316,6 +323,7 @@ class ResearchService:
         )
         if not limitations:
             limitations.append("Comparison is limited to ingested documents and does not include market data.")
+        limitations.extend(dict.fromkeys(period_policies))
         return CompareResponse(
             question=request.question,
             comparisons=comparisons,
@@ -366,6 +374,10 @@ class ResearchService:
                 points = [renumber(point) for point in draft.key_points]
                 limitations = [*draft.limitations,
                     "Local model synthesis uses the supplied filing excerpts; citation membership does not independently verify every claim."]
+                limitations.extend(dict.fromkeys(
+                    r.chunk.metadata["retrieval_period_policy"] for r in results
+                    if r.chunk.metadata.get("retrieval_period_policy")
+                ))
                 if any(len(context["excerpt"]) < len(result.chunk.text) for context, result in zip(contexts, results)):
                     limitations.append("Long retrieved chunks were shortened to fit the local model context.")
                 return (
@@ -391,6 +403,10 @@ class ResearchService:
         citations: list[Citation] = []
         points = self._cited_points(evidence, citations)
         limitations = ["Answer is based only on ingested local documents; no live market data was used."]
+        limitations.extend(dict.fromkeys(
+            r.chunk.metadata["retrieval_period_policy"] for r in results
+            if r.chunk.metadata.get("retrieval_period_policy")
+        ))
         if not question_scope(question).periods and len({r.document.fiscal_year for r in results}) > 1:
             limitations.append("No fiscal year was specified; retrieved sources cover different fiscal years. Specify a year or document filter for a period-specific answer.")
         limitations.append("Extracted passages are supporting context, not a verified complete answer or a calculation across periods.")
@@ -458,15 +474,13 @@ class ResearchService:
             local_period = None
             for block in re.split(r"\n\s*\n", result.chunk.text):
                 text = " ".join(block.split())
-                if len(text) < 120 and re.search(r"(?:highlights|results|performance)$", text, re.I):
+                if len(text) < 160 and re.search(r"(?:highlights|results|performance)$|^guidance\b", text, re.I):
+                    # Preserve bare-year headings such as "2031 Results".
+                    # A quarter in the heading overrides this annual fallback.
                     year = re.search(r"\b20\d{2}\b", text)
                     if year:
-                        quarter = re.search(r"\b(first|second|third|fourth)\s+quarter|\bq([1-4])\b", text, re.I)
-                        quarter_number = None
-                        if quarter:
-                            quarter_number = (int(quarter[2]) if quarter[2] else
-                                              {"first": 1, "second": 2, "third": 3, "fourth": 4}[quarter[1].lower()])
-                        local_period = (int(year[0]), quarter_number)
+                        local_period = (int(year[0]), None)
+                    local_period = passage_period(text, local_period, result.document.fiscal_year)
                 blocks.append((text, local_period))
             for cleaned in evidence_passages(result.chunk.text):
                 sentence_terms = content_terms(cleaned)
@@ -492,15 +506,34 @@ class ResearchService:
                 # A release can switch to full-year results in prose without
                 # introducing a new heading. The passage's explicit period is
                 # stronger evidence than an inherited section label.
-                if not re.search(r"\b(?:quarter|q[1-4]|three months)\b", cleaned, re.I):
-                    explicit_years = set(re.findall(
-                        r"\b(?:in|for|during)\s+(?:the\s+)?fiscal(?:\s+year)?\s+(20\d{2})\b", cleaned, re.I))
-                    if len(explicit_years) == 1:
-                        local_period = (int(next(iter(explicit_years))), None)
-                if requested_periods and local_period:
-                    if local_period not in requested_periods:
+                local_period = passage_period(cleaned, local_period, result.document.fiscal_year)
+                required_periods = result.chunk.metadata.get("retrieval_require_passage_period")
+                if required_periods and (local_period is None or list(local_period) not in required_periods):
+                    continue
+                allowed_periods = requested_periods
+                if (not allowed_periods and result.document.document_type.value in {"10-k", "annual_report"}
+                        and not re.search(r"\b(?:historical|previous|prior|past)\b", query, re.I)):
+                    allowed_periods = {(result.document.fiscal_year, None)}
+                # An undated annual component has its own disclosed document
+                # period; the separately named quarter does not override it.
+                if (scope.quarters and not any(quarter is None for _, quarter in scope.periods)
+                        and result.document.document_type.value in {"10-k", "annual_report"}
+                        and re.search(r"\b(?:annual|full[- ]year|10[- ]?k)\b", query, re.I)):
+                    allowed_periods = {(result.document.fiscal_year, None)}
+                # Unknown scope must not conceal a conflicting explicit short
+                # year or let a multi-period window pass as one requested period.
+                short_years = re.findall(r"\bFY\s*(\d{2})(?!\d)", cleaned, re.I)
+                if any(result.document.fiscal_year is None or result.document.fiscal_year % 100 != int(year)
+                       for year in short_years):
+                    continue
+                stated_periods = explicit_periods(cleaned, result.document.fiscal_year)
+                if allowed_periods and stated_periods and not stated_periods <= allowed_periods:
+                    continue
+                if allowed_periods and local_period:
+                    if local_period not in allowed_periods:
                         continue
-                    score += 0.2
+                    if requested_periods:
+                        score += 0.2
                 tokens = re.findall(r"\w+", cleaned.lower())
                 shingles = {tuple(tokens[i:i + 5]) for i in range(max(1, len(tokens) - 4))}
                 scored.append((score, cleaned, result, matched, shingles))
