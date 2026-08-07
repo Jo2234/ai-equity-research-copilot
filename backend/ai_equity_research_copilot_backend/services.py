@@ -9,7 +9,7 @@ from uuid import UUID
 from .chunking import chunk_pages
 from .config import Settings
 from .embeddings import HashingEmbedder, estimate_tokens
-from .evidence import evidence_passages
+from .evidence import CAUSE_RE, QUANTITY_RE, evidence_passages
 from .llm import CITATION_REFERENCE, InvalidGroundedDraft, OllamaClient
 from .parsing import parse_document
 from .retrieval import RetrievalService
@@ -433,6 +433,11 @@ class ResearchService:
                 matched = query_terms & sentence_terms
                 overlap = len(matched) / max(len(query_terms), 1)
                 score = result.score + overlap - (0.2 if explanatory and "\n...\n" in cleaned else 0.0)
+                # Actual amounts and causal explanations answer financial
+                # questions more directly than repeated accounting definitions.
+                score += 0.05 * min(3, len(set(QUANTITY_RE.findall(cleaned))))
+                if explanatory and CAUSE_RE.search(cleaned):
+                    score += 0.2
                 if (query_terms and len(matched) >= min(2, len(query_terms))
                         and all(re.search(pattern, cleaned, re.I) for pattern in anchors)):
                     scored.append((score, cleaned, result))
@@ -451,7 +456,8 @@ class ResearchService:
         seen: set[tuple[str, str]] = set()
         for _, sentence, result in scored:
             normalized = (str(result.document.id), " ".join(sentence.lower().split()))
-            if normalized in seen:
+            if any(document == normalized[0] and (text in normalized[1] or normalized[1] in text)
+                   for document, text in seen):
                 continue
             points.append(EvidencePoint(sentence, result))
             seen.add(normalized)
