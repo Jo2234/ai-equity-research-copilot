@@ -33,8 +33,7 @@ class RetrievalService:
             snapshot=snapshot,
             terms=terms,
             chunk_frequency=dict(Counter(term for row in terms.values() for term in row)),
-            passage_terms={chunk.id: tuple(frozenset(content_terms(p)) for p in evidence_passages(chunk.text))
-                           for chunk in snapshot.chunks},
+            passage_terms={},
         )
 
     def search(
@@ -82,6 +81,10 @@ class RetrievalService:
                 continue
             vector_score = max(0.0, cosine_similarity(query_embedding, chunk.embedding))
             keyword_score = sum(weights[term] for term in overlap) / query_weight
+            if chunk.id not in prepared.passage_terms:
+                prepared.passage_terms[chunk.id] = tuple(
+                    frozenset(content_terms(p)) for p in evidence_passages(chunk.text)
+                )
             passage_score = max((sum(weights[term] for term in query_terms & passage) / query_weight
                                  for passage in prepared.passage_terms[chunk.id]), default=0.0)
             score = (0.20 * vector_score) + (0.15 * keyword_score) + (0.65 * passage_score)
