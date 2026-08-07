@@ -8,10 +8,11 @@ from uuid import UUID
 
 from .chunking import chunk_pages
 from .config import Settings
-from .embeddings import HashingEmbedder, estimate_tokens, tokenize
+from .embeddings import HashingEmbedder, estimate_tokens
 from .llm import CITATION_REFERENCE, InvalidGroundedDraft, OllamaClient
 from .parsing import parse_document
-from .retrieval import STOPWORDS, RetrievalService
+from .retrieval import RetrievalService
+from .query import content_terms, question_scope, refusal_reason, required_evidence_patterns
 from .schemas import (
     ChatAnswerPayload,
     ChatRequest,
@@ -325,8 +326,18 @@ class ResearchService:
         )
 
     def _answer_from_context(self, question: str, results: list[RetrievalDebugResult]) -> tuple[ChatAnswerPayload, str, str]:
+        evidence = self._points_from_results(question, results, max_points=4)
+        reason = refusal_reason(question)
+        if reason or not evidence:
+            return (
+                ChatAnswerPayload(
+                    answer=reason or "I do not have enough cited context to answer that. No retrieved passage directly supports the requested fact and period; upload or select relevant documents.",
+                    key_points=[], citations=[], confidence=Confidence.low,
+                    limitations=["A relevance check is not semantic entailment. Missing support is not proof that the information does not exist."],
+                ), "local", self.settings.local_model_name,
+            )
         fallback_note = ""
-        if results and self.settings.llm_provider in {"auto", "ollama"}:
+        if self.settings.llm_provider in {"auto", "ollama"}:
             # UI previews are not model context. Supply bounded source text and retain
             # exactly those excerpts for the model's selected citation references.
             contexts = []
@@ -377,17 +388,18 @@ class ResearchService:
                     )
                 fallback_note = f"Local LLM unavailable; deterministic cited synthesis used instead ({exc})."
         citations: list[Citation] = []
-        points = self._cited_points(self._points_from_results(question, results, max_points=4), citations)
+        points = self._cited_points(evidence, citations)
         limitations = ["Answer is based only on ingested local documents; no live market data was used."]
+        if not question_scope(question).periods and len({r.document.fiscal_year for r in results}) > 1:
+            limitations.append("No fiscal year was specified; retrieved sources cover different fiscal years. Specify a year or document filter for a period-specific answer.")
+        limitations.append("Extracted passages are supporting context, not a verified complete answer or a calculation across periods.")
         if fallback_note:
             limitations.append(fallback_note)
-        if not points:
-            limitations.append("No retrieved sentences provided direct support for the question.")
         return (
             ChatAnswerPayload(
-                answer=" ".join(points) if points else "I do not have enough cited context to answer that. Upload or select relevant company documents first.",
+                answer=" ".join(points),
                 key_points=points, citations=citations,
-                confidence=Confidence.medium if points else Confidence.low,
+                confidence=Confidence.medium,
                 limitations=limitations,
             ),
             "local", self.settings.local_model_name,
@@ -406,19 +418,33 @@ class ResearchService:
         return rendered
 
     def _points_from_results(self, query: str, results: list[RetrievalDebugResult], max_points: int) -> list[EvidencePoint]:
-        query_terms = set(token for token in tokenize(query) if token not in STOPWORDS)
+        company_terms = set().union(*(content_terms(r.company.name) | content_terms(r.company.ticker) for r in results))
+        query_terms = content_terms(query) - company_terms
+        anchors = required_evidence_patterns(query)
         scored: list[tuple[float, str, RetrievalDebugResult]] = []
         for result in results:
             for sentence in SENTENCE_RE.split(result.chunk.text.replace("\n", " ")):
                 cleaned = " ".join(sentence.split())
                 if not _usable_sentence(cleaned):
                     continue
-                sentence_terms = set(tokenize(cleaned))
-                overlap = len(query_terms & sentence_terms) / max(len(query_terms), 1)
+                sentence_terms = content_terms(cleaned)
+                matched = query_terms & sentence_terms
+                overlap = len(matched) / max(len(query_terms), 1)
                 score = result.score + overlap
-                if overlap > 0 or result.score > 0.16:
+                if (query_terms and len(matched) >= min(2, len(query_terms))
+                        and all(re.search(pattern, cleaned, re.I) for pattern in anchors)):
                     scored.append((score, cleaned, result))
         scored.sort(key=lambda item: item[0], reverse=True)
+        if question_scope(query).diversify or len({r.company.id for r in results}) > 1:
+            preferred = []
+            for attribute in ("company_id", "document_id"):
+                seen_ids = {getattr(row[2].chunk, attribute) for row in preferred}
+                for row in scored:
+                    identity = getattr(row[2].chunk, attribute)
+                    if identity not in seen_ids:
+                        preferred.append(row)
+                        seen_ids.add(identity)
+            scored = preferred + [row for row in scored if row not in preferred]
         points: list[EvidencePoint] = []
         seen: set[str] = set()
         for _, sentence, result in scored:
