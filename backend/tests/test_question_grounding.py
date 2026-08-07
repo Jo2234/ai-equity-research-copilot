@@ -229,3 +229,22 @@ def test_refusal_gate_applies_before_model_generation(workspace, monkeypatch):
 
     monkeypatch.setattr(app.state.research.ollama, "answer", unexpected)
     assert not ask("What is the exact price target?")["citations"]
+
+
+def test_generic_request_words_do_not_outweigh_the_financial_topic(workspace):
+    _, _, add, ask = workspace
+    source = add(
+        "Results",
+        "Subscription sales increased 18 percent as renewal demand improved. "
+        "Liquidity and capital resources remained sufficient to meet operating requirements.",
+    )
+    add(
+        "Accounting policies",
+        "Our disclosure policies describe the position of each document and its commentary trend.",
+    )
+    for question in (
+        "Summarize subscription growth disclosure and its trend.",
+        "Summarize the liquidity position.",
+    ):
+        answer = ask(question)
+        assert {c["document_id"] for c in answer["citations"]} == {str(source.id)}
