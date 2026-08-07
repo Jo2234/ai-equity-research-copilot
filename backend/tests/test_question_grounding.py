@@ -248,3 +248,41 @@ def test_generic_request_words_do_not_outweigh_the_financial_topic(workspace):
     ):
         answer = ask(question)
         assert {c["document_id"] for c in answer["citations"]} == {str(source.id)}
+
+
+def test_compact_table_keeps_column_headers_units_and_negative_values(workspace):
+    _, _, add, ask = workspace
+    source = add("Annual table", "Results (USD millions)\n2024 2023\nOperating income (18) 25\nNet income (22) 19")
+    answer = ask("What operating income was reported in the annual filing?")
+    assert answer["citations"]
+    for value in ("2024", "2023", "USD millions", "(18)", "25"):
+        assert value in answer["answer"]
+    assert {c["document_id"] for c in answer["citations"]} == {str(source.id)}
+
+
+def test_headerless_numeric_row_is_not_interpreted(workspace):
+    _, _, add, ask = workspace
+    add("Ambiguous table", "Subscription revenue 481 329 207")
+    assert not ask("What subscription revenue was reported?")["citations"]
+
+
+def test_identical_passages_in_distinct_periods_keep_both_citations(workspace):
+    _, _, add, ask = workspace
+    sentence = "Operating margin increased 14 percent because freight costs declined."
+    annual = add("Annual", sentence)
+    quarter = add("Quarter", sentence, year=2025, quarter=2, kind=DocumentType.ten_q)
+    answer = ask("Compare annual operating margin with Q2 FY2025 operating margin.")
+    assert {c["document_id"] for c in answer["citations"]} == {str(annual.id), str(quarter.id)}
+    assert "FY2024" in answer["answer"] and "FY2025 Q2" in answer["answer"]
+
+
+def test_direct_margin_evidence_outranks_scattered_topic_terms(workspace):
+    _, _, add, ask = workspace
+    # The query words occur in unrelated sentences, so chunk overlap is not enough.
+    distractor = "Automotive production capacity increased during the year. " + "We maintain facilities in many countries and manage employee benefits. " * 4 + "Interest rates include a variable margin over the benchmark."
+    add("Distractor", distractor)
+    annual = add("Annual margins", "Gross margin for automotive decreased from 20.8% to 18.6% in 2024 due to a decrease in credit revenue.")
+    quarter = add("Quarter margins", "Gross margin for automotive increased from 17.5% to 20.2% in the first quarter of 2025 due to lower costs.", year=2025, quarter=1, kind=DocumentType.ten_q)
+    answer = ask("Compare annual automotive margin with fiscal 2025 Q1 margin.", top_k=2)
+    assert {c["document_id"] for c in answer["citations"]} == {str(annual.id), str(quarter.id)}
+    assert "18.6%" in answer["answer"] and "20.2%" in answer["answer"]
