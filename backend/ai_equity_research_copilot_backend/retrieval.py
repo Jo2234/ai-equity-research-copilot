@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import math
-from collections import Counter
-from dataclasses import dataclass
+from collections import Counter, OrderedDict
+from dataclasses import dataclass, field
+from threading import RLock
 from uuid import UUID
 
 from .embeddings import HashingEmbedder, cosine_similarity
@@ -18,6 +19,7 @@ class PreparedCorpus:
     terms: dict[UUID, frozenset[str]]
     chunk_frequency: dict[str, int]
     passage_terms: dict[UUID, tuple[frozenset[str], ...]]
+    passage_lock: RLock = field(default_factory=RLock, repr=False, compare=False)
 
 
 class RetrievalService:
@@ -25,16 +27,34 @@ class RetrievalService:
         self.repo = repo
         self.embedder = embedder
         self.min_score = min_score
+        self._cache_lock = RLock()
+        self._cache_revision = -1
+        self._prepared: OrderedDict[frozenset[UUID], PreparedCorpus] = OrderedDict()
 
     def prepare(self, company_ids: list[UUID]) -> PreparedCorpus:
-        snapshot = self.repo.corpus_snapshot(company_ids)
-        terms = {chunk.id: frozenset(content_terms(chunk.text)) for chunk in snapshot.chunks}
-        return PreparedCorpus(
-            snapshot=snapshot,
-            terms=terms,
-            chunk_frequency=dict(Counter(term for row in terms.values() for term in row)),
-            passage_terms={},
-        )
+        # Bound memory across scope combinations. Chat history does not invalidate
+        # document-derived data; ingestion/deletion and external changes do.
+        scope = frozenset(company_ids)
+        with self._cache_lock:
+            revision = self.repo.corpus_revision()
+            if revision != self._cache_revision:
+                self._prepared.clear()
+                self._cache_revision = revision
+            if scope in self._prepared:
+                self._prepared.move_to_end(scope)
+                return self._prepared[scope]
+            snapshot = self.repo.corpus_snapshot(company_ids)
+            terms = {chunk.id: frozenset(content_terms(chunk.text)) for chunk in snapshot.chunks}
+            prepared = PreparedCorpus(
+                snapshot=snapshot,
+                terms=terms,
+                chunk_frequency=dict(Counter(term for row in terms.values() for term in row)),
+                passage_terms={},
+            )
+            self._prepared[scope] = prepared
+            if len(self._prepared) > 8:
+                self._prepared.popitem(last=False)
+            return prepared
 
     def search(
         self,
@@ -81,12 +101,14 @@ class RetrievalService:
                 continue
             vector_score = max(0.0, cosine_similarity(query_embedding, chunk.embedding))
             keyword_score = sum(weights[term] for term in overlap) / query_weight
-            if chunk.id not in prepared.passage_terms:
-                prepared.passage_terms[chunk.id] = tuple(
-                    frozenset(content_terms(p)) for p in evidence_passages(chunk.text)
-                )
+            with prepared.passage_lock:
+                if chunk.id not in prepared.passage_terms:
+                    prepared.passage_terms[chunk.id] = tuple(
+                        frozenset(content_terms(p)) for p in evidence_passages(chunk.text)
+                    )
+                passages = prepared.passage_terms[chunk.id]
             passage_score = max((sum(weights[term] for term in query_terms & passage) / query_weight
-                                 for passage in prepared.passage_terms[chunk.id]), default=0.0)
+                                 for passage in passages), default=0.0)
             score = (0.20 * vector_score) + (0.15 * keyword_score) + (0.65 * passage_score)
             if score >= threshold:
                 results.append(
