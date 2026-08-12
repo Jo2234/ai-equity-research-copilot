@@ -65,6 +65,7 @@ export interface Citation {
 
 export interface Usage {
   model: string;
+  provider?: string;
   latency_ms: number;
   input_tokens: number;
   output_tokens: number;
