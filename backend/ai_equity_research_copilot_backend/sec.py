@@ -257,8 +257,6 @@ def html_to_text(raw: str) -> str:
             continue
         if re.fullmatch(r"(item\s+\d+[a-z]?\.?\s*)+", lowered):
             continue
-        if cleaned.count("▪") + cleaned.count("•") > 2:
-            continue
         lines.append(cleaned)
     return "\n".join(lines).strip()
 
