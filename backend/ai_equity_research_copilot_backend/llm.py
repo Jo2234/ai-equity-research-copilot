@@ -66,11 +66,20 @@ Question:
 Filing excerpts:
 {context_text}
 """
+        # Constrain generation to the supplied source numbering. Validation below
+        # still checks consistency; structured decoding does not prove entailment.
+        schema = _DraftPayload.model_json_schema()
+        allowed = list(range(1, len(contexts) + 1))
+        reference_pattern = r"^[^\[]*(\[(" + "|".join(map(str, allowed)) + r")\][^\[]*)+$"
+        schema["properties"]["answer"]["pattern"] = reference_pattern
+        schema["properties"]["key_points"]["items"]["pattern"] = reference_pattern
+        schema["properties"]["citation_indices"]["items"]["enum"] = allowed
+        schema["properties"]["confidence"]["enum"] = ["high", "medium", "low"]
         payload = {
             "model": self.settings.ollama_model,
             "prompt": prompt,
             "stream": False,
-            "format": "json",
+            "format": schema,
             "options": {
                 "temperature": 0.15,
                 "top_p": 0.9,
