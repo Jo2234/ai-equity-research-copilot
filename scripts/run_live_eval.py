@@ -77,8 +77,9 @@ def run(args):
         "memory_bytes": int(subprocess.check_output(["sysctl", "-n", "hw.memsize"], text=True)),
         "ollama_version": http(args.ollama + "/api/version"),
         "model_name": args.model,
-        "model_details": http(args.ollama + "/api/show", {"model": args.model}),
-        "model_tags": http(args.ollama + "/api/tags"),
+        "model_details": {k: v for k, v in http(args.ollama + "/api/show", {"model": args.model}).items()
+                          if k != "modelfile"},
+        "model_tags": {"models": [m for m in http(args.ollama + "/api/tags")["models"] if m["name"] == args.model]},
         "corpus": "Unmodified synthetic canonical fixture chunks, not SEC filings; hashing embeddings regenerated.",
         "routing": "comparison -> /research/compare (deterministic in both modes); all other cases -> /research/chat",
         "filters": "None; top_k=8; ordinary application source-period policy applies. No gold documents or answers sent to model.",
