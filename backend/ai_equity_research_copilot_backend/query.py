@@ -21,7 +21,7 @@ STOPWORDS = set(
 in into is it its of on or that the their these this those to was were what which who
 why with would you your according cite cites cited describe described disclose disclosed
 disclosure disclosures discussion commentary position trend explain identify main primary report reported say says summarize
-compare comparison drove driven driver drivers factor factors change changes recent
+compare comparison drive drives drove driven driver drivers factor factors change changes recent
 annual quarterly fiscal year filing filings document documents fy q1 q2 q3 q4
 about related key said comments comment update provide information based only
 call transcript transcripts official""".split()
@@ -33,6 +33,7 @@ def content_terms(text: str) -> set[str]:
     # Source-type instructions do not describe the requested financial topic.
     text = re.sub(r"\b(?:management(?:'s)?\s+)?earnings\s+(?:call|release)\b", " ", text, flags=re.I)
     terms = set(re.findall(r"[a-z]+|\d+(?:\.\d+)?", text.lower())) - STOPWORDS
+    terms = {re.sub(r"^(repurchas|purchas)(?:ed|ing)$", r"\1e", term) for term in terms}
     terms = {
         "growth"
         if term
@@ -53,7 +54,7 @@ def content_terms(text: str) -> set[str]:
         term[:-1] if term.endswith("s") and not term.endswith(("ss", "is")) else term
         for term in terms
         if len(term) > 1 and not re.fullmatch(r"\d+(?:\.\d+)?", term)
-    }
+    } - STOPWORDS
 
 
 @dataclass(frozen=True)
@@ -155,7 +156,7 @@ def refusal_reason(question: str) -> str | None:
         r"\bshould\s+(?:i|we)\s+(?:buy|sell|hold)\b|\b(?:recommend|tell me to)\s+(?:buy|sell|hold)",
         text,
     ):
-        return "I cannot provide a buy, sell, or hold recommendation from filings alone. Ask about the disclosed business results or supply explicit valuation assumptions for analysis."
+        return "I cannot determine whether you should buy, sell, or hold from filings alone. Ask about the disclosed business results or supply explicit valuation assumptions for analysis."
     if re.search(
         r"\b(?:after|beyond)\b.{0,60}\b(?:documents?|filings?|corpus)\b.{0,20}\b(?:end|coverage|cutoff)\b",
         text,
