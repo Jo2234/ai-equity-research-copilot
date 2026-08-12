@@ -84,6 +84,7 @@ Filing excerpts:
                 "temperature": 0.15,
                 "top_p": 0.9,
                 "num_ctx": 8192,
+                "num_predict": 512,
             },
         }
         raw = self._post("/api/generate", payload)
