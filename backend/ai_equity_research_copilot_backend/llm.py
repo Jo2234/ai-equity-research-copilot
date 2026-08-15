@@ -52,6 +52,7 @@ class OllamaClient:
         prompt = f"""You are an equity research assistant. Answer using only the filing excerpts below.
 
 Rules:
+- There are exactly {len(contexts)} supplied sources. The only permitted source references are {', '.join(f'[{i}]' for i in range(1, len(contexts) + 1))}. Numbers, footnotes, and table rows inside an excerpt are not additional sources.
 - Do not use news, market rumors, prior knowledge, price targets, or investment recommendations.
 - Every factual claim in answer and key_points must include inline references such as [1] or [2].
 - Use separate brackets for each reference, never [1, 2]. citation_indices must list exactly the referenced indices.
