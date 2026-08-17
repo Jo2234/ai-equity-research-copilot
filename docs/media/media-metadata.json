@@ -1,0 +1,65 @@
+{
+  "recorded_date": "2026-09-29",
+  "capture": "ScreenCaptureKit, single Chrome Guest window, no audio",
+  "raw_sha256": "85061fe466a02aa68da16802313b7eaa7ec6b92fadff9df4e8aad5f19d4f2366",
+  "edits": [
+    {
+      "raw_start": 0,
+      "raw_end": 8,
+      "speed": 1
+    },
+    {
+      "raw_start": 8,
+      "raw_end": 13,
+      "speed": 4,
+      "label": "Model generation wait - sped up 4x"
+    },
+    {
+      "raw_start": 13,
+      "raw_end": 82,
+      "speed": 1
+    }
+  ],
+  "mp4": {
+    "duration_seconds": 78.27,
+    "width": 1920,
+    "height": 1406,
+    "fps": 30,
+    "codec": "H.264",
+    "audio": false
+  },
+  "gif": {
+    "duration_seconds": 14,
+    "width": 960,
+    "height": 703,
+    "fps": 12,
+    "source_clips_seconds": [
+      [
+        6,
+        8
+      ],
+      [
+        25,
+        28
+      ],
+      [
+        31,
+        40
+      ]
+    ]
+  },
+  "files": {
+    "copilot-demo.mp4": {
+      "bytes": 2161930,
+      "sha256": "e54565a44a3f011f19d99570772d6667d311cf82e7899fb98a1cda57870f318f"
+    },
+    "copilot-demo.gif": {
+      "bytes": 1617039,
+      "sha256": "cad2e458465d25a72609cf4a93402cc2396badd1c027dc3231e544663d0d31c5"
+    },
+    "copilot-demo-poster.png": {
+      "bytes": 649602,
+      "sha256": "ced10458e349ecbe315ead7d1d2da2815621effabfa9009fda0998e509c9f941"
+    }
+  }
+}
