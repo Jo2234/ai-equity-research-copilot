@@ -1,0 +1,3 @@
+# Keep mutable runtime stores and local server logs out of the published evidence.
+store-*/
+server-*.log
