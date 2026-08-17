@@ -1,0 +1,133 @@
+{
+  "company": "AAPL",
+  "built_at_date": "2026-09-29",
+  "source": "SEC EDGAR; Build corpus action through local application UI",
+  "documents": [
+    {
+      "title": "AAPL 10-K filed 2025-10-31",
+      "document_type": "10-k",
+      "filing_date": "2025-10-31",
+      "period_end_date": "2025-09-27",
+      "fiscal_year": 2025,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000032019325000079/aapl-20250927.htm",
+      "chunk_count": 64,
+      "extracted_text_sha256": "cd2229e6c64af956b47536e2821774e70f349d8a2387229bfa64fadcdbf6d996"
+    },
+    {
+      "title": "AAPL 10-Q filed 2026-07-31",
+      "document_type": "10-q",
+      "filing_date": "2026-07-31",
+      "period_end_date": "2026-06-27",
+      "fiscal_year": 2026,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000020/aapl-20260627.htm",
+      "chunk_count": 24,
+      "extracted_text_sha256": "dd298e7cf9b0c61391d939ad3e34c34f4567e05f52c1a6eb4161e32f5d85b589"
+    },
+    {
+      "title": "AAPL 10-Q filed 2026-05-01",
+      "document_type": "10-q",
+      "filing_date": "2026-05-01",
+      "period_end_date": "2026-03-28",
+      "fiscal_year": 2026,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000013/aapl-20260328.htm",
+      "chunk_count": 22,
+      "extracted_text_sha256": "831c1bc533aacfea4cd15c79a494e113ed262d9b93b750e534348e00bf5e7814"
+    },
+    {
+      "title": "AAPL 10-Q filed 2026-01-30",
+      "document_type": "10-q",
+      "filing_date": "2026-01-30",
+      "period_end_date": "2025-12-27",
+      "fiscal_year": 2025,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000006/aapl-20251227.htm",
+      "chunk_count": 18,
+      "extracted_text_sha256": "668010dca70bf43f610534b580fe2c55314c8e235509b9efffd48c337a81a185"
+    },
+    {
+      "title": "AAPL 10-Q filed 2025-08-01",
+      "document_type": "10-q",
+      "filing_date": "2025-08-01",
+      "period_end_date": "2025-06-28",
+      "fiscal_year": 2025,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000032019325000073/aapl-20250628.htm",
+      "chunk_count": 18,
+      "extracted_text_sha256": "17bfc7b84c0f323ba377350a1b87ce1d2593039a7af4d6e626d911b6ad720e1f"
+    },
+    {
+      "title": "AAPL 8-K/A filed 2026-09-01",
+      "document_type": "8-k",
+      "filing_date": "2026-09-01",
+      "period_end_date": "2026-04-17",
+      "fiscal_year": 2026,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126035325/ef20081427_8ka.htm",
+      "chunk_count": 2,
+      "extracted_text_sha256": "e65e6725fa48f0f3b7b673dea64035a9124107ce42db7da28fc16409f1edb888"
+    },
+    {
+      "title": "AAPL 8-K filed 2026-07-30",
+      "document_type": "8-k",
+      "filing_date": "2026-07-30",
+      "period_end_date": "2026-07-30",
+      "fiscal_year": 2026,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000018/aapl-20260730.htm",
+      "chunk_count": 1,
+      "extracted_text_sha256": "37463d37ad52cbb1872756f5fc121735917b0ace57213f8cafe55978ae1595dc"
+    },
+    {
+      "title": "AAPL 8-K filed 2026-04-30",
+      "document_type": "8-k",
+      "filing_date": "2026-04-30",
+      "period_end_date": "2026-04-30",
+      "fiscal_year": 2026,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000011/aapl-20260430.htm",
+      "chunk_count": 1,
+      "extracted_text_sha256": "bdb2fef33eb78f0bc54d20b7e16eeddab956c5bd73290426d75b14060e2847ea"
+    },
+    {
+      "title": "AAPL 8-K filed 2026-04-20",
+      "document_type": "8-k",
+      "filing_date": "2026-04-20",
+      "period_end_date": "2026-04-17",
+      "fiscal_year": 2026,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126015711/ef20071035_8k.htm",
+      "chunk_count": 1,
+      "extracted_text_sha256": "58eb567d4ef51d448f1d79ccb7bbce6fcafbf709b024d07a4ce97a9ce9c544fc"
+    },
+    {
+      "title": "AAPL 8-K filed 2026-02-24",
+      "document_type": "8-k",
+      "filing_date": "2026-02-24",
+      "period_end_date": "2026-02-24",
+      "fiscal_year": 2026,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126006577/ef20060722_8k.htm",
+      "chunk_count": 2,
+      "extracted_text_sha256": "4af4f355cac7687fe143a374ad67d9bc6091be672b5e18f1356bc4989e7d1281"
+    },
+    {
+      "title": "AAPL 8-K filed 2026-01-29",
+      "document_type": "8-k",
+      "filing_date": "2026-01-29",
+      "period_end_date": "2026-01-29",
+      "fiscal_year": 2026,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000005/aapl-20260129.htm",
+      "chunk_count": 1,
+      "extracted_text_sha256": "91dc5399b2a4289da5f079c191d37b2fd88e45010ed990b3e39b9a0f13cae4e4"
+    },
+    {
+      "title": "AAPL DEF 14A filed 2026-01-08",
+      "document_type": "other",
+      "filing_date": "2026-01-08",
+      "period_end_date": "2026-02-24",
+      "fiscal_year": 2026,
+      "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000130817926000008/aapl014016-def14a.htm",
+      "chunk_count": 72,
+      "extracted_text_sha256": "aa9daa9810c0a7497cb8a190baa98f20c3e3a40f3157d03185afdc06030bb17a"
+    }
+  ],
+  "chunks": 226,
+  "notes": [
+    "Real SEC HTML filings, not the synthetic benchmark fixtures.",
+    "Filing HTML is flattened into local text chunks; page labels are parser positions and need not match the original filing pagination.",
+    "Fiscal year metadata is derived by the existing importer; review the original filing and period end for fiscal-quarter interpretation."
+  ]
+}
