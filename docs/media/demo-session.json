@@ -1,0 +1,111 @@
+{
+  "recorded_date": "2026-09-29",
+  "code_commit": "2a1ca02",
+  "model_server_version": "0.34.4",
+  "retrieval_top_k": 1,
+  "question": "According to the 2025 10-K, why did Services net sales increase, and what affected gross margin? Focus only on Services.",
+  "response": {
+    "answer": "According to the 2025 10-K, Services net sales increased primarily due to higher net sales from advertising, the App Store and cloud services [1]. Services gross margin increased during 2025 compared to 2024 primarily due to higher Services net sales and a different mix of services [1]. Services gross margin percentage increased during 2025 compared to 2024 primarily due to a different mix of services, partially offset by higher costs [1].",
+    "citations": [
+      {
+        "chunk_id": "2ccf2465-34b5-46da-9219-69c6c5402821",
+        "company_id": "0128fd89-7f9d-4af0-8a30-1851cf55f629",
+        "company_ticker": "AAPL",
+        "document_id": "e931c97d-b505-4a0d-a5d2-e6eadcf6e429",
+        "excerpt": "(1) Services net sales include amortization of the deferred value of services bundled in the sales price of certain products.\n\niPhone\niPhone net sales increased during 2025 compared to 2024 due to higher net sales of Pro models.\n\nMac\nMac net sales increased during 2025 compared to 2024 primarily due to higher net sales of laptops and desktops.\n\niPad\niPad net sales increased during 2025 compared to 2024 primarily due to higher net sales of iPad Air, iPad mini and iPad, partially offset by lower net sales of iPad Pro.\n\nWearables, Home and Accessories\nWearables, Home and Accessories net sales decreased during 2025 compared to 2024 primarily due to lower net sales of Accessories and Wearables.\n\nServices\nServices net sales increased during 2025 compared to 2024 primarily due to higher net sales from advertising, the App Store and cloud services.\nApple Inc. | 2025 Form 10-K | 23\n\nGross Margin\nProducts and Services gross margin and gross margin percentage for 2025, 2024 and 2023 were as follows (dollars in millions):\n\n2025 2024 2023\nGross margin:\nProducts $ 112,887\u00a0 $ 109,633\u00a0 $ 108,803\nServices 82,314\u00a0 71,050\u00a0 60,345\nTotal gross margin $ 195,201\u00a0 $ 180,683\u00a0 $ 169,148\n\nGross margin percentage:\nProducts 36.8 % 37.2 % 36.5 %\nServices 75.4 % 73.9 % 70.8 %\nTotal gross margin percentage 46.9 % 46.2 % 44.1 %\n\nProducts Gross Margin\nProducts gross margin increased during 2025 compared to 2024 primarily due to favorable costs and a different mix of products, partially offset by tariff costs.\nProducts gross margin percentage decreased during 2025 compared to 2024 primarily due to a different mix of products and tariff costs, partially offset by other favorable costs.\n\nServices Gross Margin\nServices gross margin increased during 2025 compared to 2024 primarily due to higher Services net sales and a different mix of services.\nServices gross margin percentage increased during 2025 compared to 2024 primarily due to a different mix of services, partially offset by higher costs.\nThe Company\u2019s future gross margins can be impacted by a variety of factors, as discussed in Part I, Item 1A of this Form 10-K under the heading \u201cRisk Factors.\u201d As a result, the Company believes, in general, gross margins will be subject to volatility and downward pressure.\n\nOperating Expenses\nOperating expenses for 2025, 2024 and 2023 were as follows (dollars in millions):\n\n2025 Change 2024 Change 2023\nResearch and development $ 34,550\u00a0 10\u00a0 % $ 31,370\u00a0 5\u00a0 % $ 29,915\nPercentage of total net sales 8 % 8 % 8 %\nSelling, general and administrative $ 27,601\u00a0 6\u00a0 % $ 26,097\u00a0 5\u00a0 % $ 24,932\nPercentage of total net sales 7 % 7 % 7 %\nTotal operating expenses $ 62,151\u00a0 8\u00a0 % $ 57,467\u00a0 5\u00a0 % $ 54,847\nPercentage of total net sales 15 % 15 % 14 %\n\nResearch and Development\nThe growth in R&D expense during 2025 compared to 2024 was primarily driven by increases in headcount-related expenses and infrastructure-related costs.\n\nSelling, General and Administrative\nThe growth in selling, general and administrative expense during 2025 compared to 2024 was primarily driven by increases in headcount-related expenses and variable selling expenses.\nApple Inc. | 2025 Form 10-K | 24\n\nProvision for Income Taxes\nProvision for income taxes, effective tax rate and statutory federal income tax rate for 2025, 2024 and 2023 were as follows (dollars in millions):\n\n2025 2024 2023\nProvision for income taxes $ 20,719\u00a0 $ 29,749\u00a0 $ 16,741\nEffective tax rate 15.6 % 24.1 % 14.7 %\nStatutory federal income tax rate 21 % 21 % 21 %\n\nThe Company\u2019s effective tax rate for 2025 was lower than the statutory federal income tax rate primarily due to a lower effective tax rate on foreign earnings, including the impact of changes in unrecognized tax benefits, the impact of the U.S. federal R&D credit, and tax benefits from share-based compensation, partially offset by a change in valuation allowance and state income taxes.\nThe Company\u2019s effective tax rate for 2025 was lower compared to 2024 due to a $10.7 billion year-over-year decrease in the provision for income taxes related to the State Aid Decision (refer to Note 7, \u201cIncome Taxes\u201d in the Notes to Consolidated Financial Statements in Part II, Item 8 of this Form 10-K) and the impact of changes in unrecognized tax benefits, partially offset by a change in valuation allowance and a higher effective tax rate on foreign earnings.",
+        "label": "AAPL AAPL 10-K filed 2025-10-31, p. 1",
+        "page_end": 1,
+        "page_start": 1,
+        "score": 0.783703,
+        "section_title": "PART II",
+        "title": "AAPL 10-K filed 2025-10-31"
+      }
+    ],
+    "confidence": "high",
+    "key_points": [
+      "Services net sales increased due to higher sales from advertising, the App Store, and cloud services [1]."
+    ],
+    "limitations": [
+      "The excerpts do not provide specific figures for the increase in Services net sales or the impact on gross margin. It only describes the drivers of the changes.",
+      "Local model synthesis uses the supplied filing excerpts; citation membership does not independently verify every claim."
+    ],
+    "retrieval_debug": {
+      "chunks": [
+        {
+          "cited": true,
+          "company_id": "0128fd89-7f9d-4af0-8a30-1851cf55f629",
+          "company_ticker": "AAPL",
+          "document_id": "e931c97d-b505-4a0d-a5d2-e6eadcf6e429",
+          "document_title": "AAPL 10-K filed 2025-10-31",
+          "excerpt": "(1) Services net sales include amortization of the deferred value of services bundled in the sales price of certain products.\n\niPhone\niPhone net sales increased during 2025 compared to 2024 due to higher net sales of Pro models.\n\nMac\nMac net sales increased during 2025 compared to 2024 primarily due to higher net sales of laptops and desktops.\n\niPad\niPad net sales increased during 2025 compared to 2024 primarily due to higher net sales of iPad Air, iPad mini and iPad, partially offset by lower n...",
+          "id": "2ccf2465-34b5-46da-9219-69c6c5402821",
+          "keyword_score": 0.615554,
+          "page_start": 1,
+          "score": 0.783703,
+          "section_title": "PART II",
+          "vector_score": 0.261739
+        }
+      ],
+      "query": "According to the 2025 10-K, why did Services net sales increase, and what affected gross margin? Focus only on Services.",
+      "threshold": 0.04,
+      "top_k": 1
+    },
+    "usage": {
+      "estimated_cost_usd": 0.0,
+      "input_tokens": 726,
+      "latency_ms": 4976,
+      "model": "gemma3:4b",
+      "output_tokens": 72,
+      "provider": "ollama",
+      "retrieval": {
+        "cited_chunks": 1,
+        "retrieved_chunks": 1
+      }
+    }
+  },
+  "created_at": "2026-09-29T12:12:31.037502Z",
+  "guardrail_question": "Should I buy AAPL, and what is your price target?",
+  "guardrail_response": {
+    "answer": "I cannot determine whether you should buy, sell, or hold from filings alone. Ask about the disclosed business results or supply explicit valuation assumptions for analysis.",
+    "citations": [],
+    "confidence": "low",
+    "key_points": [],
+    "limitations": [
+      "A relevance check is not semantic entailment. Missing support is not proof that the information does not exist."
+    ],
+    "retrieval_debug": {
+      "chunks": [
+        {
+          "cited": false,
+          "company_id": "0128fd89-7f9d-4af0-8a30-1851cf55f629",
+          "company_ticker": "AAPL",
+          "document_id": "e931c97d-b505-4a0d-a5d2-e6eadcf6e429",
+          "document_title": "AAPL 10-K filed 2025-10-31",
+          "excerpt": "The Company\u2019s future performance depends in part on support from third-party software developers.\nThe Company believes decisions by customers to purchase its hardware products depend in part on the availability of third-party software applications and services. Third-party developers may discontinue the development and maintenance of software applications and services for the Company\u2019s products. If third-party software applications and services cease to be developed and maintained for the Compan...",
+          "id": "7c334af7-fd74-462c-90d5-20f84ad1ce46",
+          "keyword_score": 0.760615,
+          "page_start": 1,
+          "score": 0.458446,
+          "section_title": null,
+          "vector_score": 0.003843
+        }
+      ],
+      "query": "Should I buy AAPL, and what is your price target?",
+      "threshold": 0.04,
+      "top_k": 1
+    },
+    "usage": {
+      "estimated_cost_usd": 0.0,
+      "input_tokens": 1659,
+      "latency_ms": 123,
+      "model": "local-deterministic-grounded-v1",
+      "output_tokens": 26,
+      "provider": "local",
+      "retrieval": {
+        "cited_chunks": 0,
+        "retrieved_chunks": 1
+      }
+    }
+  },
+  "guardrail_note": "Application advice guard executes before model inference; this local refusal is not a model-validation fallback."
+}
