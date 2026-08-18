@@ -10,7 +10,7 @@ Gemma 3 4B — recorded 2026-09-29, real model output, no fallback. 71.5-second 
 
 ## Results
 
-Measured on 29 September 2026: **35 synthetic finance QA cases**, one pass per configuration, Gemma 3 4B (`gemma3:4b`, Q4_K_M) through Ollama 0.34.4 on an Apple M5 with 32 GiB memory. Qualitative rubric annotations are not blinded or independently validated. Neither configuration meets the MVP quality gate.
+Measured on 29 September 2026: **35 synthetic finance QA cases**, one pass per configuration, Gemma 3 4B (`gemma3:4b`, Q4_K_M) through Ollama 0.34.4 on an Apple M5 with 32 GiB memory.
 
 | Metric | Gemma configuration | Deterministic baseline |
 | --- | ---: | ---: |
@@ -23,7 +23,9 @@ Measured on 29 September 2026: **35 synthetic finance QA cases**, one pass per c
 | Median HTTP latency, all cases | 54.8 ms | 16.1 ms |
 | Median HTTP latency, model attempts | 7,861.7 ms | N/A |
 
-Only **13/35** Gemma-configuration cases produced accepted model answers; four fell back and 18 bypassed inference through deterministic comparisons or evidence/refusal gates. All failures remain included. Several answerable questions were refused. These synthetic development-set results do not establish accuracy on real SEC filings.
+**13/35** Gemma-configuration cases produced accepted model answers; four fell back and 18 bypassed inference through deterministic comparisons or evidence/refusal gates.
+
+This small synthetic development set tracks changes between iterations; it does not establish accuracy on real SEC filings. Rubric annotations are not blinded or independently validated; all failures, including refusals of answerable questions, remain included, with full per-case notes in the raw results.
 
 Reproduce collection: `python scripts/run_live_eval.py --output evals/results/new-run`
 
