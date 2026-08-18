@@ -4,7 +4,7 @@ Document-grounded equity research assistant for public US companies. The app is 
 
 [![Demo: cited answer from SEC filings](docs/media/copilot-demo.gif)](docs/media/copilot-demo.mp4)
 
-Gemma 3 4B — recorded 2026-09-29, real model output, no fallback. The closing advice refusal is an application guardrail before inference. [Video provenance](docs/media/README.md).
+Gemma 3 4B — recorded 2026-09-29, real model output, no fallback. 71.5-second app-only edit with synthetic narration (OpenAI Marin). The closing advice refusal is an application guardrail before inference. [Video provenance](docs/media/README.md).
 
 [Live demo — keyless deterministic API](https://equity-research-copilot.vercel.app). Watch the video above for the real-model run.
 
