@@ -1,0 +1,2851 @@
+[
+  {
+    "id": "finance_qa_v1_001",
+    "category": "single_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "11111111-1111-4111-8111-111111111111"
+      ],
+      "question": "What drove NVIDIA data center revenue growth in the FY2025 10-K?",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "Data center revenue increased primarily from demand for compute products used in generative AI and accelerated computing workloads [1]. This growth was driven by demand from large cloud service providers, consumer internet companies, enterprise software customers, and sovereign AI programs [1]. Networking revenue also increased as customers built larger AI clusters requiring high-speed interconnects [1]. Gross margin expanded due to a higher mix of data center products and improved pricing on accelerated computing platforms [2].",
+      "key_points": [
+        "Data center revenue growth was driven by demand for compute products in generative AI and accelerated computing [1].",
+        "Growth was supported by a diverse customer base including cloud service providers, internet companies, and sovereign AI programs [1].",
+        "Networking revenue increased due to the development of larger AI clusters [1].",
+        "Gross margin expansion was due to a higher data center product mix and improved pricing [2]."
+      ],
+      "citations": [
+        {
+          "label": "NVDA NVIDIA FY2025 Form 10-K, p. 42",
+          "document_id": "21111111-1111-4111-8111-111111111111",
+          "chunk_id": "31111111-1111-4111-8111-111111111111",
+          "excerpt": "Data center revenue increased primarily from demand for compute products used in generative AI and accelerated computing workloads. Growth was supported by large cloud service providers, consumer internet companies, enterprise software customers, and sovereign AI programs. Networking revenue also increased as customers built larger AI clusters requiring high-speed interconnects.",
+          "score": 0.877643,
+          "company_id": "11111111-1111-4111-8111-111111111111",
+          "title": "NVIDIA FY2025 Form 10-K",
+          "company_ticker": "NVDA",
+          "page_start": 42,
+          "page_end": 42,
+          "section_title": "Management's Discussion and Analysis - Data Center"
+        },
+        {
+          "label": "NVDA NVIDIA FY2025 Form 10-K, pp. 47-48",
+          "document_id": "21111111-1111-4111-8111-111111111111",
+          "chunk_id": "31111111-1111-4111-8111-111111111112",
+          "excerpt": "Gross margin expanded due to a higher mix of data center products and improved pricing on accelerated computing platforms. The expansion was partly offset by inventory provisions, product transition costs, and higher supply chain expenses associated with new platform ramps.",
+          "score": 0.480819,
+          "company_id": "11111111-1111-4111-8111-111111111111",
+          "title": "NVIDIA FY2025 Form 10-K",
+          "company_ticker": "NVDA",
+          "page_start": 47,
+          "page_end": 48,
+          "section_title": "Management's Discussion and Analysis - Gross Margin"
+        }
+      ],
+      "confidence": "high",
+      "limitations": [
+        "The excerpts do not provide specific revenue figures or quantify the growth rate of data center revenue [1].",
+        "Local model synthesis uses the supplied filing excerpts; citation membership does not independently verify every claim.",
+        "No period was specified for this source type; using its latest available fiscal period."
+      ],
+      "retrieval_debug": {
+        "query": "What drove NVIDIA data center revenue growth in the FY2025 10-K?",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "31111111-1111-4111-8111-111111111111",
+            "document_id": "21111111-1111-4111-8111-111111111111",
+            "company_id": "11111111-1111-4111-8111-111111111111",
+            "company_ticker": "NVDA",
+            "document_title": "NVIDIA FY2025 Form 10-K",
+            "score": 0.877643,
+            "excerpt": "Data center revenue increased primarily from demand for compute products used in generative AI and accelerated computing workloads. Growth was supported by large cloud service providers, consumer internet companies, enterprise software customers, and sovereign AI programs. Networking revenue also increased as customers built larger AI clusters requiring high-speed interconnects.",
+            "page_start": 42,
+            "section_title": "Management's Discussion and Analysis - Data Center",
+            "keyword_score": 1.0,
+            "vector_score": 0.075713,
+            "cited": true
+          },
+          {
+            "id": "31111111-1111-4111-8111-111111111112",
+            "document_id": "21111111-1111-4111-8111-111111111111",
+            "company_id": "11111111-1111-4111-8111-111111111111",
+            "company_ticker": "NVDA",
+            "document_title": "NVIDIA FY2025 Form 10-K",
+            "score": 0.480819,
+            "excerpt": "Gross margin expanded due to a higher mix of data center products and improved pricing on accelerated computing platforms. The expansion was partly offset by inventory provisions, product transition costs, and higher supply chain expenses associated with new platform ramps.",
+            "page_start": 47,
+            "section_title": "Management's Discussion and Analysis - Gross Margin",
+            "keyword_score": 0.5,
+            "vector_score": 0.091593,
+            "cited": true
+          },
+          {
+            "id": "31111111-1111-4111-8111-111111111113",
+            "document_id": "21111111-1111-4111-8111-111111111111",
+            "company_id": "11111111-1111-4111-8111-111111111111",
+            "company_ticker": "NVDA",
+            "document_title": "NVIDIA FY2025 Form 10-K",
+            "score": 0.272582,
+            "excerpt": "Risks include dependence on a limited number of suppliers and foundry partners, customer concentration among large cloud and internet companies, export controls affecting shipments of advanced products, product transition execution, and cyclicality in semiconductor demand. Restrictions on sales to certain jurisdictions could reduce revenue or require product redesigns.",
+            "page_start": 18,
+            "section_title": "Risk Factors",
+            "keyword_score": 0.25,
+            "vector_score": 0.050411,
+            "cited": false
+          }
+        ]
+      },
+      "message_id": "103497cf-960a-4050-89f3-3eb433df0a9d",
+      "conversation_id": "150ca5db-364b-4344-8674-36eec43ca3d7",
+      "usage": {
+        "model": "gemma3:4b",
+        "latency_ms": 11145,
+        "input_tokens": 149,
+        "output_tokens": 75,
+        "estimated_cost_usd": 0.0,
+        "provider": "ollama",
+        "retrieval": {
+          "retrieved_chunks": 3,
+          "cited_chunks": 2
+        }
+      }
+    },
+    "latency_ms": 11153.551,
+    "format_compliance": 1,
+    "accepted_model_output": true,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_002",
+    "category": "single_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "11111111-1111-4111-8111-111111111111"
+      ],
+      "question": "Why did NVIDIA gross margin expand according to the FY2025 10-K?",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "According to NVIDIA's FY2025 10-K [1], gross margin expanded due to a higher mix of data center products and improved pricing on accelerated computing platforms [1]. However, this expansion was partly offset by inventory provisions, product transition costs, and higher supply chain expenses associated with new platform ramps [1].",
+      "key_points": [
+        "Gross margin expansion was driven by a higher mix of data center products [1].",
+        "Improved pricing on accelerated computing platforms contributed to the gross margin expansion [1].",
+        "Inventory provisions, product transition costs, and higher supply chain expenses partially offset the gross margin expansion [1]."
+      ],
+      "citations": [
+        {
+          "label": "NVDA NVIDIA FY2025 Form 10-K, pp. 47-48",
+          "document_id": "21111111-1111-4111-8111-111111111111",
+          "chunk_id": "31111111-1111-4111-8111-111111111112",
+          "excerpt": "Gross margin expanded due to a higher mix of data center products and improved pricing on accelerated computing platforms. The expansion was partly offset by inventory provisions, product transition costs, and higher supply chain expenses associated with new platform ramps.",
+          "score": 0.616128,
+          "company_id": "11111111-1111-4111-8111-111111111111",
+          "title": "NVIDIA FY2025 Form 10-K",
+          "company_ticker": "NVDA",
+          "page_start": 47,
+          "page_end": 48,
+          "section_title": "Management's Discussion and Analysis - Gross Margin"
+        }
+      ],
+      "confidence": "high",
+      "limitations": [
+        "The excerpt does not quantify the extent of the gross margin expansion or the specific impact of each offsetting factor.",
+        "Local model synthesis uses the supplied filing excerpts; citation membership does not independently verify every claim.",
+        "No period was specified for this source type; using its latest available fiscal period."
+      ],
+      "retrieval_debug": {
+        "query": "Why did NVIDIA gross margin expand according to the FY2025 10-K?",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "31111111-1111-4111-8111-111111111112",
+            "document_id": "21111111-1111-4111-8111-111111111111",
+            "company_id": "11111111-1111-4111-8111-111111111111",
+            "company_ticker": "NVDA",
+            "document_title": "NVIDIA FY2025 Form 10-K",
+            "score": 0.616128,
+            "excerpt": "Gross margin expanded due to a higher mix of data center products and improved pricing on accelerated computing platforms. The expansion was partly offset by inventory provisions, product transition costs, and higher supply chain expenses associated with new platform ramps.",
+            "page_start": 47,
+            "section_title": "Management's Discussion and Analysis - Gross Margin",
+            "keyword_score": 0.512887,
+            "vector_score": 0.091593,
+            "cited": true
+          }
+        ]
+      },
+      "message_id": "4348700a-b1d9-4507-9d81-d3b1c931e515",
+      "conversation_id": "9dc76444-2265-47a8-a2cc-0d0f4068259a",
+      "usage": {
+        "model": "gemma3:4b",
+        "latency_ms": 5227,
+        "input_tokens": 52,
+        "output_tokens": 51,
+        "estimated_cost_usd": 0.0,
+        "provider": "ollama",
+        "retrieval": {
+          "retrieved_chunks": 1,
+          "cited_chunks": 1
+        }
+      }
+    },
+    "latency_ms": 5236.017,
+    "format_compliance": 1,
+    "accepted_model_output": true,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_003",
+    "category": "single_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "11111111-1111-4111-8111-111111111111"
+      ],
+      "question": "List the main NVIDIA risk factors in the fixture 10-K context.",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "I do not have enough cited context to answer that. No retrieved passage directly supports the requested fact and period; upload or select relevant documents.",
+      "key_points": [],
+      "citations": [],
+      "confidence": "low",
+      "limitations": [
+        "A relevance check is not semantic entailment. Missing support is not proof that the information does not exist."
+      ],
+      "retrieval_debug": {
+        "query": "List the main NVIDIA risk factors in the fixture 10-K context.",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": []
+      },
+      "message_id": "5f9b8249-6be4-4356-bc47-e7d92051caa5",
+      "conversation_id": "83fec901-8e5d-4d02-a5b6-0f653ba8554b",
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 5,
+        "input_tokens": 12,
+        "output_tokens": 25,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 0,
+          "cited_chunks": 0
+        }
+      }
+    },
+    "latency_ms": 11.369,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_004",
+    "category": "single_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "22222222-2222-4222-8222-222222222222"
+      ],
+      "question": "What drove Apple services net sales growth in the FY2025 10-K fixture?",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "Apple\u2019s services net sales increased due to growth in advertising, cloud services, payment services, and subscriptions [1]. This growth was supported by the active installed base of devices and customer engagement across its platforms [1].",
+      "key_points": [
+        "Services net sales increased due to growth in advertising, cloud services, payment services, and subscriptions [1].",
+        "Services growth was supported by the active installed base of devices and customer engagement [1]."
+      ],
+      "citations": [
+        {
+          "label": "AAPL Apple FY2025 Form 10-K, pp. 30-31",
+          "document_id": "22222222-2222-4222-8222-222222222221",
+          "chunk_id": "32222222-2222-4222-8222-222222222221",
+          "excerpt": "Apple's services net sales increased due to growth in advertising, cloud services, payment services, and subscriptions. The company said services growth was supported by the active installed base of devices and customer engagement across its platforms.",
+          "score": 0.665561,
+          "company_id": "22222222-2222-4222-8222-222222222222",
+          "title": "Apple FY2025 Form 10-K",
+          "company_ticker": "AAPL",
+          "page_start": 30,
+          "page_end": 31,
+          "section_title": "Management's Discussion and Analysis - Net Sales"
+        }
+      ],
+      "confidence": "high",
+      "limitations": [
+        "The excerpt does not provide specific figures or quantify the growth in services net sales [1].",
+        "Local model synthesis uses the supplied filing excerpts; citation membership does not independently verify every claim.",
+        "No period was specified for this source type; using its latest available fiscal period."
+      ],
+      "retrieval_debug": {
+        "query": "What drove Apple services net sales growth in the FY2025 10-K fixture?",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "32222222-2222-4222-8222-222222222221",
+            "document_id": "22222222-2222-4222-8222-222222222221",
+            "company_id": "22222222-2222-4222-8222-222222222222",
+            "company_ticker": "AAPL",
+            "document_title": "Apple FY2025 Form 10-K",
+            "score": 0.665561,
+            "excerpt": "Apple's services net sales increased due to growth in advertising, cloud services, payment services, and subscriptions. The company said services growth was supported by the active installed base of devices and customer engagement across its platforms.",
+            "page_start": 30,
+            "section_title": "Management's Discussion and Analysis - Net Sales",
+            "keyword_score": 0.707005,
+            "vector_score": 0.499785,
+            "cited": true
+          },
+          {
+            "id": "32222222-2222-4222-8222-222222222223",
+            "document_id": "22222222-2222-4222-8222-222222222221",
+            "company_id": "22222222-2222-4222-8222-222222222222",
+            "company_ticker": "AAPL",
+            "document_title": "Apple FY2025 Form 10-K",
+            "score": 0.111503,
+            "excerpt": "Risks include dependence on new product introductions, competitive pressure in smartphones and services, supply chain concentration in Asia, regulatory scrutiny of app distribution and payment practices, foreign exchange volatility, and potential disruptions from component shortages.",
+            "page_start": 11,
+            "section_title": "Risk Factors",
+            "keyword_score": 0.107005,
+            "vector_score": 0.129496,
+            "cited": false
+          },
+          {
+            "id": "32222222-2222-4222-8222-222222222222",
+            "document_id": "22222222-2222-4222-8222-222222222221",
+            "company_id": "22222222-2222-4222-8222-222222222222",
+            "company_ticker": "AAPL",
+            "document_title": "Apple FY2025 Form 10-K",
+            "score": 0.102055,
+            "excerpt": "Services gross margin was higher than products gross margin. Total gross margin benefited from a higher services mix, while products gross margin remained sensitive to component costs, foreign exchange movements, and product mix.",
+            "page_start": 32,
+            "section_title": "Management's Discussion and Analysis - Gross Margin",
+            "keyword_score": 0.107005,
+            "vector_score": 0.082253,
+            "cited": false
+          }
+        ]
+      },
+      "message_id": "e6b6c58b-d09e-4c8e-9443-340f0356bd4e",
+      "conversation_id": "b806c426-d916-4f50-b81c-0291b2319a08",
+      "usage": {
+        "model": "gemma3:4b",
+        "latency_ms": 4432,
+        "input_tokens": 118,
+        "output_tokens": 36,
+        "estimated_cost_usd": 0.0,
+        "provider": "ollama",
+        "retrieval": {
+          "retrieved_chunks": 3,
+          "cited_chunks": 1
+        }
+      }
+    },
+    "latency_ms": 4440.128,
+    "format_compliance": 1,
+    "accepted_model_output": true,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_005",
+    "category": "single_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "22222222-2222-4222-8222-222222222222"
+      ],
+      "question": "How did services mix affect Apple's total gross margin?",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "AAPL 10-k FY2025: Total gross margin benefited from a higher services mix, while products gross margin remained sensitive to component costs, foreign exchange movements, and product mix. [1] AAPL 10-k FY2025: Services gross margin was higher than products gross margin. [1]",
+      "key_points": [
+        "Total gross margin benefited from a higher services mix, while products gross margin remained sensitive to component costs, foreign exchange movements, and product mix. [1]",
+        "Services gross margin was higher than products gross margin. [1]"
+      ],
+      "citations": [
+        {
+          "label": "AAPL Apple FY2025 Form 10-K, pp. 32-33",
+          "document_id": "22222222-2222-4222-8222-222222222221",
+          "chunk_id": "32222222-2222-4222-8222-222222222222",
+          "excerpt": "Total gross margin benefited from a higher services mix, while products gross margin remained sensitive to component costs, foreign exchange movements, and product mix.\nServices gross margin was higher than products gross margin.",
+          "score": 0.763248,
+          "company_id": "22222222-2222-4222-8222-222222222222",
+          "title": "Apple FY2025 Form 10-K",
+          "company_ticker": "AAPL",
+          "page_start": 32,
+          "page_end": 33,
+          "section_title": "Management's Discussion and Analysis - Gross Margin"
+        }
+      ],
+      "confidence": "medium",
+      "limitations": [
+        "Answer is based only on ingested local documents; no live market data was used.",
+        "No source type was specified; using the latest available annual filing as the research baseline.",
+        "Extracted passages are supporting context, not a verified complete answer or a calculation across periods.",
+        "Local model output failed citation validation; deterministic cited synthesis used instead (Ollama returned missing or inconsistent citation references)."
+      ],
+      "retrieval_debug": {
+        "query": "How did services mix affect Apple's total gross margin?",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "32222222-2222-4222-8222-222222222222",
+            "document_id": "22222222-2222-4222-8222-222222222221",
+            "company_id": "22222222-2222-4222-8222-222222222222",
+            "company_ticker": "AAPL",
+            "document_title": "Apple FY2025 Form 10-K",
+            "score": 0.763248,
+            "excerpt": "Services gross margin was higher than products gross margin. Total gross margin benefited from a higher services mix, while products gross margin remained sensitive to component costs, foreign exchange movements, and product mix.",
+            "page_start": 32,
+            "section_title": "Management's Discussion and Analysis - Gross Margin",
+            "keyword_score": 0.755838,
+            "vector_score": 0.480391,
+            "cited": true
+          },
+          {
+            "id": "32222222-2222-4222-8222-222222222221",
+            "document_id": "22222222-2222-4222-8222-222222222221",
+            "company_id": "22222222-2222-4222-8222-222222222222",
+            "company_ticker": "AAPL",
+            "document_title": "Apple FY2025 Form 10-K",
+            "score": 0.133162,
+            "excerpt": "Apple's services net sales increased due to growth in advertising, cloud services, payment services, and subscriptions. The company said services growth was supported by the active installed base of devices and customer engagement across its platforms.",
+            "page_start": 30,
+            "section_title": "Management's Discussion and Analysis - Net Sales",
+            "keyword_score": 0.089171,
+            "vector_score": 0.309123,
+            "cited": false
+          },
+          {
+            "id": "32222222-2222-4222-8222-222222222223",
+            "document_id": "22222222-2222-4222-8222-222222222221",
+            "company_id": "22222222-2222-4222-8222-222222222222",
+            "company_ticker": "AAPL",
+            "document_title": "Apple FY2025 Form 10-K",
+            "score": 0.111831,
+            "excerpt": "Risks include dependence on new product introductions, competitive pressure in smartphones and services, supply chain concentration in Asia, regulatory scrutiny of app distribution and payment practices, foreign exchange volatility, and potential disruptions from component shortages.",
+            "page_start": 11,
+            "section_title": "Risk Factors",
+            "keyword_score": 0.089171,
+            "vector_score": 0.202472,
+            "cited": false
+          }
+        ]
+      },
+      "message_id": "9562807c-4491-4c88-a674-ca036726f537",
+      "conversation_id": "4c5b1a5f-9e39-4492-9410-21f819e06dc5",
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 6150,
+        "input_tokens": 115,
+        "output_tokens": 43,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 3,
+          "cited_chunks": 1
+        }
+      }
+    },
+    "latency_ms": 6155.923,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": true,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_006",
+    "category": "single_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "22222222-2222-4222-8222-222222222222"
+      ],
+      "question": "What risks does the Apple 10-K fixture identify?",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "I do not have enough cited context to answer that. No retrieved passage directly supports the requested fact and period; upload or select relevant documents.",
+      "key_points": [],
+      "citations": [],
+      "confidence": "low",
+      "limitations": [
+        "A relevance check is not semantic entailment. Missing support is not proof that the information does not exist."
+      ],
+      "retrieval_debug": {
+        "query": "What risks does the Apple 10-K fixture identify?",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": []
+      },
+      "message_id": "4f3fdb59-6924-4eb6-9524-3020e62501ea",
+      "conversation_id": "809e8ca9-7733-4281-8d49-8ab5f5dabb13",
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 4,
+        "input_tokens": 9,
+        "output_tokens": 25,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 0,
+          "cited_chunks": 0
+        }
+      }
+    },
+    "latency_ms": 9.588,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_007",
+    "category": "single_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "33333333-3333-4333-8333-333333333333"
+      ],
+      "question": "What factors affected JPMorgan net interest income in the FY2025 10-K fixture?",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "According to JPM's FY2025 10-K, net interest income benefited from higher rates and loan balances [1]. However, this was partly offset by deposit margin compression and migration to higher-yielding deposit products [1]. Management highlighted that deposit costs remained a key sensitivity for future net interest income [1].",
+      "key_points": [
+        "Net interest income was positively impacted by higher rates and loan balances [1].",
+        "Deposit margin compression negatively impacted net interest income [1].",
+        "Migration to higher-yielding deposit products negatively impacted net interest income [1].",
+        "Deposit costs are a key sensitivity for future net interest income [1]."
+      ],
+      "citations": [
+        {
+          "label": "JPM JPMorgan Chase FY2025 Form 10-K, pp. 54-56",
+          "document_id": "23333333-3333-4333-8333-333333333331",
+          "chunk_id": "33333333-3333-4333-8333-333333333331",
+          "excerpt": "Net interest income benefited from higher rates and loan balances, partly offset by deposit margin compression and migration to higher-yielding deposit products. Management noted that deposit costs remained a key sensitivity for future net interest income.",
+          "score": 0.428165,
+          "company_id": "33333333-3333-4333-8333-333333333333",
+          "title": "JPMorgan Chase FY2025 Form 10-K",
+          "company_ticker": "JPM",
+          "page_start": 54,
+          "page_end": 56,
+          "section_title": "Management's Discussion and Analysis - Net Interest Income"
+        }
+      ],
+      "confidence": "high",
+      "limitations": [
+        "The filing does not provide specific figures or quantify the impact of each factor on net interest income.",
+        "Local model synthesis uses the supplied filing excerpts; citation membership does not independently verify every claim.",
+        "No period was specified for this source type; using its latest available fiscal period."
+      ],
+      "retrieval_debug": {
+        "query": "What factors affected JPMorgan net interest income in the FY2025 10-K fixture?",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "33333333-3333-4333-8333-333333333331",
+            "document_id": "23333333-3333-4333-8333-333333333331",
+            "company_id": "33333333-3333-4333-8333-333333333333",
+            "company_ticker": "JPM",
+            "document_title": "JPMorgan Chase FY2025 Form 10-K",
+            "score": 0.428165,
+            "excerpt": "Net interest income benefited from higher rates and loan balances, partly offset by deposit margin compression and migration to higher-yielding deposit products. Management noted that deposit costs remained a key sensitivity for future net interest income.",
+            "page_start": 54,
+            "section_title": "Management's Discussion and Analysis - Net Interest Income",
+            "keyword_score": 0.505907,
+            "vector_score": 0.1172,
+            "cited": true
+          }
+        ]
+      },
+      "message_id": "37f942c9-56e7-4ecc-8b03-8807f8f9bf9c",
+      "conversation_id": "c82e0b42-35ea-440c-b56e-611946081fa0",
+      "usage": {
+        "model": "gemma3:4b",
+        "latency_ms": 5263,
+        "input_tokens": 49,
+        "output_tokens": 49,
+        "estimated_cost_usd": 0.0,
+        "provider": "ollama",
+        "retrieval": {
+          "retrieved_chunks": 1,
+          "cited_chunks": 1
+        }
+      }
+    },
+    "latency_ms": 5270.259,
+    "format_compliance": 1,
+    "accepted_model_output": true,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_008",
+    "category": "single_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "33333333-3333-4333-8333-333333333333"
+      ],
+      "question": "How did JPMorgan describe credit loss provisioning in the FY2025 10-K fixture?",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "I do not have enough cited context to answer that. No retrieved passage directly supports the requested fact and period; upload or select relevant documents.",
+      "key_points": [],
+      "citations": [],
+      "confidence": "low",
+      "limitations": [
+        "A relevance check is not semantic entailment. Missing support is not proof that the information does not exist."
+      ],
+      "retrieval_debug": {
+        "query": "How did JPMorgan describe credit loss provisioning in the FY2025 10-K fixture?",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "33333333-3333-4333-8333-333333333332",
+            "document_id": "23333333-3333-4333-8333-333333333331",
+            "company_id": "33333333-3333-4333-8333-333333333333",
+            "company_ticker": "JPM",
+            "document_title": "JPMorgan Chase FY2025 Form 10-K",
+            "score": 0.354672,
+            "excerpt": "The provision for credit losses reflected loan growth and normalization in card delinquencies from unusually low levels. The allowance considered macroeconomic scenarios, unemployment, borrower behavior, commercial real estate exposure, and portfolio seasoning.",
+            "page_start": 80,
+            "section_title": "Credit Risk",
+            "keyword_score": 0.149287,
+            "vector_score": 0.238709,
+            "cited": false
+          }
+        ]
+      },
+      "message_id": "bfcccb1e-dbc1-499a-8904-1b1f44d30f55",
+      "conversation_id": "c2306f57-3de9-4f12-8a6a-3acc70bdfdcb",
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 5,
+        "input_tokens": 45,
+        "output_tokens": 25,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 1,
+          "cited_chunks": 0
+        }
+      }
+    },
+    "latency_ms": 12.418,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_009",
+    "category": "single_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "33333333-3333-4333-8333-333333333333"
+      ],
+      "question": "What did the JPMorgan fixture say about capital management?",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "According to JPMorgan Chase's Form 10-K [1], the firm's capital position remained above regulatory minimums and was supported by activities such as loan growth, dividends, share repurchases (subject to board approval), and investments in technology and risk management [1]. Management also noted that deposit costs remained a key sensitivity for future net interest income [2].",
+      "key_points": [
+        "JPMorgan Chase's capital position was above regulatory minimums [1].",
+        "Common Equity Tier 1 capital supported loan growth, dividends, share repurchases, and investments [1].",
+        "Deposit costs were a key sensitivity for future net interest income [2]."
+      ],
+      "citations": [
+        {
+          "label": "JPM JPMorgan Chase FY2025 Form 10-K, pp. 91-92",
+          "document_id": "23333333-3333-4333-8333-333333333331",
+          "chunk_id": "33333333-3333-4333-8333-333333333333",
+          "excerpt": "The firm's capital position remained above regulatory minimums. Common Equity Tier 1 capital supported loan growth, dividends, share repurchases subject to board approval, and investments in technology and risk management.",
+          "score": 0.476178,
+          "company_id": "33333333-3333-4333-8333-333333333333",
+          "title": "JPMorgan Chase FY2025 Form 10-K",
+          "company_ticker": "JPM",
+          "page_start": 91,
+          "page_end": 92,
+          "section_title": "Capital Management"
+        },
+        {
+          "label": "JPM JPMorgan Chase FY2025 Form 10-K, pp. 54-56",
+          "document_id": "23333333-3333-4333-8333-333333333331",
+          "chunk_id": "33333333-3333-4333-8333-333333333331",
+          "excerpt": "Net interest income benefited from higher rates and loan balances, partly offset by deposit margin compression and migration to higher-yielding deposit products. Management noted that deposit costs remained a key sensitivity for future net interest income.",
+          "score": 0.163036,
+          "company_id": "33333333-3333-4333-8333-333333333333",
+          "title": "JPMorgan Chase FY2025 Form 10-K",
+          "company_ticker": "JPM",
+          "page_start": 54,
+          "page_end": 56,
+          "section_title": "Management's Discussion and Analysis - Net Interest Income"
+        }
+      ],
+      "confidence": "high",
+      "limitations": [
+        "The excerpt does not detail the specific amount of capital or the exact nature of the board approval for share repurchases.",
+        "Local model synthesis uses the supplied filing excerpts; citation membership does not independently verify every claim.",
+        "No source type was specified; using the latest available annual filing as the research baseline."
+      ],
+      "retrieval_debug": {
+        "query": "What did the JPMorgan fixture say about capital management?",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "33333333-3333-4333-8333-333333333333",
+            "document_id": "23333333-3333-4333-8333-333333333331",
+            "company_id": "33333333-3333-4333-8333-333333333333",
+            "company_ticker": "JPM",
+            "document_title": "JPMorgan Chase FY2025 Form 10-K",
+            "score": 0.476178,
+            "excerpt": "The firm's capital position remained above regulatory minimums. Common Equity Tier 1 capital supported loan growth, dividends, share repurchases subject to board approval, and investments in technology and risk management.",
+            "page_start": 91,
+            "section_title": "Capital Management",
+            "keyword_score": 0.526803,
+            "vector_score": 0.273678,
+            "cited": true
+          },
+          {
+            "id": "33333333-3333-4333-8333-333333333331",
+            "document_id": "23333333-3333-4333-8333-333333333331",
+            "company_id": "33333333-3333-4333-8333-333333333333",
+            "company_ticker": "JPM",
+            "document_title": "JPMorgan Chase FY2025 Form 10-K",
+            "score": 0.163036,
+            "excerpt": "Net interest income benefited from higher rates and loan balances, partly offset by deposit margin compression and migration to higher-yielding deposit products. Management noted that deposit costs remained a key sensitivity for future net interest income.",
+            "page_start": 54,
+            "section_title": "Management's Discussion and Analysis - Net Interest Income",
+            "keyword_score": 0.203795,
+            "vector_score": 0.0,
+            "cited": true
+          }
+        ]
+      },
+      "message_id": "4d8fed5a-b9ab-4e2c-a747-a4e52df37214",
+      "conversation_id": "0a3af7d9-353b-4f56-9b6a-f0c168710989",
+      "usage": {
+        "model": "gemma3:4b",
+        "latency_ms": 5422,
+        "input_tokens": 76,
+        "output_tokens": 58,
+        "estimated_cost_usd": 0.0,
+        "provider": "ollama",
+        "retrieval": {
+          "retrieved_chunks": 2,
+          "cited_chunks": 2
+        }
+      }
+    },
+    "latency_ms": 5428.282,
+    "format_compliance": 1,
+    "accepted_model_output": true,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_010",
+    "category": "single_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "44444444-4444-4444-8444-444444444444"
+      ],
+      "question": "What affected Exxon upstream earnings in the FY2025 10-K fixture?",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "XOM 10-k FY2025: Upstream earnings were primarily affected by crude oil and natural gas realizations, production volumes, and operating expenses. [1]",
+      "key_points": [
+        "Upstream earnings were primarily affected by crude oil and natural gas realizations, production volumes, and operating expenses. [1]"
+      ],
+      "citations": [
+        {
+          "label": "XOM Exxon Mobil FY2025 Form 10-K, pp. 38-40",
+          "document_id": "24444444-4444-4444-8444-444444444441",
+          "chunk_id": "34444444-4444-4444-8444-444444444441",
+          "excerpt": "Upstream earnings were primarily affected by crude oil and natural gas realizations, production volumes, and operating expenses.",
+          "score": 0.742957,
+          "company_id": "44444444-4444-4444-8444-444444444444",
+          "title": "Exxon Mobil FY2025 Form 10-K",
+          "company_ticker": "XOM",
+          "page_start": 38,
+          "page_end": 40,
+          "section_title": "Management's Discussion and Analysis - Upstream"
+        }
+      ],
+      "confidence": "medium",
+      "limitations": [
+        "Answer is based only on ingested local documents; no live market data was used.",
+        "No period was specified for this source type; using its latest available fiscal period.",
+        "Extracted passages are supporting context, not a verified complete answer or a calculation across periods.",
+        "Local model output failed citation validation; deterministic cited synthesis used instead (Ollama returned missing or inconsistent citation references)."
+      ],
+      "retrieval_debug": {
+        "query": "What affected Exxon upstream earnings in the FY2025 10-K fixture?",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "34444444-4444-4444-8444-444444444441",
+            "document_id": "24444444-4444-4444-8444-444444444441",
+            "company_id": "44444444-4444-4444-8444-444444444444",
+            "company_ticker": "XOM",
+            "document_title": "Exxon Mobil FY2025 Form 10-K",
+            "score": 0.742957,
+            "excerpt": "Upstream earnings were primarily affected by crude oil and natural gas realizations, production volumes, and operating expenses. Higher production from advantaged assets partly offset weaker commodity prices in certain periods.",
+            "page_start": 38,
+            "section_title": "Management's Discussion and Analysis - Upstream",
+            "keyword_score": 0.654179,
+            "vector_score": 0.160571,
+            "cited": true
+          }
+        ]
+      },
+      "message_id": "55e880b2-bf9b-495e-b7f2-e0548538feb2",
+      "conversation_id": "627ee8c4-0687-4649-89e4-1a199b3c5c73",
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 3367,
+        "input_tokens": 41,
+        "output_tokens": 22,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 1,
+          "cited_chunks": 1
+        }
+      }
+    },
+    "latency_ms": 3373.569,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": true,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_011",
+    "category": "single_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "44444444-4444-4444-8444-444444444444"
+      ],
+      "question": "Summarize Exxon's stated capital allocation priorities from the fixture.",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "According to Exxon Mobil\u2019s FY2025 Form 10-K [1], their capital allocation priorities are investing in advantaged projects, maintaining a strong balance sheet, paying a reliable dividend, and repurchasing shares when supported by cash flow and market conditions.",
+      "key_points": [
+        "Exxon Mobil prioritizes investing in advantaged projects [1].",
+        "They aim to maintain a strong balance sheet [1].",
+        "A reliable dividend is a key priority [1].",
+        "Share repurchases are considered when cash flow and market conditions allow [1]."
+      ],
+      "citations": [
+        {
+          "label": "XOM Exxon Mobil FY2025 Form 10-K, pp. 52-53",
+          "document_id": "24444444-4444-4444-8444-444444444441",
+          "chunk_id": "34444444-4444-4444-8444-444444444443",
+          "excerpt": "Capital allocation priorities included investing in advantaged projects, maintaining a strong balance sheet, paying a reliable dividend, and repurchasing shares when supported by cash flow and market conditions.",
+          "score": 0.636184,
+          "company_id": "44444444-4444-4444-8444-444444444444",
+          "title": "Exxon Mobil FY2025 Form 10-K",
+          "company_ticker": "XOM",
+          "page_start": 52,
+          "page_end": 53,
+          "section_title": "Capital Allocation"
+        }
+      ],
+      "confidence": "high",
+      "limitations": [
+        "The excerpt only provides the stated priorities and does not detail the scope or specific projects involved.",
+        "Local model synthesis uses the supplied filing excerpts; citation membership does not independently verify every claim.",
+        "No source type was specified; using the latest available annual filing as the research baseline."
+      ],
+      "retrieval_debug": {
+        "query": "Summarize Exxon's stated capital allocation priorities from the fixture.",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "34444444-4444-4444-8444-444444444443",
+            "document_id": "24444444-4444-4444-8444-444444444441",
+            "company_id": "44444444-4444-4444-8444-444444444444",
+            "company_ticker": "XOM",
+            "document_title": "Exxon Mobil FY2025 Form 10-K",
+            "score": 0.636184,
+            "excerpt": "Capital allocation priorities included investing in advantaged projects, maintaining a strong balance sheet, paying a reliable dividend, and repurchasing shares when supported by cash flow and market conditions.",
+            "page_start": 52,
+            "section_title": "Capital Allocation",
+            "keyword_score": 0.505907,
+            "vector_score": 0.219794,
+            "cited": true
+          }
+        ]
+      },
+      "message_id": "f3fa893a-8d12-43d2-9af3-b9987eb6b0a4",
+      "conversation_id": "7e76a6a0-4c7c-469f-a18a-7ecdced1213b",
+      "usage": {
+        "model": "gemma3:4b",
+        "latency_ms": 4455,
+        "input_tokens": 38,
+        "output_tokens": 39,
+        "estimated_cost_usd": 0.0,
+        "provider": "ollama",
+        "retrieval": {
+          "retrieved_chunks": 1,
+          "cited_chunks": 1
+        }
+      }
+    },
+    "latency_ms": 4462.424,
+    "format_compliance": 1,
+    "accepted_model_output": true,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_012",
+    "category": "single_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "55555555-5555-4555-8555-555555555555"
+      ],
+      "question": "What pressured Tesla automotive gross margin in the FY2025 10-K fixture?",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "According to Tesla's FY2025 Form 10-K [1], price reductions and mix changes pressured automotive gross margin [1].",
+      "key_points": [
+        "Price reductions and mix changes negatively impacted automotive gross margin [1]."
+      ],
+      "citations": [
+        {
+          "label": "TSLA Tesla FY2025 Form 10-K, pp. 44-45",
+          "document_id": "25555555-5555-4555-8555-555555555551",
+          "chunk_id": "35555555-5555-4555-8555-555555555551",
+          "excerpt": "Automotive revenue was affected by vehicle delivery volumes, average selling prices, product mix, regulatory credit revenue, and foreign exchange. Price reductions and mix changes pressured automotive gross margin, partly offset by manufacturing cost reductions.",
+          "score": 0.876818,
+          "company_id": "55555555-5555-4555-8555-555555555555",
+          "title": "Tesla FY2025 Form 10-K",
+          "company_ticker": "TSLA",
+          "page_start": 44,
+          "page_end": 45,
+          "section_title": "Management's Discussion and Analysis - Automotive"
+        }
+      ],
+      "confidence": "high",
+      "limitations": [
+        "The excerpt does not specify the magnitude of the pressure or the specific reasons behind the price reductions and mix changes.",
+        "Local model synthesis uses the supplied filing excerpts; citation membership does not independently verify every claim.",
+        "No period was specified for this source type; using its latest available fiscal period."
+      ],
+      "retrieval_debug": {
+        "query": "What pressured Tesla automotive gross margin in the FY2025 10-K fixture?",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "35555555-5555-4555-8555-555555555551",
+            "document_id": "25555555-5555-4555-8555-555555555551",
+            "company_id": "55555555-5555-4555-8555-555555555555",
+            "company_ticker": "TSLA",
+            "document_title": "Tesla FY2025 Form 10-K",
+            "score": 0.876818,
+            "excerpt": "Automotive revenue was affected by vehicle delivery volumes, average selling prices, product mix, regulatory credit revenue, and foreign exchange. Price reductions and mix changes pressured automotive gross margin, partly offset by manufacturing cost reductions.",
+            "page_start": 44,
+            "section_title": "Management's Discussion and Analysis - Automotive",
+            "keyword_score": 0.731934,
+            "vector_score": 0.206352,
+            "cited": true
+          }
+        ]
+      },
+      "message_id": "8a0862ea-746b-4f1c-80d4-5d76b69f9b0d",
+      "conversation_id": "b50ef837-b4fc-45db-8208-381540c96592",
+      "usage": {
+        "model": "gemma3:4b",
+        "latency_ms": 2901,
+        "input_tokens": 46,
+        "output_tokens": 19,
+        "estimated_cost_usd": 0.0,
+        "provider": "ollama",
+        "retrieval": {
+          "retrieved_chunks": 1,
+          "cited_chunks": 1
+        }
+      }
+    },
+    "latency_ms": 2907.182,
+    "format_compliance": 1,
+    "accepted_model_output": true,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_013",
+    "category": "multi_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "11111111-1111-4111-8111-111111111111"
+      ],
+      "question": "Synthesize NVIDIA's FY2025 growth drivers and the main risks that could interrupt them.",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "I do not have enough cited context to answer that. No retrieved passage directly supports the requested fact and period; upload or select relevant documents.",
+      "key_points": [],
+      "citations": [],
+      "confidence": "low",
+      "limitations": [
+        "A relevance check is not semantic entailment. Missing support is not proof that the information does not exist."
+      ],
+      "retrieval_debug": {
+        "query": "Synthesize NVIDIA's FY2025 growth drivers and the main risks that could interrupt them.",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "31111111-1111-4111-8111-111111111113",
+            "document_id": "21111111-1111-4111-8111-111111111111",
+            "company_id": "11111111-1111-4111-8111-111111111111",
+            "company_ticker": "NVDA",
+            "document_title": "NVIDIA FY2025 Form 10-K",
+            "score": 0.156811,
+            "excerpt": "Risks include dependence on a limited number of suppliers and foundry partners, customer concentration among large cloud and internet companies, export controls affecting shipments of advanced products, product transition execution, and cyclicality in semiconductor demand. Restrictions on sales to certain jurisdictions could reduce revenue or require product redesigns.",
+            "page_start": 18,
+            "section_title": "Risk Factors",
+            "keyword_score": 0.129896,
+            "vector_score": 0.26447,
+            "cited": false
+          },
+          {
+            "id": "31111111-1111-4111-8111-111111111111",
+            "document_id": "21111111-1111-4111-8111-111111111111",
+            "company_id": "11111111-1111-4111-8111-111111111111",
+            "company_ticker": "NVDA",
+            "document_title": "NVIDIA FY2025 Form 10-K",
+            "score": 0.103917,
+            "excerpt": "Data center revenue increased primarily from demand for compute products used in generative AI and accelerated computing workloads. Growth was supported by large cloud service providers, consumer internet companies, enterprise software customers, and sovereign AI programs. Networking revenue also increased as customers built larger AI clusters requiring high-speed interconnects.",
+            "page_start": 42,
+            "section_title": "Management's Discussion and Analysis - Data Center",
+            "keyword_score": 0.129896,
+            "vector_score": 0.0,
+            "cited": false
+          }
+        ]
+      },
+      "message_id": "a08d9714-b4a4-4675-a9b2-70641cff2c82",
+      "conversation_id": "10a0df97-ff2d-4a1f-9dfa-c5f8a3bd3ea6",
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 5,
+        "input_tokens": 111,
+        "output_tokens": 25,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 2,
+          "cited_chunks": 0
+        }
+      }
+    },
+    "latency_ms": 11.055,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_014",
+    "category": "multi_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "22222222-2222-4222-8222-222222222222"
+      ],
+      "question": "Use Apple's 10-K and earnings transcript fixture to explain services growth and capital allocation priorities.",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "AAPL earnings_transcript FY2025 Q4: The company also described continued investment in artificial intelligence features across devices, while noting that capital allocation priorities remained investment in the business, dividends, and share repurchases. [1] AAPL 10-k FY2025: The company said services growth was supported by the active installed base of devices and customer engagement across its platforms. [2] AAPL 10-k FY2025: Apple's services net sales increased due to growth in advertising, cloud services, payment services, and subscriptions. [2]",
+      "key_points": [
+        "The company also described continued investment in artificial intelligence features across devices, while noting that capital allocation priorities remained investment in the business, dividends, and share repurchases. [1]",
+        "The company said services growth was supported by the active installed base of devices and customer engagement across its platforms. [2]",
+        "Apple's services net sales increased due to growth in advertising, cloud services, payment services, and subscriptions. [2]"
+      ],
+      "citations": [
+        {
+          "label": "AAPL Apple FY2025 Q4 Earnings Call Transcript, pp. 5-6",
+          "document_id": "22222222-2222-4222-8222-222222222222",
+          "chunk_id": "32222222-2222-4222-8222-222222222224",
+          "excerpt": "The company also described continued investment in artificial intelligence features across devices, while noting that capital allocation priorities remained investment in the business, dividends, and share repurchases.",
+          "score": 0.509602,
+          "company_id": "22222222-2222-4222-8222-222222222222",
+          "title": "Apple FY2025 Q4 Earnings Call Transcript",
+          "company_ticker": "AAPL",
+          "page_start": 5,
+          "page_end": 6,
+          "section_title": "Earnings Call - Prepared Remarks"
+        },
+        {
+          "label": "AAPL Apple FY2025 Form 10-K, pp. 30-31",
+          "document_id": "22222222-2222-4222-8222-222222222221",
+          "chunk_id": "32222222-2222-4222-8222-222222222221",
+          "excerpt": "The company said services growth was supported by the active installed base of devices and customer engagement across its platforms.\nApple's services net sales increased due to growth in advertising, cloud services, payment services, and subscriptions.",
+          "score": 0.246555,
+          "company_id": "22222222-2222-4222-8222-222222222222",
+          "title": "Apple FY2025 Form 10-K",
+          "company_ticker": "AAPL",
+          "page_start": 30,
+          "page_end": 31,
+          "section_title": "Management's Discussion and Analysis - Net Sales"
+        }
+      ],
+      "confidence": "medium",
+      "limitations": [
+        "Answer is based only on ingested local documents; no live market data was used.",
+        "No period was specified for this source type; using its latest available fiscal period.",
+        "Extracted passages are supporting context, not a verified complete answer or a calculation across periods.",
+        "Local model output failed citation validation; deterministic cited synthesis used instead (Ollama returned missing or inconsistent citation references)."
+      ],
+      "retrieval_debug": {
+        "query": "Use Apple's 10-K and earnings transcript fixture to explain services growth and capital allocation priorities.",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "32222222-2222-4222-8222-222222222224",
+            "document_id": "22222222-2222-4222-8222-222222222222",
+            "company_id": "22222222-2222-4222-8222-222222222222",
+            "company_ticker": "AAPL",
+            "document_title": "Apple FY2025 Q4 Earnings Call Transcript",
+            "score": 0.509602,
+            "excerpt": "Management highlighted record services revenue and said paid subscriptions reached a new high. The company also described continued investment in artificial intelligence features across devices, while noting that capital allocation priorities remained investment in the business, dividends, and share repurchases.",
+            "page_start": 5,
+            "section_title": "Earnings Call - Prepared Remarks",
+            "keyword_score": 0.473548,
+            "vector_score": 0.261748,
+            "cited": true
+          },
+          {
+            "id": "32222222-2222-4222-8222-222222222221",
+            "document_id": "22222222-2222-4222-8222-222222222221",
+            "company_id": "22222222-2222-4222-8222-222222222222",
+            "company_ticker": "AAPL",
+            "document_title": "Apple FY2025 Form 10-K",
+            "score": 0.246555,
+            "excerpt": "Apple's services net sales increased due to growth in advertising, cloud services, payment services, and subscriptions. The company said services growth was supported by the active installed base of devices and customer engagement across its platforms.",
+            "page_start": 30,
+            "section_title": "Management's Discussion and Analysis - Net Sales",
+            "keyword_score": 0.205631,
+            "vector_score": 0.41025,
+            "cited": true
+          },
+          {
+            "id": "32222222-2222-4222-8222-222222222223",
+            "document_id": "22222222-2222-4222-8222-222222222221",
+            "company_id": "22222222-2222-4222-8222-222222222222",
+            "company_ticker": "AAPL",
+            "document_title": "Apple FY2025 Form 10-K",
+            "score": 0.092758,
+            "excerpt": "Risks include dependence on new product introductions, competitive pressure in smartphones and services, supply chain concentration in Asia, regulatory scrutiny of app distribution and payment practices, foreign exchange volatility, and potential disruptions from component shortages.",
+            "page_start": 11,
+            "section_title": "Risk Factors",
+            "keyword_score": 0.071672,
+            "vector_score": 0.177103,
+            "cited": false
+          },
+          {
+            "id": "32222222-2222-4222-8222-222222222222",
+            "document_id": "22222222-2222-4222-8222-222222222221",
+            "company_id": "22222222-2222-4222-8222-222222222222",
+            "company_ticker": "AAPL",
+            "document_title": "Apple FY2025 Form 10-K",
+            "score": 0.082487,
+            "excerpt": "Services gross margin was higher than products gross margin. Total gross margin benefited from a higher services mix, while products gross margin remained sensitive to component costs, foreign exchange movements, and product mix.",
+            "page_start": 32,
+            "section_title": "Management's Discussion and Analysis - Gross Margin",
+            "keyword_score": 0.071672,
+            "vector_score": 0.125749,
+            "cited": false
+          }
+        ]
+      },
+      "message_id": "2cf4c7a6-5a23-4c14-a22f-91a1c7995944",
+      "conversation_id": "d83cff53-c68f-423b-b6b7-da08a7a11138",
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 6970,
+        "input_tokens": 162,
+        "output_tokens": 79,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 4,
+          "cited_chunks": 2
+        }
+      }
+    },
+    "latency_ms": 6978.394,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": true,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_015",
+    "category": "multi_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "33333333-3333-4333-8333-333333333333"
+      ],
+      "question": "Explain JPMorgan's NII sensitivity and credit normalization using the fixture documents.",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "According to JPMorgan's 10-K [1], the provision for credit losses was influenced by loan growth and the normalization of card delinquencies from unusually low levels. The allowance for credit losses incorporated macroeconomic scenarios, unemployment rates, borrower behavior, commercial real estate exposure, and portfolio seasoning [1].",
+      "key_points": [
+        "Credit loss provision was affected by loan growth [1].",
+        "Card delinquencies normalized from historically low levels [1].",
+        "The allowance for credit losses considered macroeconomic factors, including unemployment [1].",
+        "Commercial real estate exposure was a factor in the allowance [1]."
+      ],
+      "citations": [
+        {
+          "label": "JPM JPMorgan Chase FY2025 Form 10-K, pp. 80-82",
+          "document_id": "23333333-3333-4333-8333-333333333331",
+          "chunk_id": "33333333-3333-4333-8333-333333333332",
+          "excerpt": "The provision for credit losses reflected loan growth and normalization in card delinquencies from unusually low levels. The allowance considered macroeconomic scenarios, unemployment, borrower behavior, commercial real estate exposure, and portfolio seasoning.",
+          "score": 0.441775,
+          "company_id": "33333333-3333-4333-8333-333333333333",
+          "title": "JPMorgan Chase FY2025 Form 10-K",
+          "company_ticker": "JPM",
+          "page_start": 80,
+          "page_end": 82,
+          "section_title": "Credit Risk"
+        }
+      ],
+      "confidence": "high",
+      "limitations": [
+        "The filing does not detail the specific sensitivity of NII (Net Interest Income) to credit loss provisions. It only describes the factors considered in the credit loss allowance.",
+        "Local model synthesis uses the supplied filing excerpts; citation membership does not independently verify every claim.",
+        "No source type was specified; using the latest available annual filing as the research baseline."
+      ],
+      "retrieval_debug": {
+        "query": "Explain JPMorgan's NII sensitivity and credit normalization using the fixture documents.",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "33333333-3333-4333-8333-333333333332",
+            "document_id": "23333333-3333-4333-8333-333333333331",
+            "company_id": "33333333-3333-4333-8333-333333333333",
+            "company_ticker": "JPM",
+            "document_title": "JPMorgan Chase FY2025 Form 10-K",
+            "score": 0.441775,
+            "excerpt": "The provision for credit losses reflected loan growth and normalization in card delinquencies from unusually low levels. The allowance considered macroeconomic scenarios, unemployment, borrower behavior, commercial real estate exposure, and portfolio seasoning.",
+            "page_start": 80,
+            "section_title": "Credit Risk",
+            "keyword_score": 0.259791,
+            "vector_score": 0.232212,
+            "cited": true
+          }
+        ]
+      },
+      "message_id": "9849033a-8dc3-4132-95e5-10c9a762d441",
+      "conversation_id": "fb91cfd8-25fe-4658-87a8-57812fc2a6a6",
+      "usage": {
+        "model": "gemma3:4b",
+        "latency_ms": 5158,
+        "input_tokens": 44,
+        "output_tokens": 47,
+        "estimated_cost_usd": 0.0,
+        "provider": "ollama",
+        "retrieval": {
+          "retrieved_chunks": 1,
+          "cited_chunks": 1
+        }
+      }
+    },
+    "latency_ms": 5164.134,
+    "format_compliance": 1,
+    "accepted_model_output": true,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_016",
+    "category": "multi_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "44444444-4444-4444-8444-444444444444"
+      ],
+      "question": "How do Exxon's upstream drivers and downstream margin commentary fit together in the fixture set?",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "XOM 10-k FY2025: Upstream earnings were primarily affected by crude oil and natural gas realizations, production volumes, and operating expenses. [1]",
+      "key_points": [
+        "Upstream earnings were primarily affected by crude oil and natural gas realizations, production volumes, and operating expenses. [1]"
+      ],
+      "citations": [
+        {
+          "label": "XOM Exxon Mobil FY2025 Form 10-K, pp. 38-40",
+          "document_id": "24444444-4444-4444-8444-444444444441",
+          "chunk_id": "34444444-4444-4444-8444-444444444441",
+          "excerpt": "Upstream earnings were primarily affected by crude oil and natural gas realizations, production volumes, and operating expenses.",
+          "score": 0.356528,
+          "company_id": "44444444-4444-4444-8444-444444444444",
+          "title": "Exxon Mobil FY2025 Form 10-K",
+          "company_ticker": "XOM",
+          "page_start": 38,
+          "page_end": 40,
+          "section_title": "Management's Discussion and Analysis - Upstream"
+        }
+      ],
+      "confidence": "medium",
+      "limitations": [
+        "Answer is based only on ingested local documents; no live market data was used.",
+        "No source type was specified; using the latest available annual filing as the research baseline.",
+        "Extracted passages are supporting context, not a verified complete answer or a calculation across periods.",
+        "Local model output failed citation validation; deterministic cited synthesis used instead (Ollama returned missing or inconsistent citation references)."
+      ],
+      "retrieval_debug": {
+        "query": "How do Exxon's upstream drivers and downstream margin commentary fit together in the fixture set?",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "34444444-4444-4444-8444-444444444441",
+            "document_id": "24444444-4444-4444-8444-444444444441",
+            "company_id": "44444444-4444-4444-8444-444444444444",
+            "company_ticker": "XOM",
+            "document_title": "Exxon Mobil FY2025 Form 10-K",
+            "score": 0.356528,
+            "excerpt": "Upstream earnings were primarily affected by crude oil and natural gas realizations, production volumes, and operating expenses. Higher production from advantaged assets partly offset weaker commodity prices in certain periods.",
+            "page_start": 38,
+            "section_title": "Management's Discussion and Analysis - Upstream",
+            "keyword_score": 0.089356,
+            "vector_score": 0.175216,
+            "cited": true
+          }
+        ]
+      },
+      "message_id": "2b04d912-6c58-4827-8343-dfdfeb365785",
+      "conversation_id": "108b2e01-ad41-44f8-b8d9-cf5c2a97588a",
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 3056,
+        "input_tokens": 46,
+        "output_tokens": 22,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 1,
+          "cited_chunks": 1
+        }
+      }
+    },
+    "latency_ms": 3066.23,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": true,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_017",
+    "category": "multi_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "55555555-5555-4555-8555-555555555555"
+      ],
+      "question": "Summarize Tesla's automotive margin pressure and energy storage growth using the fixture documents.",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "Tesla's automotive revenue was impacted by several factors, including vehicle delivery volumes, average selling prices, product mix, regulatory credit revenue, and foreign exchange [1]. Price reductions and mix changes led to pressure on automotive gross margin, but this was partially offset by manufacturing cost reductions [1]. Simultaneously, energy generation and storage revenue increased due to higher deployments of battery storage products [2]. The energy storage business saw improved profitability driven by scale, factory utilization, and cost reductions [2], although results remained sensitive to project timing [2]. The company faces risks including intense competition [3], pricing pressure, manufacturing ramp execution, battery cell supply, regulatory changes, dependence on key personnel, autonomous driving development uncertainty, product quality issues, and demand sensitivity to interest rates [3].",
+      "key_points": [
+        "Automotive gross margin was pressured by price reductions and mix changes [1].",
+        "Energy generation and storage revenue increased due to higher battery storage deployments [2].",
+        "Energy storage profitability improved with scale and cost reductions, but was sensitive to project timing [2]."
+      ],
+      "citations": [
+        {
+          "label": "TSLA Tesla FY2025 Form 10-K, pp. 44-45",
+          "document_id": "25555555-5555-4555-8555-555555555551",
+          "chunk_id": "35555555-5555-4555-8555-555555555551",
+          "excerpt": "Automotive revenue was affected by vehicle delivery volumes, average selling prices, product mix, regulatory credit revenue, and foreign exchange. Price reductions and mix changes pressured automotive gross margin, partly offset by manufacturing cost reductions.",
+          "score": 0.488665,
+          "company_id": "55555555-5555-4555-8555-555555555555",
+          "title": "Tesla FY2025 Form 10-K",
+          "company_ticker": "TSLA",
+          "page_start": 44,
+          "page_end": 45,
+          "section_title": "Management's Discussion and Analysis - Automotive"
+        },
+        {
+          "label": "TSLA Tesla FY2025 Form 10-K, pp. 47-48",
+          "document_id": "25555555-5555-4555-8555-555555555551",
+          "chunk_id": "35555555-5555-4555-8555-555555555552",
+          "excerpt": "Energy generation and storage revenue increased due to higher deployments of battery storage products. Profitability improved with scale, factory utilization, and cost reductions, though results remained sensitive to project timing.",
+          "score": 0.324378,
+          "company_id": "55555555-5555-4555-8555-555555555555",
+          "title": "Tesla FY2025 Form 10-K",
+          "company_ticker": "TSLA",
+          "page_start": 47,
+          "page_end": 48,
+          "section_title": "Energy Generation and Storage"
+        },
+        {
+          "label": "TSLA Tesla FY2025 Form 10-K, pp. 15-17",
+          "document_id": "25555555-5555-4555-8555-555555555551",
+          "chunk_id": "35555555-5555-4555-8555-555555555553",
+          "excerpt": "Risks include intense competition, pricing pressure, manufacturing ramp execution, battery cell supply, regulatory changes, dependence on key personnel, autonomous driving development uncertainty, product quality issues, and demand sensitivity to interest rates.",
+          "score": 0.180986,
+          "company_id": "55555555-5555-4555-8555-555555555555",
+          "title": "Tesla FY2025 Form 10-K",
+          "company_ticker": "TSLA",
+          "page_start": 15,
+          "page_end": 17,
+          "section_title": "Risk Factors"
+        }
+      ],
+      "confidence": "high",
+      "limitations": [
+        "The excerpts do not provide specific figures for automotive or energy storage margins or revenue, only qualitative descriptions of their trends and drivers.",
+        "Local model synthesis uses the supplied filing excerpts; citation membership does not independently verify every claim.",
+        "No source type was specified; using the latest available annual filing as the research baseline."
+      ],
+      "retrieval_debug": {
+        "query": "Summarize Tesla's automotive margin pressure and energy storage growth using the fixture documents.",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "35555555-5555-4555-8555-555555555551",
+            "document_id": "25555555-5555-4555-8555-555555555551",
+            "company_id": "55555555-5555-4555-8555-555555555555",
+            "company_ticker": "TSLA",
+            "document_title": "Tesla FY2025 Form 10-K",
+            "score": 0.488665,
+            "excerpt": "Automotive revenue was affected by vehicle delivery volumes, average selling prices, product mix, regulatory credit revenue, and foreign exchange. Price reductions and mix changes pressured automotive gross margin, partly offset by manufacturing cost reductions.",
+            "page_start": 44,
+            "section_title": "Management's Discussion and Analysis - Automotive",
+            "keyword_score": 0.24261,
+            "vector_score": 0.222885,
+            "cited": true
+          },
+          {
+            "id": "35555555-5555-4555-8555-555555555552",
+            "document_id": "25555555-5555-4555-8555-555555555551",
+            "company_id": "55555555-5555-4555-8555-555555555555",
+            "company_ticker": "TSLA",
+            "document_title": "Tesla FY2025 Form 10-K",
+            "score": 0.324378,
+            "excerpt": "Energy generation and storage revenue increased due to higher deployments of battery storage products. Profitability improved with scale, factory utilization, and cost reductions, though results remained sensitive to project timing.",
+            "page_start": 47,
+            "section_title": "Energy Generation and Storage",
+            "keyword_score": 0.280667,
+            "vector_score": 0.186722,
+            "cited": true
+          },
+          {
+            "id": "35555555-5555-4555-8555-555555555553",
+            "document_id": "25555555-5555-4555-8555-555555555551",
+            "company_id": "55555555-5555-4555-8555-555555555555",
+            "company_ticker": "TSLA",
+            "document_title": "Tesla FY2025 Form 10-K",
+            "score": 0.180986,
+            "excerpt": "Risks include intense competition, pricing pressure, manufacturing ramp execution, battery cell supply, regulatory changes, dependence on key personnel, autonomous driving development uncertainty, product quality issues, and demand sensitivity to interest rates.",
+            "page_start": 15,
+            "section_title": "Risk Factors",
+            "keyword_score": 0.121305,
+            "vector_score": 0.107211,
+            "cited": true
+          }
+        ]
+      },
+      "message_id": "9d5cd16e-822e-4713-93e7-7bd965978f90",
+      "conversation_id": "abdef54f-e175-469f-a0de-84356e019f69",
+      "usage": {
+        "model": "gemma3:4b",
+        "latency_ms": 7432,
+        "input_tokens": 109,
+        "output_tokens": 123,
+        "estimated_cost_usd": 0.0,
+        "provider": "ollama",
+        "retrieval": {
+          "retrieved_chunks": 3,
+          "cited_chunks": 3
+        }
+      }
+    },
+    "latency_ms": 7439.609,
+    "format_compliance": 1,
+    "accepted_model_output": true,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_018",
+    "category": "multi_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "11111111-1111-4111-8111-111111111111"
+      ],
+      "question": "What does the fixture context imply about NVIDIA margin durability during the Blackwell transition?",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "According to the 10-K filing, gross margin expansion was partially offset by \"product transition costs\" [1]. The filing also identifies \"product transition execution\" as a risk [2]. This suggests that the Blackwell transition is impacting NVIDIA\u2019s margin durability, as the transition itself is contributing to costs.",
+      "key_points": [
+        "Gross margin expansion was partially offset by product transition costs [1].",
+        "Product transition execution is identified as a risk [2]."
+      ],
+      "citations": [
+        {
+          "label": "NVDA NVIDIA FY2025 Form 10-K, pp. 47-48",
+          "document_id": "21111111-1111-4111-8111-111111111111",
+          "chunk_id": "31111111-1111-4111-8111-111111111112",
+          "excerpt": "Gross margin expanded due to a higher mix of data center products and improved pricing on accelerated computing platforms. The expansion was partly offset by inventory provisions, product transition costs, and higher supply chain expenses associated with new platform ramps.",
+          "score": 0.350124,
+          "company_id": "11111111-1111-4111-8111-111111111111",
+          "title": "NVIDIA FY2025 Form 10-K",
+          "company_ticker": "NVDA",
+          "page_start": 47,
+          "page_end": 48,
+          "section_title": "Management's Discussion and Analysis - Gross Margin"
+        },
+        {
+          "label": "NVDA NVIDIA FY2025 Form 10-K, pp. 18-20",
+          "document_id": "21111111-1111-4111-8111-111111111111",
+          "chunk_id": "31111111-1111-4111-8111-111111111113",
+          "excerpt": "Risks include dependence on a limited number of suppliers and foundry partners, customer concentration among large cloud and internet companies, export controls affecting shipments of advanced products, product transition execution, and cyclicality in semiconductor demand. Restrictions on sales to certain jurisdictions could reduce revenue or require product redesigns.",
+          "score": 0.061946,
+          "company_id": "11111111-1111-4111-8111-111111111111",
+          "title": "NVIDIA FY2025 Form 10-K",
+          "company_ticker": "NVDA",
+          "page_start": 18,
+          "page_end": 20,
+          "section_title": "Risk Factors"
+        }
+      ],
+      "confidence": "high",
+      "limitations": [
+        "The excerpts do not quantify the impact of the Blackwell transition on margins or provide details about the specific costs associated with the transition.",
+        "Local model synthesis uses the supplied filing excerpts; citation membership does not independently verify every claim.",
+        "No source type was specified; using the latest available annual filing as the research baseline."
+      ],
+      "retrieval_debug": {
+        "query": "What does the fixture context imply about NVIDIA margin durability during the Blackwell transition?",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "31111111-1111-4111-8111-111111111112",
+            "document_id": "21111111-1111-4111-8111-111111111111",
+            "company_id": "11111111-1111-4111-8111-111111111111",
+            "company_ticker": "NVDA",
+            "document_title": "NVIDIA FY2025 Form 10-K",
+            "score": 0.350124,
+            "excerpt": "Gross margin expanded due to a higher mix of data center products and improved pricing on accelerated computing platforms. The expansion was partly offset by inventory provisions, product transition costs, and higher supply chain expenses associated with new platform ramps.",
+            "page_start": 47,
+            "section_title": "Management's Discussion and Analysis - Gross Margin",
+            "keyword_score": 0.151389,
+            "vector_score": 0.207564,
+            "cited": true
+          },
+          {
+            "id": "31111111-1111-4111-8111-111111111113",
+            "document_id": "21111111-1111-4111-8111-111111111111",
+            "company_id": "11111111-1111-4111-8111-111111111111",
+            "company_ticker": "NVDA",
+            "document_title": "NVIDIA FY2025 Form 10-K",
+            "score": 0.061946,
+            "excerpt": "Risks include dependence on a limited number of suppliers and foundry partners, customer concentration among large cloud and internet companies, export controls affecting shipments of advanced products, product transition execution, and cyclicality in semiconductor demand. Restrictions on sales to certain jurisdictions could reduce revenue or require product redesigns.",
+            "page_start": 18,
+            "section_title": "Risk Factors",
+            "keyword_score": 0.06812,
+            "vector_score": 0.037252,
+            "cited": true
+          }
+        ]
+      },
+      "message_id": "e2e50b59-aa72-47e7-be5e-13e3fd53e6ae",
+      "conversation_id": "db1e2c8f-3d50-4fc3-8324-60335f5dd6f7",
+      "usage": {
+        "model": "gemma3:4b",
+        "latency_ms": 4181,
+        "input_tokens": 102,
+        "output_tokens": 48,
+        "estimated_cost_usd": 0.0,
+        "provider": "ollama",
+        "retrieval": {
+          "retrieved_chunks": 2,
+          "cited_chunks": 2
+        }
+      }
+    },
+    "latency_ms": 4189.102,
+    "format_compliance": 1,
+    "accepted_model_output": true,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_019",
+    "category": "multi_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "22222222-2222-4222-8222-222222222222"
+      ],
+      "question": "Explain the relationship between Apple's services mix, product margin sensitivity, and risk factors.",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "According to Apple's 2025 Form 10-K [1], the company's gross margin benefited from a higher services mix, while product gross margin remained sensitive to component costs, foreign exchange movements, and product mix [1]. Services gross margin was higher than products gross margin [1]. The company\u2019s services net sales increased due to growth in advertising, cloud services, payment services, and subscriptions [3]. Furthermore, the Form 10-K identifies several risk factors [2], including dependence on new product introductions, competitive pressure, supply chain concentration, regulatory scrutiny, foreign exchange volatility, and potential component shortages [2].",
+      "key_points": [
+        "Services gross margin was higher than products gross margin [1].",
+        "Products gross margin is sensitive to component costs, foreign exchange movements, and product mix [1].",
+        "Services revenue growth is driven by advertising, cloud services, payment services, and subscriptions [3].",
+        "Apple faces risks related to new product introductions, competition, supply chain, regulation, foreign exchange, and component shortages [2]."
+      ],
+      "citations": [
+        {
+          "label": "AAPL Apple FY2025 Form 10-K, pp. 32-33",
+          "document_id": "22222222-2222-4222-8222-222222222221",
+          "chunk_id": "32222222-2222-4222-8222-222222222222",
+          "excerpt": "Services gross margin was higher than products gross margin. Total gross margin benefited from a higher services mix, while products gross margin remained sensitive to component costs, foreign exchange movements, and product mix.",
+          "score": 0.537879,
+          "company_id": "22222222-2222-4222-8222-222222222222",
+          "title": "Apple FY2025 Form 10-K",
+          "company_ticker": "AAPL",
+          "page_start": 32,
+          "page_end": 33,
+          "section_title": "Management's Discussion and Analysis - Gross Margin"
+        },
+        {
+          "label": "AAPL Apple FY2025 Form 10-K, pp. 11-14",
+          "document_id": "22222222-2222-4222-8222-222222222221",
+          "chunk_id": "32222222-2222-4222-8222-222222222223",
+          "excerpt": "Risks include dependence on new product introductions, competitive pressure in smartphones and services, supply chain concentration in Asia, regulatory scrutiny of app distribution and payment practices, foreign exchange volatility, and potential disruptions from component shortages.",
+          "score": 0.221244,
+          "company_id": "22222222-2222-4222-8222-222222222222",
+          "title": "Apple FY2025 Form 10-K",
+          "company_ticker": "AAPL",
+          "page_start": 11,
+          "page_end": 14,
+          "section_title": "Risk Factors"
+        },
+        {
+          "label": "AAPL Apple FY2025 Form 10-K, pp. 30-31",
+          "document_id": "22222222-2222-4222-8222-222222222221",
+          "chunk_id": "32222222-2222-4222-8222-222222222221",
+          "excerpt": "Apple's services net sales increased due to growth in advertising, cloud services, payment services, and subscriptions. The company said services growth was supported by the active installed base of devices and customer engagement across its platforms.",
+          "score": 0.126557,
+          "company_id": "22222222-2222-4222-8222-222222222222",
+          "title": "Apple FY2025 Form 10-K",
+          "company_ticker": "AAPL",
+          "page_start": 30,
+          "page_end": 31,
+          "section_title": "Management's Discussion and Analysis - Net Sales"
+        }
+      ],
+      "confidence": "high",
+      "limitations": [
+        "The excerpts do not provide specific quantitative data regarding the margin differences or the impact of these risk factors.",
+        "Local model synthesis uses the supplied filing excerpts; citation membership does not independently verify every claim.",
+        "No source type was specified; using the latest available annual filing as the research baseline."
+      ],
+      "retrieval_debug": {
+        "query": "Explain the relationship between Apple's services mix, product margin sensitivity, and risk factors.",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "32222222-2222-4222-8222-222222222222",
+            "document_id": "22222222-2222-4222-8222-222222222221",
+            "company_id": "22222222-2222-4222-8222-222222222222",
+            "company_ticker": "AAPL",
+            "document_title": "Apple FY2025 Form 10-K",
+            "score": 0.537879,
+            "excerpt": "Services gross margin was higher than products gross margin. Total gross margin benefited from a higher services mix, while products gross margin remained sensitive to component costs, foreign exchange movements, and product mix.",
+            "page_start": 32,
+            "section_title": "Management's Discussion and Analysis - Gross Margin",
+            "keyword_score": 0.530172,
+            "vector_score": 0.256207,
+            "cited": true
+          },
+          {
+            "id": "32222222-2222-4222-8222-222222222223",
+            "document_id": "22222222-2222-4222-8222-222222222221",
+            "company_id": "22222222-2222-4222-8222-222222222222",
+            "company_ticker": "AAPL",
+            "document_title": "Apple FY2025 Form 10-K",
+            "score": 0.221244,
+            "excerpt": "Risks include dependence on new product introductions, competitive pressure in smartphones and services, supply chain concentration in Asia, regulatory scrutiny of app distribution and payment practices, foreign exchange volatility, and potential disruptions from component shortages.",
+            "page_start": 11,
+            "section_title": "Risk Factors",
+            "keyword_score": 0.209465,
+            "vector_score": 0.268358,
+            "cited": true
+          },
+          {
+            "id": "32222222-2222-4222-8222-222222222221",
+            "document_id": "22222222-2222-4222-8222-222222222221",
+            "company_id": "22222222-2222-4222-8222-222222222222",
+            "company_ticker": "AAPL",
+            "document_title": "Apple FY2025 Form 10-K",
+            "score": 0.126557,
+            "excerpt": "Apple's services net sales increased due to growth in advertising, cloud services, payment services, and subscriptions. The company said services growth was supported by the active installed base of devices and customer engagement across its platforms.",
+            "page_start": 30,
+            "section_title": "Management's Discussion and Analysis - Net Sales",
+            "keyword_score": 0.085793,
+            "vector_score": 0.289613,
+            "cited": true
+          }
+        ]
+      },
+      "message_id": "2e70cdc1-4e7a-4896-a020-542fe1ac4b05",
+      "conversation_id": "7bde1732-7a00-49f7-ab01-f16fc311090e",
+      "usage": {
+        "model": "gemma3:4b",
+        "latency_ms": 7834,
+        "input_tokens": 119,
+        "output_tokens": 96,
+        "estimated_cost_usd": 0.0,
+        "provider": "ollama",
+        "retrieval": {
+          "retrieved_chunks": 3,
+          "cited_chunks": 3
+        }
+      }
+    },
+    "latency_ms": 7852.914,
+    "format_compliance": 1,
+    "accepted_model_output": true,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_020",
+    "category": "multi_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "33333333-3333-4333-8333-333333333333"
+      ],
+      "question": "What tradeoffs does JPMorgan face between capital returns, growth, and expense investment in the fixture context?",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "According to [1], JPMorgan Chase's capital position remained above regulatory minimums, which supported loan growth, dividends, share repurchases (subject to board approval), and investments in technology and risk management. [2] indicates that the provision for credit losses was influenced by loan growth and normalization of card delinquencies, alongside considerations of macroeconomic scenarios, unemployment, borrower behavior, commercial real estate exposure, and portfolio seasoning.",
+      "key_points": [
+        "JPMorgan Chase's capital position supported loan growth [1].",
+        "The firm's capital position supported dividends and share repurchases [1].",
+        "Investments in technology and risk management were also supported by the firm's capital [1].",
+        "The provision for credit losses was influenced by loan growth [2].",
+        "The allowance for credit losses considered macroeconomic scenarios [2]."
+      ],
+      "citations": [
+        {
+          "label": "JPM JPMorgan Chase FY2025 Form 10-K, pp. 91-92",
+          "document_id": "23333333-3333-4333-8333-333333333331",
+          "chunk_id": "33333333-3333-4333-8333-333333333333",
+          "excerpt": "The firm's capital position remained above regulatory minimums. Common Equity Tier 1 capital supported loan growth, dividends, share repurchases subject to board approval, and investments in technology and risk management.",
+          "score": 0.2432,
+          "company_id": "33333333-3333-4333-8333-333333333333",
+          "title": "JPMorgan Chase FY2025 Form 10-K",
+          "company_ticker": "JPM",
+          "page_start": 91,
+          "page_end": 92,
+          "section_title": "Capital Management"
+        },
+        {
+          "label": "JPM JPMorgan Chase FY2025 Form 10-K, pp. 80-82",
+          "document_id": "23333333-3333-4333-8333-333333333331",
+          "chunk_id": "33333333-3333-4333-8333-333333333332",
+          "excerpt": "The provision for credit losses reflected loan growth and normalization in card delinquencies from unusually low levels. The allowance considered macroeconomic scenarios, unemployment, borrower behavior, commercial real estate exposure, and portfolio seasoning.",
+          "score": 0.07932,
+          "company_id": "33333333-3333-4333-8333-333333333333",
+          "title": "JPMorgan Chase FY2025 Form 10-K",
+          "company_ticker": "JPM",
+          "page_start": 80,
+          "page_end": 82,
+          "section_title": "Credit Risk"
+        }
+      ],
+      "confidence": "high",
+      "limitations": [
+        "The excerpts do not detail specific tradeoffs between capital returns, growth, and expense investment in the fixture context. It only describes the areas where capital is being allocated.",
+        "Local model synthesis uses the supplied filing excerpts; citation membership does not independently verify every claim.",
+        "No source type was specified; using the latest available annual filing as the research baseline."
+      ],
+      "retrieval_debug": {
+        "query": "What tradeoffs does JPMorgan face between capital returns, growth, and expense investment in the fixture context?",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "33333333-3333-4333-8333-333333333333",
+            "document_id": "23333333-3333-4333-8333-333333333331",
+            "company_id": "33333333-3333-4333-8333-333333333333",
+            "company_ticker": "JPM",
+            "document_title": "JPMorgan Chase FY2025 Form 10-K",
+            "score": 0.2432,
+            "excerpt": "The firm's capital position remained above regulatory minimums. Common Equity Tier 1 capital supported loan growth, dividends, share repurchases subject to board approval, and investments in technology and risk management.",
+            "page_start": 91,
+            "section_title": "Capital Management",
+            "keyword_score": 0.197028,
+            "vector_score": 0.427888,
+            "cited": true
+          },
+          {
+            "id": "33333333-3333-4333-8333-333333333332",
+            "document_id": "23333333-3333-4333-8333-333333333331",
+            "company_id": "33333333-3333-4333-8333-333333333333",
+            "company_ticker": "JPM",
+            "document_title": "JPMorgan Chase FY2025 Form 10-K",
+            "score": 0.07932,
+            "excerpt": "The provision for credit losses reflected loan growth and normalization in card delinquencies from unusually low levels. The allowance considered macroeconomic scenarios, unemployment, borrower behavior, commercial real estate exposure, and portfolio seasoning.",
+            "page_start": 80,
+            "section_title": "Credit Risk",
+            "keyword_score": 0.051749,
+            "vector_score": 0.1896,
+            "cited": true
+          }
+        ]
+      },
+      "message_id": "724e2f83-a581-4697-a931-408c9cad8dd0",
+      "conversation_id": "d4bbf26b-05a0-4bce-915a-97310db83261",
+      "usage": {
+        "model": "gemma3:4b",
+        "latency_ms": 7110,
+        "input_tokens": 79,
+        "output_tokens": 63,
+        "estimated_cost_usd": 0.0,
+        "provider": "ollama",
+        "retrieval": {
+          "retrieved_chunks": 2,
+          "cited_chunks": 2
+        }
+      }
+    },
+    "latency_ms": 7121.144,
+    "format_compliance": 1,
+    "accepted_model_output": true,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_021",
+    "category": "multi_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "44444444-4444-4444-8444-444444444444"
+      ],
+      "question": "What are the main strategic and risk themes for Exxon in the fixture context?",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "I do not have enough cited context to answer that. No retrieved passage directly supports the requested fact and period; upload or select relevant documents.",
+      "key_points": [],
+      "citations": [],
+      "confidence": "low",
+      "limitations": [
+        "A relevance check is not semantic entailment. Missing support is not proof that the information does not exist."
+      ],
+      "retrieval_debug": {
+        "query": "What are the main strategic and risk themes for Exxon in the fixture context?",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": []
+      },
+      "message_id": "7ed73fd2-c009-4947-91d7-f5f58a446e1c",
+      "conversation_id": "74b7e321-76bd-4c06-bd0c-01319d734821",
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 15,
+        "input_tokens": 14,
+        "output_tokens": 25,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 0,
+          "cited_chunks": 0
+        }
+      }
+    },
+    "latency_ms": 28.492,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_022",
+    "category": "multi_document",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "55555555-5555-4555-8555-555555555555"
+      ],
+      "question": "How should an analyst frame Tesla autonomy in the fixture context without overclaiming?",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "I do not have enough cited context to answer that. No retrieved passage directly supports the requested fact and period; upload or select relevant documents.",
+      "key_points": [],
+      "citations": [],
+      "confidence": "low",
+      "limitations": [
+        "A relevance check is not semantic entailment. Missing support is not proof that the information does not exist."
+      ],
+      "retrieval_debug": {
+        "query": "How should an analyst frame Tesla autonomy in the fixture context without overclaiming?",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": []
+      },
+      "message_id": "93c30303-eafa-45ce-970d-804cff71b576",
+      "conversation_id": "be89d21f-9e33-4e83-9474-0093a40f9aa4",
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 14,
+        "input_tokens": 13,
+        "output_tokens": 25,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 0,
+          "cited_chunks": 0
+        }
+      }
+    },
+    "latency_ms": 30.915,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_023",
+    "category": "comparison",
+    "configuration": "ollama",
+    "endpoint": "/research/compare",
+    "request": {
+      "company_ids": [
+        "11111111-1111-4111-8111-111111111111",
+        "22222222-2222-4222-8222-222222222222"
+      ],
+      "question": "Compare NVIDIA and Apple on cited growth drivers in the fixture data.",
+      "top_k": 8
+    },
+    "response": {
+      "question": "Compare NVIDIA and Apple on cited growth drivers in the fixture data.",
+      "comparisons": [
+        {
+          "company": {
+            "ticker": "NVDA",
+            "name": "NVIDIA Corporation"
+          },
+          "summary": "NVDA: Data center revenue increased primarily from demand for compute products used in generative AI and accelerated computing workloads. [1]",
+          "key_points": [
+            "Data center revenue increased primarily from demand for compute products used in generative AI and accelerated computing workloads. [1]"
+          ],
+          "citations": [
+            {
+              "label": "NVDA NVIDIA FY2025 Form 10-K, p. 42",
+              "document_id": "21111111-1111-4111-8111-111111111111",
+              "chunk_id": "31111111-1111-4111-8111-111111111111",
+              "excerpt": "Data center revenue increased primarily from demand for compute products used in generative AI and accelerated computing workloads.",
+              "score": 0.456697,
+              "company_id": "11111111-1111-4111-8111-111111111111",
+              "title": "NVIDIA FY2025 Form 10-K",
+              "company_ticker": "NVDA",
+              "page_start": 42,
+              "page_end": 42,
+              "section_title": "Management's Discussion and Analysis - Data Center"
+            }
+          ]
+        },
+        {
+          "company": {
+            "ticker": "AAPL",
+            "name": "Apple Inc."
+          },
+          "summary": "AAPL: Insufficient cited context for this company.",
+          "key_points": [
+            "Insufficient cited context for this company."
+          ],
+          "citations": []
+        }
+      ],
+      "limitations": [
+        "AAPL: no sufficiently relevant cited context was found.",
+        "NVDA: No source type was specified; using the latest available annual filing as the research baseline.",
+        "AAPL: No source type was specified; using the latest available annual filing as the research baseline."
+      ],
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 5,
+        "input_tokens": 12,
+        "output_tokens": 25,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 3,
+          "cited_chunks": 1
+        }
+      }
+    },
+    "latency_ms": 7.367,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_024",
+    "category": "comparison",
+    "configuration": "ollama",
+    "endpoint": "/research/compare",
+    "request": {
+      "company_ids": [
+        "11111111-1111-4111-8111-111111111111",
+        "55555555-5555-4555-8555-555555555555"
+      ],
+      "question": "Compare NVIDIA and Tesla margin pressures using the fixture data.",
+      "top_k": 8
+    },
+    "response": {
+      "question": "Compare NVIDIA and Tesla margin pressures using the fixture data.",
+      "comparisons": [
+        {
+          "company": {
+            "ticker": "NVDA",
+            "name": "NVIDIA Corporation"
+          },
+          "summary": "NVDA: Gross margin expanded due to a higher mix of data center products and improved pricing on accelerated computing platforms. The expansion was partly offset by inventory provisions, product transition costs, and higher supply chain expenses associated with new platform ramps. [1]",
+          "key_points": [
+            "Gross margin expanded due to a higher mix of data center products and improved pricing on accelerated computing platforms. The expansion was partly offset by inventory provisions, product transition costs, and higher supply chain expenses associated with new platform ramps. [1]"
+          ],
+          "citations": [
+            {
+              "label": "NVDA NVIDIA FY2025 Form 10-K, pp. 47-48",
+              "document_id": "21111111-1111-4111-8111-111111111111",
+              "chunk_id": "31111111-1111-4111-8111-111111111112",
+              "excerpt": "Gross margin expanded due to a higher mix of data center products and improved pricing on accelerated computing platforms. The expansion was partly offset by inventory provisions, product transition costs, and higher supply chain expenses associated with new platform ramps.",
+              "score": 0.432811,
+              "company_id": "11111111-1111-4111-8111-111111111111",
+              "title": "NVIDIA FY2025 Form 10-K",
+              "company_ticker": "NVDA",
+              "page_start": 47,
+              "page_end": 48,
+              "section_title": "Management's Discussion and Analysis - Gross Margin"
+            }
+          ]
+        },
+        {
+          "company": {
+            "ticker": "TSLA",
+            "name": "Tesla, Inc."
+          },
+          "summary": "TSLA: Insufficient cited context for this company.",
+          "key_points": [
+            "Insufficient cited context for this company."
+          ],
+          "citations": []
+        }
+      ],
+      "limitations": [
+        "TSLA: no sufficiently relevant cited context was found.",
+        "NVDA: No source type was specified; using the latest available annual filing as the research baseline.",
+        "TSLA: No source type was specified; using the latest available annual filing as the research baseline."
+      ],
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 6,
+        "input_tokens": 10,
+        "output_tokens": 47,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 4,
+          "cited_chunks": 1
+        }
+      }
+    },
+    "latency_ms": 7.626,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_025",
+    "category": "comparison",
+    "configuration": "ollama",
+    "endpoint": "/research/compare",
+    "request": {
+      "company_ids": [
+        "33333333-3333-4333-8333-333333333333",
+        "44444444-4444-4444-8444-444444444444"
+      ],
+      "question": "Compare the key risk themes for JPMorgan and Exxon in the fixture data.",
+      "top_k": 8
+    },
+    "response": {
+      "question": "Compare the key risk themes for JPMorgan and Exxon in the fixture data.",
+      "comparisons": [
+        {
+          "company": {
+            "ticker": "JPM",
+            "name": "JPMorgan Chase & Co."
+          },
+          "summary": "JPM: Insufficient cited context for this company.",
+          "key_points": [
+            "Insufficient cited context for this company."
+          ],
+          "citations": []
+        },
+        {
+          "company": {
+            "ticker": "XOM",
+            "name": "Exxon Mobil Corporation"
+          },
+          "summary": "XOM: Insufficient cited context for this company.",
+          "key_points": [
+            "Insufficient cited context for this company."
+          ],
+          "citations": []
+        }
+      ],
+      "limitations": [
+        "JPM: no sufficiently relevant cited context was found.",
+        "XOM: no sufficiently relevant cited context was found."
+      ],
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 2,
+        "input_tokens": 13,
+        "output_tokens": 12,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 0,
+          "cited_chunks": 0
+        }
+      }
+    },
+    "latency_ms": 3.411,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_026",
+    "category": "comparison",
+    "configuration": "ollama",
+    "endpoint": "/research/compare",
+    "request": {
+      "company_ids": [
+        "22222222-2222-4222-8222-222222222222",
+        "55555555-5555-4555-8555-555555555555"
+      ],
+      "question": "Compare Apple and Tesla risk factors from the fixture data.",
+      "top_k": 8
+    },
+    "response": {
+      "question": "Compare Apple and Tesla risk factors from the fixture data.",
+      "comparisons": [
+        {
+          "company": {
+            "ticker": "AAPL",
+            "name": "Apple Inc."
+          },
+          "summary": "AAPL: Insufficient cited context for this company.",
+          "key_points": [
+            "Insufficient cited context for this company."
+          ],
+          "citations": []
+        },
+        {
+          "company": {
+            "ticker": "TSLA",
+            "name": "Tesla, Inc."
+          },
+          "summary": "TSLA: Insufficient cited context for this company.",
+          "key_points": [
+            "Insufficient cited context for this company."
+          ],
+          "citations": []
+        }
+      ],
+      "limitations": [
+        "AAPL: no sufficiently relevant cited context was found.",
+        "TSLA: no sufficiently relevant cited context was found."
+      ],
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 2,
+        "input_tokens": 10,
+        "output_tokens": 12,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 0,
+          "cited_chunks": 0
+        }
+      }
+    },
+    "latency_ms": 3.1,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_027",
+    "category": "comparison",
+    "configuration": "ollama",
+    "endpoint": "/research/compare",
+    "request": {
+      "company_ids": [
+        "44444444-4444-4444-8444-444444444444",
+        "55555555-5555-4555-8555-555555555555"
+      ],
+      "question": "Compare Exxon and Tesla on capital allocation and growth themes in the fixture data.",
+      "top_k": 8
+    },
+    "response": {
+      "question": "Compare Exxon and Tesla on capital allocation and growth themes in the fixture data.",
+      "comparisons": [
+        {
+          "company": {
+            "ticker": "XOM",
+            "name": "Exxon Mobil Corporation"
+          },
+          "summary": "XOM: Capital allocation priorities included investing in advantaged projects, maintaining a strong balance sheet, paying a reliable dividend, and repurchasing shares when supported by cash flow and market conditions. [1]",
+          "key_points": [
+            "Capital allocation priorities included investing in advantaged projects, maintaining a strong balance sheet, paying a reliable dividend, and repurchasing shares when supported by cash flow and market conditions. [1]"
+          ],
+          "citations": [
+            {
+              "label": "XOM Exxon Mobil FY2025 Form 10-K, pp. 52-53",
+              "document_id": "24444444-4444-4444-8444-444444444441",
+              "chunk_id": "34444444-4444-4444-8444-444444444443",
+              "excerpt": "Capital allocation priorities included investing in advantaged projects, maintaining a strong balance sheet, paying a reliable dividend, and repurchasing shares when supported by cash flow and market conditions.",
+              "score": 0.478411,
+              "company_id": "44444444-4444-4444-8444-444444444444",
+              "title": "Exxon Mobil FY2025 Form 10-K",
+              "company_ticker": "XOM",
+              "page_start": 52,
+              "page_end": 53,
+              "section_title": "Capital Allocation"
+            }
+          ]
+        },
+        {
+          "company": {
+            "ticker": "TSLA",
+            "name": "Tesla, Inc."
+          },
+          "summary": "TSLA: Insufficient cited context for this company.",
+          "key_points": [
+            "Insufficient cited context for this company."
+          ],
+          "citations": []
+        }
+      ],
+      "limitations": [
+        "TSLA: no sufficiently relevant cited context was found.",
+        "XOM: No source type was specified; using the latest available annual filing as the research baseline.",
+        "TSLA: No source type was specified; using the latest available annual filing as the research baseline."
+      ],
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 4,
+        "input_tokens": 14,
+        "output_tokens": 35,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 2,
+          "cited_chunks": 1
+        }
+      }
+    },
+    "latency_ms": 5.627,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_028",
+    "category": "comparison",
+    "configuration": "ollama",
+    "endpoint": "/research/compare",
+    "request": {
+      "company_ids": [
+        "11111111-1111-4111-8111-111111111111",
+        "22222222-2222-4222-8222-222222222222",
+        "33333333-3333-4333-8333-333333333333"
+      ],
+      "question": "Compare NVIDIA, Apple, and JPMorgan on the operating drivers highlighted in the fixture chunks.",
+      "top_k": 8
+    },
+    "response": {
+      "question": "Compare NVIDIA, Apple, and JPMorgan on the operating drivers highlighted in the fixture chunks.",
+      "comparisons": [
+        {
+          "company": {
+            "ticker": "NVDA",
+            "name": "NVIDIA Corporation"
+          },
+          "summary": "NVDA: Insufficient cited context for this company.",
+          "key_points": [
+            "Insufficient cited context for this company."
+          ],
+          "citations": []
+        },
+        {
+          "company": {
+            "ticker": "AAPL",
+            "name": "Apple Inc."
+          },
+          "summary": "AAPL: Insufficient cited context for this company.",
+          "key_points": [
+            "Insufficient cited context for this company."
+          ],
+          "citations": []
+        },
+        {
+          "company": {
+            "ticker": "JPM",
+            "name": "JPMorgan Chase & Co."
+          },
+          "summary": "JPM: Insufficient cited context for this company.",
+          "key_points": [
+            "Insufficient cited context for this company."
+          ],
+          "citations": []
+        }
+      ],
+      "limitations": [
+        "NVDA: no sufficiently relevant cited context was found.",
+        "AAPL: no sufficiently relevant cited context was found.",
+        "JPM: no sufficiently relevant cited context was found."
+      ],
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 2,
+        "input_tokens": 14,
+        "output_tokens": 18,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 0,
+          "cited_chunks": 0
+        }
+      }
+    },
+    "latency_ms": 3.938,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_029",
+    "category": "insufficient_context",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "11111111-1111-4111-8111-111111111111"
+      ],
+      "question": "What price target should I use for NVIDIA next year?",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "I do not have enough cited context to answer that. No retrieved passage directly supports the requested fact and period; upload or select relevant documents.",
+      "key_points": [],
+      "citations": [],
+      "confidence": "low",
+      "limitations": [
+        "A relevance check is not semantic entailment. Missing support is not proof that the information does not exist."
+      ],
+      "retrieval_debug": {
+        "query": "What price target should I use for NVIDIA next year?",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": []
+      },
+      "message_id": "f554e9f0-9752-4797-b17b-9c866d13b409",
+      "conversation_id": "6c9bfd78-c572-4cc5-9c15-1ed8d01160dd",
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 10,
+        "input_tokens": 10,
+        "output_tokens": 25,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 0,
+          "cited_chunks": 0
+        }
+      }
+    },
+    "latency_ms": 20.566,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_030",
+    "category": "insufficient_context",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "11111111-1111-4111-8111-111111111111"
+      ],
+      "question": "What will NVIDIA's exact FY2027 revenue be?",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "I do not have enough cited context to answer that. No retrieved passage directly supports the requested fact and period; upload or select relevant documents.",
+      "key_points": [],
+      "citations": [],
+      "confidence": "low",
+      "limitations": [
+        "A relevance check is not semantic entailment. Missing support is not proof that the information does not exist."
+      ],
+      "retrieval_debug": {
+        "query": "What will NVIDIA's exact FY2027 revenue be?",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "31111111-1111-4111-8111-111111111111",
+            "document_id": "21111111-1111-4111-8111-111111111111",
+            "company_id": "11111111-1111-4111-8111-111111111111",
+            "company_ticker": "NVDA",
+            "document_title": "NVIDIA FY2025 Form 10-K",
+            "score": 0.310248,
+            "excerpt": "Data center revenue increased primarily from demand for compute products used in generative AI and accelerated computing workloads. Growth was supported by large cloud service providers, consumer internet companies, enterprise software customers, and sovereign AI programs. Networking revenue also increased as customers built larger AI clusters requiring high-speed interconnects.",
+            "page_start": 42,
+            "section_title": "Management's Discussion and Analysis - Data Center",
+            "keyword_score": 0.208377,
+            "vector_score": 0.092729,
+            "cited": false
+          },
+          {
+            "id": "31111111-1111-4111-8111-111111111113",
+            "document_id": "21111111-1111-4111-8111-111111111111",
+            "company_id": "11111111-1111-4111-8111-111111111111",
+            "company_ticker": "NVDA",
+            "document_title": "NVIDIA FY2025 Form 10-K",
+            "score": 0.257548,
+            "excerpt": "Risks include dependence on a limited number of suppliers and foundry partners, customer concentration among large cloud and internet companies, export controls affecting shipments of advanced products, product transition execution, and cyclicality in semiconductor demand. Restrictions on sales to certain jurisdictions could reduce revenue or require product redesigns.",
+            "page_start": 18,
+            "section_title": "Risk Factors",
+            "keyword_score": 0.208377,
+            "vector_score": 0.141731,
+            "cited": false
+          }
+        ]
+      },
+      "message_id": "19b4959f-8f2c-4244-865c-c6bf8970d821",
+      "conversation_id": "88f3d52d-4d0e-4ff8-b69d-61ba52e2d1db",
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 10,
+        "input_tokens": 105,
+        "output_tokens": 25,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 2,
+          "cited_chunks": 0
+        }
+      }
+    },
+    "latency_ms": 21.273,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_031",
+    "category": "insufficient_context",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "22222222-2222-4222-8222-222222222222"
+      ],
+      "question": "Quantify the financial impact of the latest App Store court ruling on Apple.",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "I do not have enough cited context to answer that. No retrieved passage directly supports the requested fact and period; upload or select relevant documents.",
+      "key_points": [],
+      "citations": [],
+      "confidence": "low",
+      "limitations": [
+        "A relevance check is not semantic entailment. Missing support is not proof that the information does not exist."
+      ],
+      "retrieval_debug": {
+        "query": "Quantify the financial impact of the latest App Store court ruling on Apple.",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "32222222-2222-4222-8222-222222222223",
+            "document_id": "22222222-2222-4222-8222-222222222221",
+            "company_id": "22222222-2222-4222-8222-222222222222",
+            "company_ticker": "AAPL",
+            "document_title": "Apple FY2025 Form 10-K",
+            "score": 0.144039,
+            "excerpt": "Risks include dependence on new product introductions, competitive pressure in smartphones and services, supply chain concentration in Asia, regulatory scrutiny of app distribution and payment practices, foreign exchange volatility, and potential disruptions from component shortages.",
+            "page_start": 11,
+            "section_title": "Risk Factors",
+            "keyword_score": 0.102147,
+            "vector_score": 0.311609,
+            "cited": false
+          }
+        ]
+      },
+      "message_id": "89d3b4a2-8f59-4c88-9975-5627d41079c3",
+      "conversation_id": "8370e67f-7bd5-46a5-8bc4-6b158139989e",
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 10,
+        "input_tokens": 48,
+        "output_tokens": 25,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 1,
+          "cited_chunks": 0
+        }
+      }
+    },
+    "latency_ms": 20.591,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_032",
+    "category": "insufficient_context",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "33333333-3333-4333-8333-333333333333"
+      ],
+      "question": "What will JPMorgan's exact commercial real estate losses be next year?",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "The filing excerpt [1] states that the allowance considered macroeconomic scenarios, unemployment, borrower behavior, commercial real estate exposure, and portfolio seasoning. However, it does not provide an exact estimate of JPMorgan's commercial real estate losses for the next year [1].",
+      "key_points": [
+        "The allowance for credit losses considers macroeconomic scenarios [1].",
+        "The allowance considers borrower behavior [1].",
+        "The allowance considers commercial real estate exposure [1]."
+      ],
+      "citations": [
+        {
+          "label": "JPM JPMorgan Chase FY2025 Form 10-K, pp. 80-82",
+          "document_id": "23333333-3333-4333-8333-333333333331",
+          "chunk_id": "33333333-3333-4333-8333-333333333332",
+          "excerpt": "The provision for credit losses reflected loan growth and normalization in card delinquencies from unusually low levels. The allowance considered macroeconomic scenarios, unemployment, borrower behavior, commercial real estate exposure, and portfolio seasoning.",
+          "score": 0.347165,
+          "company_id": "33333333-3333-4333-8333-333333333333",
+          "title": "JPMorgan Chase FY2025 Form 10-K",
+          "company_ticker": "JPM",
+          "page_start": 80,
+          "page_end": 82,
+          "section_title": "Credit Risk"
+        }
+      ],
+      "confidence": "low",
+      "limitations": [
+        "The excerpt does not provide an estimate of JPMorgan's commercial real estate losses next year [1].",
+        "Local model synthesis uses the supplied filing excerpts; citation membership does not independently verify every claim.",
+        "No source type was specified; using the latest available annual filing as the research baseline."
+      ],
+      "retrieval_debug": {
+        "query": "What will JPMorgan's exact commercial real estate losses be next year?",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "33333333-3333-4333-8333-333333333332",
+            "document_id": "23333333-3333-4333-8333-333333333331",
+            "company_id": "33333333-3333-4333-8333-333333333333",
+            "company_ticker": "JPM",
+            "document_title": "JPMorgan Chase FY2025 Form 10-K",
+            "score": 0.347165,
+            "excerpt": "The provision for credit losses reflected loan growth and normalization in card delinquencies from unusually low levels. The allowance considered macroeconomic scenarios, unemployment, borrower behavior, commercial real estate exposure, and portfolio seasoning.",
+            "page_start": 80,
+            "section_title": "Credit Risk",
+            "keyword_score": 0.461813,
+            "vector_score": 0.195516,
+            "cited": true
+          }
+        ]
+      },
+      "message_id": "c4e974ef-5390-465e-a834-31b2f73f864b",
+      "conversation_id": "6e82cdda-3c4b-4fb0-ac42-e57ed5fffd2f",
+      "usage": {
+        "model": "gemma3:4b",
+        "latency_ms": 4117,
+        "input_tokens": 44,
+        "output_tokens": 41,
+        "estimated_cost_usd": 0.0,
+        "provider": "ollama",
+        "retrieval": {
+          "retrieved_chunks": 1,
+          "cited_chunks": 1
+        }
+      }
+    },
+    "latency_ms": 4136.984,
+    "format_compliance": 1,
+    "accepted_model_output": true,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_033",
+    "category": "insufficient_context",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "44444444-4444-4444-8444-444444444444"
+      ],
+      "question": "Where will Brent crude trade in twelve months and what does that mean for Exxon EPS?",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "I do not have enough cited context to answer that. No retrieved passage directly supports the requested fact and period; upload or select relevant documents.",
+      "key_points": [],
+      "citations": [],
+      "confidence": "low",
+      "limitations": [
+        "A relevance check is not semantic entailment. Missing support is not proof that the information does not exist."
+      ],
+      "retrieval_debug": {
+        "query": "Where will Brent crude trade in twelve months and what does that mean for Exxon EPS?",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": [
+          {
+            "id": "34444444-4444-4444-8444-444444444441",
+            "document_id": "24444444-4444-4444-8444-444444444441",
+            "company_id": "44444444-4444-4444-8444-444444444444",
+            "company_ticker": "XOM",
+            "document_title": "Exxon Mobil FY2025 Form 10-K",
+            "score": 0.071932,
+            "excerpt": "Upstream earnings were primarily affected by crude oil and natural gas realizations, production volumes, and operating expenses. Higher production from advantaged assets partly offset weaker commodity prices in certain periods.",
+            "page_start": 38,
+            "section_title": "Management's Discussion and Analysis - Upstream",
+            "keyword_score": 0.061744,
+            "vector_score": 0.112685,
+            "cited": false
+          },
+          {
+            "id": "34444444-4444-4444-8444-444444444442",
+            "document_id": "24444444-4444-4444-8444-444444444441",
+            "company_id": "44444444-4444-4444-8444-444444444444",
+            "company_ticker": "XOM",
+            "document_title": "Exxon Mobil FY2025 Form 10-K",
+            "score": 0.050318,
+            "excerpt": "Risks include volatility in crude oil, natural gas, and refined product prices; changes in demand; reserve replacement uncertainty; project execution risk; climate-related regulations; litigation; and geopolitical events affecting operations and supply chains.",
+            "page_start": 24,
+            "section_title": "Risk Factors",
+            "keyword_score": 0.061744,
+            "vector_score": 0.20528,
+            "cited": false
+          }
+        ]
+      },
+      "message_id": "a1125c94-0d91-496e-ac61-d5bbc49c5b1c",
+      "conversation_id": "8aedeeb4-cb5b-4cba-89d4-05d0d8fc3a34",
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 23,
+        "input_tokens": 78,
+        "output_tokens": 25,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 2,
+          "cited_chunks": 0
+        }
+      }
+    },
+    "latency_ms": 45.886,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_034",
+    "category": "insufficient_context",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "55555555-5555-4555-8555-555555555555"
+      ],
+      "question": "When exactly will Tesla launch broad commercial robotaxi service?",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "I do not have enough cited context to answer that. No retrieved passage directly supports the requested fact and period; upload or select relevant documents.",
+      "key_points": [],
+      "citations": [],
+      "confidence": "low",
+      "limitations": [
+        "A relevance check is not semantic entailment. Missing support is not proof that the information does not exist."
+      ],
+      "retrieval_debug": {
+        "query": "When exactly will Tesla launch broad commercial robotaxi service?",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": []
+      },
+      "message_id": "3bd0e5a3-d995-4e2b-925e-9e03a7a64eb5",
+      "conversation_id": "f1bb9455-244c-4fd4-9d82-8b807b15c9b5",
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 17,
+        "input_tokens": 9,
+        "output_tokens": 25,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 0,
+          "cited_chunks": 0
+        }
+      }
+    },
+    "latency_ms": 31.174,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": false,
+    "model_unavailable": false
+  },
+  {
+    "id": "finance_qa_v1_035",
+    "category": "insufficient_context",
+    "configuration": "ollama",
+    "endpoint": "/research/chat",
+    "request": {
+      "company_ids": [
+        "11111111-1111-4111-8111-111111111111",
+        "22222222-2222-4222-8222-222222222222"
+      ],
+      "question": "Which is cheaper on forward EV/EBITDA, NVIDIA or Apple?",
+      "top_k": 8
+    },
+    "response": {
+      "answer": "I do not have enough cited context to answer that. No retrieved passage directly supports the requested fact and period; upload or select relevant documents.",
+      "key_points": [],
+      "citations": [],
+      "confidence": "low",
+      "limitations": [
+        "A relevance check is not semantic entailment. Missing support is not proof that the information does not exist."
+      ],
+      "retrieval_debug": {
+        "query": "Which is cheaper on forward EV/EBITDA, NVIDIA or Apple?",
+        "top_k": 8,
+        "threshold": 0.04,
+        "chunks": []
+      },
+      "message_id": "8936844f-339f-4b02-9ca6-4921824029d5",
+      "conversation_id": "4e8a0ed8-914d-4949-ab54-5710afbf6255",
+      "usage": {
+        "model": "local-deterministic-grounded-v1",
+        "latency_ms": 11,
+        "input_tokens": 10,
+        "output_tokens": 25,
+        "estimated_cost_usd": 0.0,
+        "provider": "local",
+        "retrieval": {
+          "retrieved_chunks": 0,
+          "cited_chunks": 0
+        }
+      }
+    },
+    "latency_ms": 22.579,
+    "format_compliance": 1,
+    "accepted_model_output": false,
+    "validation_fallback": false,
+    "model_unavailable": false
+  }
+]

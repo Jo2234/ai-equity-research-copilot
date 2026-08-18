@@ -2,6 +2,33 @@
 
 Document-grounded equity research assistant for public US companies. The app is designed around company profiles, uploaded filings/transcripts, retrieval over parsed document chunks, cited Q&A, company comparisons, and structured research memos.
 
+[![Demo: cited answer from SEC filings](docs/media/copilot-demo.gif)](docs/media/copilot-demo.mp4)
+
+Gemma 3 4B — recorded 2026-09-29, real model output, no fallback. The closing advice refusal is an application guardrail before inference. [Video provenance](docs/media/README.md).
+
+[Live demo — keyless deterministic API](https://equity-research-copilot.vercel.app). Watch the video above for the real-model run.
+
+## Results
+
+Measured on 29 September 2026: **35 synthetic finance QA cases**, one pass per configuration, Gemma 3 4B (`gemma3:4b`, Q4_K_M) through Ollama 0.34.4 on an Apple M5 with 32 GiB memory. Qualitative rubric annotations are not blinded or independently validated. Neither configuration meets the MVP quality gate.
+
+| Metric | Gemma configuration | Deterministic baseline |
+| --- | ---: | ---: |
+| Graded answer accuracy | 41.4% | 40.0% |
+| Citation precision | 96.4% (27/28) | 100.0% (24/24) |
+| Citation recall | 43.4% | 43.4% |
+| Graded refusal correctness | 100% (7/7) | 85.7% (6/7) |
+| Unsupported claims | 1 (1/35 answers) | 0 |
+| Validation fallback / model attempts | 23.5% (4/17) | N/A |
+| Median HTTP latency, all cases | 54.8 ms | 16.1 ms |
+| Median HTTP latency, model attempts | 7,861.7 ms | N/A |
+
+Only **13/35** Gemma-configuration cases produced accepted model answers; four fell back and 18 bypassed inference through deterministic comparisons or evidence/refusal gates. All failures remain included. Several answerable questions were refused. These synthetic development-set results do not establish accuracy on real SEC filings.
+
+Reproduce collection: `python scripts/run_live_eval.py --output evals/results/new-run`
+
+[Raw results, per-case scoring notes, commit/source hashes, earlier runs and reproduction details](evals/results/2026-09-29/README.md).
+
 This is research assistance software, not investment advice. It must not issue buy, sell, hold, or price-target recommendations unless the user supplies explicit valuation assumptions.
 
 ## Why This Matters
@@ -97,7 +124,7 @@ Provider modes:
 - `AIERC_LLM_PROVIDER=ollama`: require Ollama/Gemma and return a clear low-confidence response if unavailable.
 - `AIERC_LLM_PROVIDER=local`: deterministic cited synthesis only.
 
-The Ollama prompt uses retrieved filing text (up to five chunks, 6,000 characters per chunk and 24,000 characters total), independently of the shorter retrieval-debug previews. It requires structured JSON with inline references such as `[1]` in the answer and every key point. Invalid schemas, missing references, and inconsistent or out-of-range references fall back to deterministic cited synthesis, including in `ollama` mode. A required Ollama server that cannot respond still produces an explicit unavailable response.
+The Ollama prompt uses retrieved filing text (up to five chunks, 6,000 characters per chunk and 24,000 characters total), independently of the shorter retrieval-debug previews. It uses schema-constrained JSON generation with allowed source indices, a 512-token output cap, and inline references such as `[1]` in the answer and every key point. Invalid schemas, missing references, and inconsistent or out-of-range references fall back to deterministic cited synthesis, including in `ollama` mode. A required Ollama server that cannot respond still produces an explicit unavailable response. The UI displays the returned model and provider; the coverage panel exposes the chat retrieval limit (default 8).
 
 Deterministic answers retain the supporting chunk for each selected sentence. Their inline references, source excerpts, persisted citations, and cited counts come from the same selections. Model citation validation checks source membership and numbering; it cannot independently prove that every generated claim follows from that source. Memos label generic bull/bear prompts as analyst scenarios rather than filing conclusions.
 
