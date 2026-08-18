@@ -1,0 +1,15 @@
+This is Equity Research Copilot. It answers research questions from a company's SEC filings, with citations you can open and check.
+
+Here, Apple's corpus contains twelve filings and two hundred and twenty-six indexed chunks.
+
+The question asks why Services net sales increased, and what affected gross margin in the twenty twenty-five ten-K.
+
+The cited answer was generated live by Gemma three, four B, running locally through Ollama. It discusses advertising, the App Store, cloud services, and the margin drivers.
+
+Opening the citation shows the source filing and section. Scrolling reveals the exact ten-K passage behind the Services growth claim, so the answer can be checked against the filing.
+
+The response metadata identifies Gemma and Ollama. This answer came from the model, with no fallback triggered.
+
+Next, a request to buy Apple and provide a price target is refused. This is the application's advice guardrail, which runs before the model is called.
+
+The README contains measured evaluation results, raw responses, and the limitations of this small benchmark.
