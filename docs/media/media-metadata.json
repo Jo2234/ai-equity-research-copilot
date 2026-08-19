@@ -4,34 +4,117 @@
   "raw_sha256": "85061fe466a02aa68da16802313b7eaa7ec6b92fadff9df4e8aad5f19d4f2366",
   "edits": [
     {
+      "shot": "corpus",
       "raw_start": 0,
-      "raw_end": 8,
-      "speed": 1
+      "raw_end": 7.7,
+      "speed": 1,
+      "hold_last_seconds": 7.9,
+      "output_start": 0,
+      "output_end": 15.6
     },
     {
-      "raw_start": 8,
-      "raw_end": 13,
-      "speed": 4,
-      "label": "Model generation wait - sped up 4x"
+      "shot": "submit",
+      "raw_start": 7.7,
+      "raw_end": 9.2,
+      "speed": 1,
+      "hold_last_seconds": 0,
+      "output_start": 15.6,
+      "output_end": 17.1
     },
     {
-      "raw_start": 13,
-      "raw_end": 82,
-      "speed": 1
+      "shot": "answer_arrives",
+      "raw_start": 12.9,
+      "raw_end": 18.6,
+      "speed": 1,
+      "hold_last_seconds": 0,
+      "output_start": 17.1,
+      "output_end": 22.8
+    },
+    {
+      "shot": "cited_answer",
+      "raw_start": 18.6,
+      "raw_end": 31.8,
+      "speed": 1,
+      "hold_last_seconds": 0,
+      "output_start": 22.8,
+      "output_end": 36.0
+    },
+    {
+      "shot": "source",
+      "raw_start": 31.8,
+      "raw_end": 43.3,
+      "speed": 1,
+      "hold_last_seconds": 0,
+      "output_start": 36.0,
+      "output_end": 47.5
+    },
+    {
+      "shot": "metadata",
+      "raw_start": 47.3,
+      "raw_end": 55,
+      "speed": 1,
+      "hold_last_seconds": 0,
+      "output_start": 47.5,
+      "output_end": 55.2
+    },
+    {
+      "shot": "advice_question",
+      "raw_start": 60,
+      "raw_end": 62.6,
+      "speed": 1,
+      "hold_last_seconds": 0,
+      "output_start": 55.2,
+      "output_end": 57.8
+    },
+    {
+      "shot": "refusal",
+      "raw_start": 68.2,
+      "raw_end": 74.4,
+      "speed": 1,
+      "hold_last_seconds": 0,
+      "output_start": 57.8,
+      "output_end": 64.0
+    },
+    {
+      "shot": "close",
+      "raw_start": 74.7,
+      "raw_end": 82.2,
+      "speed": 1,
+      "hold_last_seconds": 0,
+      "output_start": 64.0,
+      "output_end": 71.5
     }
   ],
   "mp4": {
-    "duration_seconds": 78.27,
+    "duration_seconds": 71.5,
     "width": 1920,
-    "height": 1406,
+    "height": 1266,
     "fps": 30,
     "codec": "H.264",
-    "audio": false
+    "pixel_format": "yuv420p",
+    "faststart": true,
+    "audio": {
+      "synthetic_narration": true,
+      "model": "gpt-4o-mini-tts",
+      "voice": "marin",
+      "codec": "AAC",
+      "sample_rate_hz": 48000,
+      "channels": 1,
+      "bitrate_target_bps": 128000,
+      "pace_multiplier": 0.94,
+      "lead_in_seconds": 0.3,
+      "fade_in_seconds": 0.15,
+      "fade_out_seconds": 0.45,
+      "integrated_lufs": -16.03,
+      "true_peak_dbtp": -1.45,
+      "music": false,
+      "script": "copilot-demo-narration.txt"
+    }
   },
   "gif": {
     "duration_seconds": 14,
     "width": 960,
-    "height": 703,
+    "height": 633,
     "fps": 12,
     "source_clips_seconds": [
       [
@@ -39,27 +122,118 @@
         8
       ],
       [
-        25,
-        28
+        27,
+        30
       ],
       [
-        31,
-        40
+        31.8,
+        40.8
       ]
-    ]
+    ],
+    "captions": false,
+    "audio": false
   },
   "files": {
     "copilot-demo.mp4": {
-      "bytes": 2161930,
-      "sha256": "e54565a44a3f011f19d99570772d6667d311cf82e7899fb98a1cda57870f318f"
+      "bytes": 3085917,
+      "sha256": "21a5f77a0f94d8bc66c5b28dfc08bedb8ef28e13a2d706df03ba1c781591a351"
     },
     "copilot-demo.gif": {
-      "bytes": 1617039,
-      "sha256": "cad2e458465d25a72609cf4a93402cc2396badd1c027dc3231e544663d0d31c5"
+      "bytes": 2062271,
+      "sha256": "9ad4dcb4bf9329ae2a29ec5c03b24ac7961c79de3e32b7ae3b158b959fb97db9"
     },
     "copilot-demo-poster.png": {
-      "bytes": 649602,
-      "sha256": "ced10458e349ecbe315ead7d1d2da2815621effabfa9009fda0998e509c9f941"
+      "bytes": 599455,
+      "sha256": "38bf6102963331d8e618e6878a8c044417c5a9742839aa8590ca76473bc1f7a5"
+    },
+    "copilot-demo-narration.txt": {
+      "bytes": 1075,
+      "sha256": "19707cb2c197ec83637485100b89251b7b52f4108fe0a0db88abbb6541e89d99"
+    }
+  },
+  "postproduction_date": "2026-09-29",
+  "crop_audit": {
+    "frames_checked": 2499,
+    "transition_rows": [
+      139
+    ],
+    "first_unblended_app_row": 140,
+    "crop": [
+      0,
+      140,
+      1920,
+      1266
+    ],
+    "column_checks": [
+      20,
+      400,
+      960,
+      1400,
+      1800
+    ]
+  },
+  "poster": {
+    "width": 1920,
+    "height": 1266,
+    "video_time_seconds": 28
+  },
+  "narration_generation": {
+    "model": "gpt-4o-mini-tts",
+    "voices": [
+      "marin",
+      "cedar"
+    ],
+    "instructions": "Speak as a neutral product-demo narrator, not as the product creator. Calm, clear, natural and professional, with conversational phrasing and understated warmth. Moderate pace, around 138 words per minute. Use natural sentence rhythm and brief pauses between paragraphs, without sounding like an advertisement or reading a list. No hype, music or sound effects. Pronounce SEC as separate letters, ten-K as ten kay, Gemma as JEM-uh, four B as four bee, Ollama as oh-LAH-ma, and README as read me. Read only the supplied script.",
+    "word_count": 166,
+    "selected_voice": "marin",
+    "comparison": "Automated audio review preferred Marin for natural phrasing and steady pacing; no human listening panel.",
+    "candidate_audio_sha256": {
+      "marin": "b4eb40e831f91eed126863140b3ffd317219ff32bcfebb17d05c6d302fa601cb",
+      "cedar": "2846185bf2bcf3c97d01c2434358cb9c6a25074e211205e6856ea14dfff29da6"
+    },
+    "candidate_loudness": {
+      "marin": {
+        "input_i": "-22.03",
+        "input_tp": "-3.97",
+        "input_lra": "2.70",
+        "input_thresh": "-32.37",
+        "output_i": "-16.04",
+        "output_tp": "-1.50",
+        "output_lra": "2.90",
+        "output_thresh": "-26.42",
+        "normalization_type": "dynamic",
+        "target_offset": "0.04"
+      },
+      "cedar": {
+        "input_i": "-22.28",
+        "input_tp": "-2.34",
+        "input_lra": "3.40",
+        "input_thresh": "-32.81",
+        "output_i": "-16.55",
+        "output_tp": "-1.50",
+        "output_lra": "2.50",
+        "output_thresh": "-27.19",
+        "normalization_type": "dynamic",
+        "target_offset": "0.55"
+      }
+    }
+  },
+  "qa": {
+    "raw_chrome_boundary_frames_checked": 2499,
+    "final_segment_frames_visually_reviewed": "start, middle, end of all 9 edit segments",
+    "gif_frames_visually_reviewed": "start, middle, end of all 3 clips",
+    "audio_review": "Automated full-audio assessment, word-timestamp sync checks, ffprobe, loudnorm and complete decode; no human audiovisual listening review.",
+    "final_aac_loudnorm": {
+      "input_i": "-16.03",
+      "input_tp": "-1.45",
+      "input_lra": "2.90",
+      "input_thresh": "-26.43",
+      "output_i": "-16.08",
+      "output_tp": "-1.50",
+      "output_lra": "2.70",
+      "output_thresh": "-26.45",
+      "normalization_type": "dynamic",
+      "target_offset": "0.08"
     }
   }
 }
