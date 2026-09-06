@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
+
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from .config import Settings
 from .schemas import Confidence
@@ -21,16 +24,25 @@ class GroundedDraft:
     provider: str
 
 
+class InvalidGroundedDraft(RuntimeError):
+    """The model responded, but its answer cannot be attributed to supplied context."""
+
+
+class _DraftPayload(BaseModel):
+    model_config = ConfigDict(strict=True)
+    answer: str = Field(min_length=1)
+    key_points: list[str] = Field(min_length=1)
+    citation_indices: list[int] = Field(min_length=1)
+    confidence: str
+    limitations: list[str]
+
+
+CITATION_REFERENCE = re.compile(r"\[(\d+)\]")
+
+
 class OllamaClient:
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
-
-    def is_available(self) -> bool:
-        try:
-            self._post("/api/tags", {})
-            return True
-        except RuntimeError:
-            return False
 
     def answer(self, question: str, contexts: list[dict[str, Any]]) -> GroundedDraft:
         context_text = "\n\n".join(
@@ -41,7 +53,8 @@ class OllamaClient:
 
 Rules:
 - Do not use news, market rumors, prior knowledge, price targets, or investment recommendations.
-- Every factual claim must be supported by one or more citation indices.
+- Every factual claim in answer and key_points must include inline references such as [1] or [2].
+- Use separate brackets for each reference, never [1, 2]. citation_indices must list exactly the referenced indices.
 - If the excerpts are insufficient, say what is missing.
 - Return only valid JSON with this schema:
 {{"answer": "...", "key_points": ["..."], "citation_indices": [1, 2], "confidence": "high|medium|low", "limitations": ["..."]}}
@@ -64,31 +77,29 @@ Filing excerpts:
             },
         }
         raw = self._post("/api/generate", payload)
-        response_text = str(raw.get("response") or "").strip()
         try:
-            parsed = json.loads(response_text)
-        except json.JSONDecodeError as exc:
-            raise RuntimeError("Ollama returned invalid JSON") from exc
-        citation_indices = [
-            idx for idx in parsed.get("citation_indices", [])
-            if isinstance(idx, int) and 1 <= idx <= len(contexts)
-        ]
-        answer = str(parsed.get("answer") or "").strip()
-        key_points = [str(item).strip() for item in parsed.get("key_points", []) if str(item).strip()]
-        limitations = [str(item).strip() for item in parsed.get("limitations", []) if str(item).strip()]
-        confidence_value = str(parsed.get("confidence") or "medium").lower()
-        confidence = confidence_value if confidence_value in {"high", "medium", "low"} else "medium"
-        if not answer:
-            raise RuntimeError("Ollama returned an empty answer")
-        if not citation_indices:
-            confidence = "low"
-            limitations.append("The local model did not attach citation indices; answer should be reviewed.")
+            parsed = _DraftPayload.model_validate_json(raw.get("response", ""))
+        except (ValidationError, TypeError, AttributeError) as exc:
+            raise InvalidGroundedDraft("Ollama returned an invalid answer schema") from exc
+        answer = parsed.answer.strip()
+        key_points = [point.strip() for point in parsed.key_points]
+        indices = list(dict.fromkeys(parsed.citation_indices))
+        texts = [answer, *key_points]
+        references = {int(index) for text in texts for index in CITATION_REFERENCE.findall(text)}
+        if (
+            not answer or any(not point for point in key_points)
+            or any(not CITATION_REFERENCE.search(text) for text in texts)
+            or set(indices) != references
+            or any(index < 1 or index > len(contexts) for index in indices)
+            or parsed.confidence not in {"high", "medium", "low"}
+        ):
+            raise InvalidGroundedDraft("Ollama returned missing or inconsistent citation references")
         return GroundedDraft(
             answer=answer,
-            key_points=key_points or [answer],
-            citation_indices=citation_indices,
-            confidence=Confidence(confidence),
-            limitations=limitations,
+            key_points=key_points,
+            citation_indices=indices,
+            confidence=Confidence(parsed.confidence),
+            limitations=parsed.limitations,
             model=self.settings.ollama_model,
             provider="ollama",
         )
@@ -103,7 +114,12 @@ Filing excerpts:
         )
         try:
             with urlopen(request, timeout=self.settings.ollama_timeout_seconds) as response:
-                return json.loads(response.read().decode("utf-8", errors="replace"))
+                parsed = json.loads(response.read().decode("utf-8", errors="replace"))
+                if not isinstance(parsed, dict):
+                    raise RuntimeError("Ollama returned a non-object response")
+                return parsed
+        except json.JSONDecodeError as exc:
+            raise RuntimeError("Ollama returned an invalid JSON response") from exc
         except HTTPError as exc:
             raise RuntimeError(f"Ollama request failed with HTTP {exc.code}") from exc
         except URLError as exc:

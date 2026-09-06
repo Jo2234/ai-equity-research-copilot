@@ -23,7 +23,7 @@ See [docs/walkthrough.md](docs/walkthrough.md) for an end-to-end walkthrough: a 
 
 - Backend API: FastAPI service under `backend/`.
 - Frontend: Vite React TypeScript app under `frontend/`.
-- Data services: current backend uses local JSON storage and filesystem document storage by default; Docker Compose also starts PostgreSQL with pgvector and Redis as optional target-architecture services, not required for the local MVP smoke path.
+- Data services: current backend uses local JSON storage and filesystem document storage by default; PostgreSQL with pgvector and Redis are available only through the optional Docker Compose `infrastructure` profile. The app does not depend on them.
 - Evals: curated finance QA cases under `evals/`.
 - Fixtures: deterministic sample companies, documents, chunks, and API payloads under `tests/fixtures/`.
 
@@ -97,7 +97,9 @@ Provider modes:
 - `AIERC_LLM_PROVIDER=ollama`: require Ollama/Gemma and return a clear low-confidence response if unavailable.
 - `AIERC_LLM_PROVIDER=local`: deterministic cited synthesis only.
 
-The Ollama prompt is constrained to the retrieved filing excerpts and must return structured JSON with citation indices. If the model returns invalid or uncited output, the app falls back to deterministic synthesis.
+The Ollama prompt uses retrieved filing text (up to five chunks, 6,000 characters per chunk and 24,000 characters total), independently of the shorter retrieval-debug previews. It requires structured JSON with inline references such as `[1]` in the answer and every key point. Invalid schemas, missing references, and inconsistent or out-of-range references fall back to deterministic cited synthesis, including in `ollama` mode. A required Ollama server that cannot respond still produces an explicit unavailable response.
+
+Deterministic answers retain the supporting chunk for each selected sentence. Their inline references, source excerpts, persisted citations, and cited counts come from the same selections. Model citation validation checks source membership and numbering; it cannot independently prove that every generated claim follows from that source. Memos label generic bull/bear prompts as analyst scenarios rather than filing conclusions.
 
 ## Local Setup
 
@@ -128,7 +130,7 @@ Upload guardrails are configurable with:
 3. Start local infrastructure only if you want the optional Postgres/Redis services:
 
 ```bash
-docker compose up postgres redis
+docker compose --profile infrastructure up postgres redis
 ```
 
 4. Run the full stack:
@@ -136,6 +138,15 @@ docker compose up postgres redis
 ```bash
 docker compose up --build
 ```
+
+The default command starts only the API and web app. Compose maps web port 3000 to Vite's fixed container port 5173 and sets the API seed directory to `/app/data/sample_documents`. On a fresh workspace the bundled companies must have ready documents. Verify after startup:
+
+```bash
+curl --fail http://localhost:3000/
+curl --fail http://localhost:8000/health
+```
+
+The health response should show nonzero `documents` and `chunks`. If using a Mac-hosted Ollama from the API container, set `AIERC_OLLAMA_BASE_URL=http://host.docker.internal:11434` in `.env`; `127.0.0.1` inside a container refers to that container.
 
 Expected local URLs:
 
@@ -186,6 +197,16 @@ Fixtures and sample data are synthetic and intentionally small:
 Use these fixtures for backend API tests, retrieval scoring smoke tests, and frontend contract mocks.
 
 The sample document corpus covers NVDA, MSFT, AAPL, JPM, XOM, and TSLA with synthetic 10-K and earnings transcript excerpts. The canonical eval set uses NVDA, AAPL, JPM, XOM, and TSLA fixture IDs; MSFT remains useful for local seed/demo data.
+
+## API and browser preview modes
+
+The supported backend is `ai_equity_research_copilot_backend.main`; run it from `backend/` with `uvicorn ai_equity_research_copilot_backend.main:create_app --factory`. `backend.main` is only a compatibility re-export, with no separate state or endpoints.
+
+The frontend uses the real API by default. Failed requests display the backend error and retain rejected upload input for retry. They never create fake documents, replace company data, or synthesize demo answers. `VITE_PUBLIC_DEMO=true` selects the read-only **live seeded API** presentation used for deployment.
+
+For an intentionally offline, synthetic browser preview, run `VITE_BROWSER_DEMO=true npm run dev` from `frontend/`. This adapter is selected before any requests; it sends no API calls and disables uploads and SEC imports. Its prepared examples are labeled and kept separate from live workspace data. This flag is distinct from `VITE_PUBLIC_DEMO`.
+
+Retrieval loads one request-scoped corpus snapshot for chat, memo, or comparison, filtering unrelated rows before validation and preparing chunk term sets once. The seven memo queries reuse that snapshot. A later request reloads storage, so newly ingested documents are visible without cache invalidation.
 
 ## Useful Commands
 

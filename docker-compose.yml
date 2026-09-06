@@ -1,5 +1,6 @@
 services:
   postgres:
+    profiles: [infrastructure]
     image: pgvector/pgvector:pg16
     container_name: equity-copilot-postgres
     environment:
@@ -17,6 +18,7 @@ services:
       retries: 10
 
   redis:
+    profiles: [infrastructure]
     image: redis:7-alpine
     container_name: equity-copilot-redis
     ports:
@@ -37,15 +39,9 @@ services:
       - .env
     environment:
       AIERC_DATA_DIR: /app/data
-      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-equity_copilot}:${POSTGRES_PASSWORD:-equity_copilot_local}@postgres:5432/${POSTGRES_DB:-equity_copilot}
-      REDIS_URL: redis://redis:6379/0
+      AIERC_SEED_DIR: /app/data/sample_documents
     ports:
       - "${API_PORT:-8000}:8000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
     volumes:
       - ./data:/app/data
 
@@ -58,7 +54,7 @@ services:
     environment:
       VITE_API_BASE_URL: http://localhost:${API_PORT:-8000}
     ports:
-      - "${WEB_PORT:-3000}:3000"
+      - "${WEB_PORT:-3000}:5173"
     depends_on:
       - api
 

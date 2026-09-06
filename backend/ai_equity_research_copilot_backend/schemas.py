@@ -64,7 +64,7 @@ class Company(CompanyCreate):
 class CompanyDetail(Company):
     document_count: int = 0
     ready_document_count: int = 0
-    documents: list["Document"] = Field(default_factory=list)
+    documents: list["DocumentDetail"] = Field(default_factory=list)
 
 
 class CompanyLookupResult(BaseModel):
@@ -144,6 +144,10 @@ class Citation(BaseModel):
     score: float
     company_id: UUID | None = None
     title: str | None = None
+    company_ticker: str | None = None
+    page_start: int | None = None
+    page_end: int | None = None
+    section_title: str | None = None
 
 
 class UsageMetadata(BaseModel):
@@ -174,6 +178,7 @@ class ChatAnswerPayload(BaseModel):
 
 
 class ChatResponse(ChatAnswerPayload):
+    retrieval_debug: dict[str, Any] = Field(default_factory=dict)
     message_id: UUID
     conversation_id: UUID
     usage: UsageMetadata
