@@ -128,7 +128,10 @@ Validation expectations:
 - `company_ids` is required and cannot be empty.
 - `question` is required and should be non-empty after trimming.
 - `top_k` defaults to `8` and should be bounded.
-- Citations must reference chunks returned by retrieval.
+- Citations must reference supporting chunks returned by retrieval. Every selected deterministic sentence carries its own inline reference.
+- `retrieval_debug` returns the actual query, top_k, threshold, and chunk previews with truthful `cited` flags.
+- `citations`, stored citation rows, and `usage.retrieval.cited_chunks` describe the same final selection.
+- Citation metadata includes `company_ticker`, `section_title`, `page_start`, and `page_end`; `excerpt` contains the selected evidence, not an arbitrary leading UI preview.
 - Unsupported answers should include low confidence and a limitation explaining missing context.
 
 ## `POST /research/memo`

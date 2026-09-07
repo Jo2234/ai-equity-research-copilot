@@ -123,7 +123,7 @@ def test_retrieval_applies_document_type_year_and_ready_status_filters(tmp_path:
     assert draft.id not in {result.document.id for result in results}
 
 
-def test_chat_citations_include_page_ranges_truncated_excerpts_and_persisted_audit(tmp_path: Path) -> None:
+def test_chat_citations_include_supporting_sentences_page_ranges_and_persisted_audit(tmp_path: Path) -> None:
     app = create_app(tmp_path, seed=False)
     client = TestClient(app)
     repo: JsonRepository = app.state.repo
@@ -175,8 +175,9 @@ def test_chat_citations_include_page_ranges_truncated_excerpts_and_persisted_aud
     payload = response.json()
     assert payload["answer"].endswith("[1]")
     assert payload["citations"][0]["label"] == "NVDA Q4 FY2025 Earnings Call Transcript, pp. 6-7"
-    assert payload["citations"][0]["excerpt"].endswith("...")
-    assert len(payload["citations"][0]["excerpt"]) <= 423
+    for point in payload["key_points"]:
+        assert point.removesuffix(" [1]") in payload["citations"][0]["excerpt"]
+    assert payload["citations"][0]["page_end"] == 7
     assert payload["citations"][0]["title"] == "Q4 FY2025 Earnings Call Transcript"
     assert payload["usage"]["retrieval"] == {"retrieved_chunks": 1, "cited_chunks": 1}
 
