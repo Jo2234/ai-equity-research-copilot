@@ -29,6 +29,8 @@ This small synthetic development set tracks changes between iterations; it does 
 
 Reproduce collection: `python scripts/run_live_eval.py --output evals/results/new-run`
 
+For a deterministic baseline without Ollama, add `--providers local`. `--providers ollama` collects only the model configuration; the default `both` retains the existing Ollama-then-local order. Hardware metadata is optional on macOS, Linux and Windows. See the [collection and scoring runbook](evals/runbook.md#live-http-collection) for setup, partial-run diagnostics and response-bound review requirements.
+
 [Raw results, per-case scoring notes, commit/source hashes, earlier runs and reproduction details](evals/results/2026-09-29/README.md).
 
 This is research assistance software, not investment advice. It must not issue buy, sell, hold, or price-target recommendations unless the user supplies explicit valuation assumptions.
