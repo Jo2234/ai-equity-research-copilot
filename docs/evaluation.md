@@ -20,6 +20,8 @@ The dataset currently has 35 cases:
 
 The companion coverage map is `evals/coverage_matrix.md`. The scoring definitions and quality gates are in `evals/scoring_rubric.json`.
 
+The [live HTTP collection runbook](../evals/runbook.md#live-http-collection) supports deterministic local-only, Ollama-only and the existing dual-mode capture. Local-only requires no Ollama requests. Optional hardware metadata is collected with explicit missing-value diagnostics on macOS/Linux/Windows. The companion scorer accepts complete selected-provider captures with response-hash-bound human annotations; it does not invent grades for an absent provider. Existing historical results are preserved.
+
 ## Sample Corpus
 
 `data/sample_documents` contains synthetic excerpts for local ingestion and fixture-style demos. These are not official filings or transcripts.
