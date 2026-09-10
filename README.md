@@ -23,7 +23,7 @@ See [docs/walkthrough.md](docs/walkthrough.md) for an end-to-end walkthrough: a 
 
 - Backend API: FastAPI service under `backend/`.
 - Frontend: Vite React TypeScript app under `frontend/`.
-- Data services: current backend uses local JSON storage and filesystem document storage by default; PostgreSQL with pgvector and Redis are available only through the optional Docker Compose `infrastructure` profile. The app does not depend on them.
+- Storage: a local JSON repository holds metadata and research history; source documents live on the filesystem. See [the implemented architecture](docs/architecture.md).
 - Evals: curated finance QA cases under `evals/`.
 - Fixtures: deterministic sample companies, documents, chunks, and API payloads under `tests/fixtures/`.
 
@@ -118,7 +118,6 @@ The default storage mode is intentionally simple and local-first:
 - Metadata, conversations, chunks, embeddings, and citations are stored in `AIERC_DATA_DIR/storage/state/store.json`.
 - Uploaded or SEC-downloaded source files are stored under `AIERC_DATA_DIR/storage/raw/<company_id>/`.
 - `AIERC_DATA_DIR` defaults to `data/`; set it to a disposable directory for tests, demos, or CI.
-- PostgreSQL/pgvector and Redis in `docker-compose.yml` document the target architecture and can be started for local infrastructure parity, but the current backend smoke path does not require a pgvector migration.
 
 Upload guardrails are configurable with:
 
@@ -127,13 +126,7 @@ Upload guardrails are configurable with:
 - `AIERC_ALLOWED_UPLOAD_CONTENT_TYPES`, default `text/plain,text/markdown,application/pdf,application/octet-stream`.
 - `AIERC_CORS_ORIGINS` (or legacy `CORS_ORIGINS`), default `http://localhost:3000,http://127.0.0.1:3000`.
 
-3. Start local infrastructure only if you want the optional Postgres/Redis services:
-
-```bash
-docker compose --profile infrastructure up postgres redis
-```
-
-4. Run the full stack:
+3. Run the full stack:
 
 ```bash
 docker compose up --build
@@ -153,8 +146,6 @@ Expected local URLs:
 - Web: `http://localhost:3000`
 - API: `http://localhost:8000`
 - API docs: `http://localhost:8000/docs`
-- Postgres: `localhost:5432`
-- Redis: `localhost:6379`
 
 ## Eval Dataset
 
