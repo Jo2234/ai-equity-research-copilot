@@ -1,36 +1,4 @@
 services:
-  postgres:
-    profiles: [infrastructure]
-    image: pgvector/pgvector:pg16
-    container_name: equity-copilot-postgres
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-equity_copilot}
-      POSTGRES_USER: ${POSTGRES_USER:-equity_copilot}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-equity_copilot_local}
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-equity_copilot} -d ${POSTGRES_DB:-equity_copilot}"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
-  redis:
-    profiles: [infrastructure]
-    image: redis:7-alpine
-    container_name: equity-copilot-redis
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
   api:
     build:
       context: ./backend
@@ -57,7 +25,3 @@ services:
       - "${WEB_PORT:-3000}:5173"
     depends_on:
       - api
-
-volumes:
-  postgres_data:
-  redis_data:
