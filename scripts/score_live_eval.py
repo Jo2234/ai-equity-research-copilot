@@ -5,28 +5,67 @@ import argparse
 import csv
 import hashlib
 import json
-from pathlib import Path
 import statistics
+from pathlib import Path
+
+PROVIDER_CHOICES = {"local": ("local",), "ollama": ("ollama",), "both": ("ollama", "local")}
+
+
+def providers_for(directory, requested=None):
+    metadata_path = directory / "metadata.json"
+    metadata = json.loads(metadata_path.read_text()) if metadata_path.exists() else {}
+    if requested is not None:
+        if requested not in PROVIDER_CHOICES:
+            raise ValueError("providers must be local, ollama, or both")
+        providers = PROVIDER_CHOICES[requested]
+    else:
+        providers = metadata.get("selected_providers")
+        if providers is None:
+            # Historical captures have no selection field; both remains the usual order.
+            providers = [mode for mode in ("ollama", "local") if (directory / f"{mode}.json").exists()]
+    if (not isinstance(providers, (list, tuple)) or not providers
+            or any(mode not in ("ollama", "local") for mode in providers)
+            or len(set(providers)) != len(providers)):
+        raise ValueError("No valid unique captured provider selection")
+    for mode in providers:
+        if not (directory / f"{mode}.json").exists():
+            raise ValueError(f"Missing selected provider capture: {mode}")
+        state = metadata.get("provider_status", {}).get(mode)
+        if state is not None and state.get("status") != "completed":
+            raise ValueError(f"Selected provider capture is incomplete: {mode}")
+        expected_hash = metadata.get("output_sha256", {}).get(f"{mode}.json")
+        if expected_hash and hashlib.sha256((directory / f"{mode}.json").read_bytes()).hexdigest() != expected_hash:
+            raise ValueError(f"Capture file hash mismatch: {mode}")
+    return providers
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
 
 
 def response_hash(response):
     return hashlib.sha256(json.dumps(response, sort_keys=True).encode()).hexdigest()
 
 
-def score(directory):
+def score(directory, providers=None):
+    modes = providers_for(directory, providers)
     reviews = json.loads((directory / "review.json").read_text())
     summary = {}
     flat = []
-    for mode in ("ollama", "local"):
+    for mode in modes:
         rows = json.loads((directory / f"{mode}.json").read_text())
+        require(mode in reviews, f"Missing response-bound annotations: {mode}")
         annotations = reviews[mode]
-        assert len(rows) == len(annotations) == 35
+        require(len(rows) == len(annotations) == 35, f"Expected 35 cases and annotations for {mode}")
+        require(len({row["id"] for row in rows}) == 35, f"Duplicate case IDs for {mode}")
         for row, review in zip(rows, annotations):
-            assert row["id"] == review["id"]
-            assert response_hash(row["response"]) == review["response_sha256"], "Stale review"
-            assert review["answer_accuracy"] in (0, .5, 1)
-            assert 0 <= review["supported_citations"] <= review["citation_count"]
-            assert 0 <= review["citation_requirements_met"] <= review["citation_requirements"]
+            require(row["configuration"] == mode, f"Configuration mismatch for {mode}")
+            require(row["id"] == review["id"], "Review case ID mismatch")
+            require(response_hash(row["response"]) == review["response_sha256"], "Stale review")
+            require(review["answer_accuracy"] in (0, .5, 1), "Invalid answer accuracy")
+            require(0 <= review["supported_citations"] <= review["citation_count"], "Invalid citation count")
+            require(0 <= review["citation_requirements_met"] <= review["citation_requirements"], "Invalid citation requirements")
             flat.append({"configuration": mode, "id": row["id"], "category": row["category"],
                          "latency_ms": row["latency_ms"], "accepted_model_output": row["accepted_model_output"],
                          "validation_fallback": row["validation_fallback"],
@@ -66,9 +105,13 @@ def score(directory):
         writer.writeheader()
         writer.writerows(flat)
     print(json.dumps(summary, indent=2))
+    return summary
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("directory", type=Path)
-    score(parser.parse_args().directory)
+    parser.add_argument("--providers", choices=tuple(PROVIDER_CHOICES),
+                        help="Override captured providers; default is recorded selection, or available historical captures.")
+    args = parser.parse_args()
+    score(args.directory, args.providers)
