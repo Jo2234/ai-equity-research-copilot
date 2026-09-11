@@ -103,6 +103,8 @@ Deterministic answers retain the supporting chunk for each selected sentence. Th
 
 ## Local Setup
 
+For frontend development outside Docker, use Node.js 22.12+ (22.x) or 24+ and install dependencies with `npm ci` from `frontend/`.
+
 1. Copy the environment template:
 
 ```bash
@@ -276,3 +278,7 @@ npm test
 - All factual answer claims must map back to cited retrieved chunks.
 - Refuse unsupported questions instead of answering from model memory.
 - Log request metadata, retrieval IDs, model name, latency, token counts, and estimated cost, but not API keys or raw secrets.
+
+## License
+
+Original project code is licensed under the [MIT License](LICENSE), copyright 2026 Johan Vaz. Third-party dependencies retain their own licenses and notices.
