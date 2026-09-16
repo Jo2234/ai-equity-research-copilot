@@ -1,41 +1,21 @@
 from __future__ import annotations
 
+import math
+from collections import Counter
 from dataclasses import dataclass
 from uuid import UUID
 
-from .embeddings import HashingEmbedder, cosine_similarity, tokenize
+from .embeddings import HashingEmbedder, cosine_similarity
+from .query import content_terms, question_scope
 from .schemas import DocumentType, RetrievalDebugResult
 from .storage import CorpusSnapshot, JsonRepository
-
-
-STOPWORDS = {
-    "a",
-    "an",
-    "and",
-    "are",
-    "as",
-    "at",
-    "by",
-    "for",
-    "from",
-    "how",
-    "in",
-    "is",
-    "of",
-    "on",
-    "or",
-    "the",
-    "to",
-    "what",
-    "which",
-    "with",
-}
 
 
 @dataclass(frozen=True)
 class PreparedCorpus:
     snapshot: CorpusSnapshot
     terms: dict[UUID, frozenset[str]]
+    chunk_frequency: dict[str, int]
 
 
 class RetrievalService:
@@ -46,9 +26,11 @@ class RetrievalService:
 
     def prepare(self, company_ids: list[UUID]) -> PreparedCorpus:
         snapshot = self.repo.corpus_snapshot(company_ids)
+        terms = {chunk.id: frozenset(content_terms(chunk.text)) for chunk in snapshot.chunks}
         return PreparedCorpus(
             snapshot=snapshot,
-            terms={chunk.id: frozenset(tokenize(chunk.text)) for chunk in snapshot.chunks},
+            terms=terms,
+            chunk_frequency=dict(Counter(term for row in terms.values() for term in row)),
         )
 
     def search(
@@ -62,11 +44,17 @@ class RetrievalService:
         corpus: PreparedCorpus | None = None,
     ) -> list[RetrievalDebugResult]:
         query_embedding = self.embedder.embed(query)
-        query_terms = set(token for token in tokenize(query) if token not in STOPWORDS)
+        scope_query = question_scope(query)
+        query_terms = content_terms(query)
         prepared = corpus if corpus is not None else self.prepare(company_ids)
         docs = prepared.snapshot.documents
         companies = prepared.snapshot.companies
         scope = set(company_ids)
+        company_terms = set().union(*(content_terms(c.name) | content_terms(c.ticker)
+                                     for c in companies.values()))
+        query_terms -= company_terms
+        weights = {term: math.log(1 + len(prepared.terms) / (1 + prepared.chunk_frequency.get(term, 0))) for term in query_terms}
+        query_weight = max(sum(weights.values()), 1e-9)
         results: list[RetrievalDebugResult] = []
         threshold = self.min_score if min_score is None else min_score
 
@@ -81,10 +69,16 @@ class RetrievalService:
                 continue
             if fiscal_years and document.fiscal_year not in fiscal_years:
                 continue
-            vector_score = max(0.0, cosine_similarity(query_embedding, chunk.embedding))
+            if not scope_query.matches(document):
+                continue
             chunk_terms = prepared.terms[chunk.id]
-            keyword_score = len(query_terms & chunk_terms) / max(len(query_terms), 1)
-            score = (0.75 * vector_score) + (0.25 * keyword_score)
+            overlap = query_terms & chunk_terms
+            # Hash collisions and generic company names cannot establish relevance.
+            if not overlap:
+                continue
+            vector_score = max(0.0, cosine_similarity(query_embedding, chunk.embedding))
+            keyword_score = sum(weights[term] for term in overlap) / query_weight
+            score = (0.20 * vector_score) + (0.80 * keyword_score)
             if score >= threshold:
                 results.append(
                     RetrievalDebugResult(
@@ -98,5 +92,20 @@ class RetrievalService:
                     )
                 )
 
-        results.sort(key=lambda item: item.score, reverse=True)
+        results.sort(key=lambda item: (-item.score, item.company.ticker, item.document.title, item.chunk.chunk_index))
+        if scope_query.diversify or len(scope) > 1:
+            selected: list[RetrievalDebugResult] = []
+            # Cover companies first, then documents, before adding redundant chunks.
+            for attribute in ("company_id", "document_id"):
+                seen = {getattr(item.chunk, attribute) for item in selected}
+                for item in results:
+                    value = getattr(item.chunk, attribute)
+                    if value not in seen:
+                        selected.append(item)
+                        seen.add(value)
+                        if len(selected) == top_k:
+                            return selected
+            chosen = {item.chunk.id for item in selected}
+            selected.extend(item for item in results if item.chunk.id not in chosen)
+            return selected[:top_k]
         return results[:top_k]
