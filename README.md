@@ -201,6 +201,16 @@ For an intentionally offline, synthetic browser preview, run `VITE_BROWSER_DEMO=
 
 Retrieval loads one request-scoped corpus snapshot for chat, memo, or comparison, filtering unrelated rows before validation and preparing chunk term sets once. The seven memo queries reuse that snapshot. A later request reloads storage, so newly ingested documents are visible without cache invalidation.
 
+## Question scope and source sufficiency
+
+Chat, memo retrieval and comparisons require lexical evidence; hashed-vector similarity alone cannot make a chunk relevant. Query-term weights and normalized chunk terms are prepared once per request and reused across memo sections. Comparisons reserve retrieval space for different companies/documents before redundant chunks.
+
+Question text can constrain annual/quarterly filings, earnings calls/releases, fiscal years, and quarter forms such as `Q2 FY2025` or `fiscal 2025 Q2`. These constraints intersect explicit API filters. Missing metadata or an unavailable requested period does not silently fall back to another period. When an annual-versus-quarterly question specifies only the quarterly year, the annual year remains unspecified. Supply explicit document/year filters for ambiguous questions; the parser is a bounded English heuristic, not a general temporal reasoner.
+
+Answer selection requires matching content terms in an actual passage, never just a high chunk score. Narrow requests such as price targets or internal targets also require corresponding evidence wording. Unsupported requests return low confidence and no citations before any model call. Filings-only buy/sell/hold requests and requests explicitly beyond the document coverage are refused. Supported analyst-note price targets can still be quoted; this is not a blanket topic ban.
+
+These are conservative relevance checks, not semantic entailment or completeness guarantees. Deterministic output remains extractive and cannot reliably synthesize financial tables, compute cross-period changes, or establish exact forecasts from related text. Mocked provider tests check integration; they do not measure live model quality.
+
 ## Useful Commands
 
 Run the deterministic demo smoke and write a reviewable artifact:
