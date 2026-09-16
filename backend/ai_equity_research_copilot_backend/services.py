@@ -405,6 +405,7 @@ class ResearchService:
 
     def _cited_points(self, points: list[EvidencePoint], citations: list[Citation]) -> list[str]:
         rendered = []
+        multiple_documents = len({item.result.document.id for item in points}) > 1
         for point in points:
             index = next((i for i, citation in enumerate(citations) if citation.chunk_id == point.result.chunk.id), None)
             if index is None:
@@ -413,7 +414,7 @@ class ResearchService:
             elif point.text not in citations[index].excerpt:
                 citations[index].excerpt += "\n" + point.text
             period = ""
-            if len({item.result.document.id for item in points}) > 1:
+            if multiple_documents:
                 doc = point.result.document
                 quarter = f" Q{doc.fiscal_quarter}" if doc.fiscal_quarter else ""
                 period = f"{point.result.company.ticker} {doc.document_type.value} FY{doc.fiscal_year or 'unknown'}{quarter}: "
@@ -424,13 +425,14 @@ class ResearchService:
         company_terms = set().union(*(content_terms(r.company.name) | content_terms(r.company.ticker) for r in results))
         query_terms = content_terms(query) - company_terms
         anchors = required_evidence_patterns(query)
+        explanatory = bool(re.search(r"\b(?:why|drove|driver|drivers|factor|factors|discussion|commentary)\b", query, re.I))
         scored: list[tuple[float, str, RetrievalDebugResult]] = []
         for result in results:
             for cleaned in evidence_passages(result.chunk.text):
                 sentence_terms = content_terms(cleaned)
                 matched = query_terms & sentence_terms
                 overlap = len(matched) / max(len(query_terms), 1)
-                score = result.score + overlap
+                score = result.score + overlap - (0.2 if explanatory and "\n...\n" in cleaned else 0.0)
                 if (query_terms and len(matched) >= min(2, len(query_terms))
                         and all(re.search(pattern, cleaned, re.I) for pattern in anchors)):
                     scored.append((score, cleaned, result))
