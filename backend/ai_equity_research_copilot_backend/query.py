@@ -11,7 +11,7 @@ STOPWORDS = set(
     """a an and are as at be been by can did do does for from had has have how
 in into is it its of on or that the their these this those to was were what which who
 why with would you your according cite cites cited describe described disclose disclosed
-disclosures discussion explain identify main primary report reported say says summarize
+disclosure disclosures discussion commentary position trend explain identify main primary report reported say says summarize
 compare comparison drove driven driver drivers factor factors change changes recent
 annual quarterly fiscal year filing filings document documents fy q1 q2 q3 q4""".split()
 )
@@ -19,6 +19,22 @@ annual quarterly fiscal year filing filings document documents fy q1 q2 q3 q4"""
 
 def content_terms(text: str) -> set[str]:
     terms = set(re.findall(r"[a-z]+|\d+(?:\.\d+)?", text.lower())) - STOPWORDS
+    terms = {
+        "growth"
+        if term
+        in {
+            "grow",
+            "grew",
+            "growing",
+            "increase",
+            "increased",
+            "increases",
+            "increasing",
+            "rose",
+        }
+        else term
+        for term in terms
+    }
     return {
         term[:-1] if term.endswith("s") and not term.endswith(("ss", "is")) else term
         for term in terms
