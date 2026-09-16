@@ -209,7 +209,7 @@ Question text can constrain annual/quarterly filings, earnings calls/releases, f
 
 Answer selection requires matching content terms in an actual passage, never just a high chunk score. Narrow requests such as price targets or internal targets also require corresponding evidence wording. Unsupported requests return low confidence and no citations before any model call. Filings-only buy/sell/hold requests and requests explicitly beyond the document coverage are refused. Supported analyst-note price targets can still be quoted; this is not a blanket topic ban.
 
-These are conservative relevance checks, not semantic entailment or completeness guarantees. Deterministic output remains extractive and cannot reliably synthesize financial tables, compute cross-period changes, or establish exact forecasts from related text. Mocked provider tests check integration; they do not measure live model quality.
+These are conservative relevance checks, not semantic entailment or completeness guarantees. Deterministic output remains extractive. Retrieval favors query terms occurring together in usable source passages. Compact numeric tables retain available year headings and adjacent unit captions; missing column labels are not guessed. Comparisons label each source period and retain separate citations even when wording repeats. Flattened or complex tables remain limited; the system does not compute cross-period changes or establish exact forecasts from related text. Mocked provider tests check integration; they do not measure live model quality.
 
 ## Useful Commands
 

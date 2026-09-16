@@ -9,6 +9,7 @@ from uuid import UUID
 from .chunking import chunk_pages
 from .config import Settings
 from .embeddings import HashingEmbedder, estimate_tokens
+from .evidence import evidence_passages
 from .llm import CITATION_REFERENCE, InvalidGroundedDraft, OllamaClient
 from .parsing import parse_document
 from .retrieval import RetrievalService
@@ -34,9 +35,6 @@ from .schemas import (
     UsageMetadata,
 )
 from .storage import JsonRepository
-
-
-SENTENCE_RE = re.compile(r"(?<=[.!?])\s+")
 
 
 @dataclass(frozen=True)
@@ -414,7 +412,12 @@ class ResearchService:
                 citations.append(self._citation(point.result, point.text))
             elif point.text not in citations[index].excerpt:
                 citations[index].excerpt += "\n" + point.text
-            rendered.append(f"{point.text} [{index + 1}]")
+            period = ""
+            if len({item.result.document.id for item in points}) > 1:
+                doc = point.result.document
+                quarter = f" Q{doc.fiscal_quarter}" if doc.fiscal_quarter else ""
+                period = f"{point.result.company.ticker} {doc.document_type.value} FY{doc.fiscal_year or 'unknown'}{quarter}: "
+            rendered.append(f"{period}{point.text} [{index + 1}]")
         return rendered
 
     def _points_from_results(self, query: str, results: list[RetrievalDebugResult], max_points: int) -> list[EvidencePoint]:
@@ -423,10 +426,7 @@ class ResearchService:
         anchors = required_evidence_patterns(query)
         scored: list[tuple[float, str, RetrievalDebugResult]] = []
         for result in results:
-            for sentence in SENTENCE_RE.split(result.chunk.text.replace("\n", " ")):
-                cleaned = " ".join(sentence.split())
-                if not _usable_sentence(cleaned):
-                    continue
+            for cleaned in evidence_passages(result.chunk.text):
                 sentence_terms = content_terms(cleaned)
                 matched = query_terms & sentence_terms
                 overlap = len(matched) / max(len(query_terms), 1)
@@ -446,9 +446,9 @@ class ResearchService:
                         seen_ids.add(identity)
             scored = preferred + [row for row in scored if row not in preferred]
         points: list[EvidencePoint] = []
-        seen: set[str] = set()
+        seen: set[tuple[str, str]] = set()
         for _, sentence, result in scored:
-            normalized = sentence.lower()[:120]
+            normalized = (str(result.document.id), " ".join(sentence.lower().split()))
             if normalized in seen:
                 continue
             points.append(EvidencePoint(sentence, result))
@@ -498,17 +498,3 @@ class ResearchService:
             provider=provider,
             retrieval={"retrieved_chunks": retrieval_count, "cited_chunks": cited_count},
         )
-
-
-def _usable_sentence(sentence: str) -> bool:
-    lowered = sentence.lower()
-    if len(sentence) < 35 or len(sentence) > 650:
-        return False
-    if "table of contents" in lowered:
-        return False
-    if lowered.count("▪") + lowered.count("•") > 2:
-        return False
-    if sentence.count(";") > 5:
-        return False
-    alpha = sum(1 for char in sentence if char.isalpha())
-    return alpha / max(len(sentence), 1) > 0.55
