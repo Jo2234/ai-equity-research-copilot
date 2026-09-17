@@ -286,3 +286,30 @@ def test_direct_margin_evidence_outranks_scattered_topic_terms(workspace):
     answer = ask("Compare annual automotive margin with fiscal 2025 Q1 margin.", top_k=2)
     assert {c["document_id"] for c in answer["citations"]} == {str(annual.id), str(quarter.id)}
     assert "18.6%" in answer["answer"] and "20.2%" in answer["answer"]
+
+
+def test_financial_figure_retains_adjacent_causal_explanation(workspace):
+    _, _, add, ask = workspace
+    add("Results", "Subscription revenue rose 63% in fiscal 2024. The growth was driven by demand for the new analytics platform. Other products remained stable.")
+    add("Background", "Subscription revenue growth reflects revenue recognized from subscription agreements.")
+    answer = ask("What drove subscription revenue growth in fiscal 2024?")
+    assert "63%" in answer["answer"]
+    assert "demand for the new analytics platform" in answer["answer"]
+    assert any("63%" in point and "analytics platform" in point for point in answer["key_points"])
+
+
+def test_numerical_obligations_include_nearby_timing(workspace):
+    _, _, add, ask = workspace
+    add("Obligations", "Remaining performance obligations were $284 billion, including $260 billion for commercial contracts. We expect approximately 35% to become revenue within the next 12 months.")
+    answer = ask("What remaining performance obligations were disclosed?")
+    assert "$284 billion" in answer["answer"] and "35%" in answer["answer"]
+    assert "12 months" in answer["answer"]
+
+
+def test_duplicate_passages_do_not_repeat_with_heading_or_context(workspace):
+    _, _, add, ask = workspace
+    sentence = "Subscription revenue increased 14 percent because enterprise demand improved."
+    add("Results", "Financial Results " + sentence + " " + sentence)
+    answer = ask("What drove subscription revenue growth?")
+    texts = [point.rsplit(" [", 1)[0] for point in answer["key_points"]]
+    assert all(a not in b and b not in a for i, a in enumerate(texts) for b in texts[i+1:])
