@@ -3,7 +3,7 @@ import pytest
 
 from ai_equity_research_copilot_backend.chunking import chunk_pages
 from ai_equity_research_copilot_backend.evidence import evidence_passages, usable_prose
-from ai_equity_research_copilot_backend.parsing import parse_pdf
+from ai_equity_research_copilot_backend.parsing import _pdf_paragraphs, parse_pdf
 
 
 def test_pdf_wrapped_sentence_retains_figure_and_growth(tmp_path):
@@ -35,6 +35,29 @@ def test_single_block_pdf_does_not_split_wrapped_lines(tmp_path):
         pdf.save(path)
     passages = [text for chunk in chunk_pages(parse_pdf(path)) for text in evidence_passages(chunk.text)]
     assert first + " " + second in passages
+
+
+def test_pdf_producer_with_one_block_per_wrapped_line(tmp_path):
+    path = tmp_path / "split-blocks.pdf"
+    first = "Operating cash flow was $9.4 billion"
+    second = "during the fiscal year, up 17 percent."
+    with fitz.open() as pdf:
+        page = pdf.new_page()
+        page.insert_text((90, 100), first, fontsize=12)
+        page.insert_text((54, 121), second, fontsize=12)
+        pdf.save(path)
+    passages = [text for chunk in chunk_pages(parse_pdf(path)) for text in evidence_passages(chunk.text)]
+    assert first + " " + second in passages
+
+
+def test_pdf_continuations_do_not_cross_columns_or_completed_sentences():
+    blocks = [
+        (50, 50, 250, 62, "The company generated revenue from several different products", 0, 0),
+        (300, 70, 500, 82, "during the prior fiscal year, up 14 percent.", 1, 0),
+        (50, 100, 250, 112, "The company reported revenue of $2.4 billion.", 2, 0),
+        (50, 120, 250, 132, "other amounts are presented in the following table.", 3, 0),
+    ]
+    assert len(_pdf_paragraphs(blocks)) == 4
 
 
 @pytest.mark.parametrize("verb", ["achieved", "generated", "reported", "recorded"])
