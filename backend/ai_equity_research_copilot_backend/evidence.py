@@ -7,6 +7,8 @@ import re
 
 SENTENCE_RE = re.compile(r"(?<=[.!?])\s+")
 YEAR_HEADER = re.compile(r"\b(?:19|20)\d{2}\b")
+QUANTITY_RE = re.compile(r"(?:[$€£]\s*\d[\d,.]*|\d[\d,.]*\s*(?:%|percent\b|million\b|billion\b|trillion\b))", re.I)
+CAUSE_RE = re.compile(r"\b(?:driven by|due to|because|reflect\w*|primarily|as a result|offset by)\b", re.I)
 
 
 def evidence_passages(text: str) -> list[str]:
@@ -14,9 +16,16 @@ def evidence_passages(text: str) -> list[str]:
     # Keep paragraph boundaries: flattening an entire chunk can attach a table
     # to its first sentence and cause useful prose to exceed the size limit.
     for paragraph in re.split(r"\n\s*\n", text):
-        for sentence in SENTENCE_RE.split(" ".join(paragraph.split())):
+        sentences = SENTENCE_RE.split(" ".join(paragraph.split()))
+        for index, sentence in enumerate(sentences):
             if usable_prose(sentence):
                 passages.append(sentence)
+            # A figure and its explanation can occupy adjacent sentences. Keep
+            # their source order and paragraph boundary; never join documents.
+            if index + 1 < len(sentences):
+                context = sentence + " " + sentences[index + 1]
+                if QUANTITY_RE.search(context) and usable_prose(context):
+                    passages.append(context)
 
     lines = text.splitlines()
     header: int | None = None
