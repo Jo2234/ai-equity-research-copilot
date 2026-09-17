@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from threading import RLock
@@ -19,7 +20,6 @@ from .schemas import (
     StoredCitation,
     utcnow,
 )
-
 
 EMPTY_STATE: dict[str, list[dict[str, Any]]] = {
     "companies": [],
@@ -42,9 +42,12 @@ class JsonRepository:
     def __init__(self, state_file: Path) -> None:
         self.state_file = state_file
         self._lock = RLock()
+        self._corpus_revision = 0
+        self._signature: tuple[int, int, int, int] | None = None
         self.state_file.parent.mkdir(parents=True, exist_ok=True)
         if not self.state_file.exists():
             self._write_state(EMPTY_STATE.copy())
+        self._signature = self._state_signature()
 
     def health_counts(self) -> dict[str, int]:
         state = self._read_state()
@@ -173,7 +176,7 @@ class JsonRepository:
         with self._lock:
             state = self._read_state()
             state["conversations"].append(conversation.model_dump(mode="json"))
-            self._write_state(state)
+            self._write_state(state, corpus_changed=False)
         return conversation
 
     def list_conversations(self) -> list[Conversation]:
@@ -188,7 +191,7 @@ class JsonRepository:
         with self._lock:
             state = self._read_state()
             state["messages"].append(message.model_dump(mode="json"))
-            self._write_state(state)
+            self._write_state(state, corpus_changed=False)
         return message
 
     def list_messages(self, conversation_id: UUID | None = None) -> list[Message]:
@@ -202,7 +205,7 @@ class JsonRepository:
         with self._lock:
             state = self._read_state()
             state["citations"].extend(citation.model_dump(mode="json") for citation in citations)
-            self._write_state(state)
+            self._write_state(state, corpus_changed=False)
 
     def list_citations(self, message_id: UUID | None = None) -> list[StoredCitation]:
         state = self._read_state()
@@ -229,15 +232,40 @@ class JsonRepository:
                     return
             raise KeyError(f"{key} item '{model_id}' not found")
 
+    def _state_signature(self) -> tuple[int, int, int, int] | None:
+        try:
+            stat = self.state_file.stat()
+        except FileNotFoundError:
+            return None
+        return stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns
+
+    def corpus_revision(self) -> int:
+        """Invalidate derived data on local corpus writes or external file changes."""
+        with self._lock:
+            signature = self._state_signature()
+            if signature != self._signature:
+                self._signature = signature
+                self._corpus_revision += 1
+            return self._corpus_revision
+
     def _read_state(self) -> dict[str, list[dict[str, Any]]]:
         with self._lock:
+            # Notice external changes even when the next local write is chat history.
+            self.corpus_revision()
             if not self.state_file.exists():
                 return EMPTY_STATE.copy()
             raw = json.loads(self.state_file.read_text(encoding="utf-8"))
             return {key: list(raw.get(key, [])) for key in EMPTY_STATE}
 
-    def _write_state(self, state: dict[str, list[dict[str, Any]]]) -> None:
+    def _write_state(self, state: dict[str, list[dict[str, Any]]], *, corpus_changed: bool = True) -> None:
         self.state_file.parent.mkdir(parents=True, exist_ok=True)
         tmp = self.state_file.with_suffix(".tmp")
         tmp.write_text(json.dumps(state, indent=2, sort_keys=True), encoding="utf-8")
-        tmp.replace(self.state_file)
+        # Keep a handle to our inode: another repository can replace the path
+        # immediately after publication. Its version must remain detectable.
+        with tmp.open("rb") as written:
+            tmp.replace(self.state_file)
+            stat = os.fstat(written.fileno())
+            self._signature = stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns
+        if corpus_changed:
+            self._corpus_revision += 1
