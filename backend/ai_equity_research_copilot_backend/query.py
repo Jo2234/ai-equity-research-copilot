@@ -20,6 +20,8 @@ call transcript transcripts official""".split()
 
 
 def content_terms(text: str) -> set[str]:
+    # Source-type instructions do not describe the requested financial topic.
+    text = re.sub(r"\b(?:management(?:'s)?\s+)?earnings\s+(?:call|release)\b", " ", text, flags=re.I)
     terms = set(re.findall(r"[a-z]+|\d+(?:\.\d+)?", text.lower())) - STOPWORDS
     terms = {
         "growth"
