@@ -13,6 +13,7 @@ HEADING_RE = re.compile(r"^(item\s+\d+[a-z]?\.?|[A-Z][A-Z0-9 ,&/-]{6,}|[A-Z][A-Z
 class ParsedPage:
     page_number: int | None
     text: str
+    paragraphs: tuple[str, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -46,7 +47,7 @@ def chunk_pages(
     current_section: str | None = None
 
     for page in pages:
-        for paragraph in _paragraphs(page.text):
+        for paragraph in page.paragraphs if page.paragraphs is not None else _paragraphs(page.text):
             heading = detect_heading(paragraph)
             if heading:
                 current_section = heading

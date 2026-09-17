@@ -1,11 +1,43 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 
 from .chunking import ParsedPage
 
 
 TEXT_SUFFIXES = {".txt", ".md", ".text"}
+
+
+def _pdf_paragraphs(blocks: list[tuple]) -> tuple[str, ...]:
+    paragraphs: list[str] = []
+    previous = None
+    for block in blocks:
+        text = block[4].strip()
+        if block[6] != 0 or not text:
+            continue
+        # Some PDF producers emit one block per wrapped line. Join only a
+        # nearby lowercase continuation of unfinished prose in the same column.
+        # Keep table rows, bullets, completed sentences and column jumps apart.
+        continuation = False
+        if previous is not None and paragraphs:
+            gap = block[1] - previous[3]
+            line_height = min(previous[3] - previous[1], block[3] - block[1], 18)
+            overlap = min(block[2], previous[2]) - max(block[0], previous[0])
+            continuation = (
+                text[0].islower()
+                and paragraphs[-1][-1] not in ".!?:;"
+                and len(re.findall(r"[A-Za-z]+", paragraphs[-1])) >= 5
+                and 0 <= gap <= line_height
+                and overlap > 40
+                and block[0] <= previous[0] + 5
+            )
+        if continuation:
+            paragraphs[-1] += "\n" + text
+        else:
+            paragraphs.append(text)
+        previous = block
+    return tuple(paragraphs)
 
 
 def parse_document(path: Path) -> list[ParsedPage]:
@@ -25,7 +57,11 @@ def parse_pdf(path: Path) -> list[ParsedPage]:
         pages: list[ParsedPage] = []
         with fitz.open(path) as doc:
             for idx, page in enumerate(doc, start=1):
-                pages.append(ParsedPage(page_number=idx, text=page.get_text("text")))
+                # Preserve layout paragraph boundaries. Plain page text loses
+                # them, causing the chunker to treat every wrapped PDF line as
+                # a separate paragraph and truncate financial sentences.
+                paragraphs = _pdf_paragraphs(page.get_text("blocks"))
+                pages.append(ParsedPage(page_number=idx, text="\n\n".join(paragraphs), paragraphs=paragraphs))
         if any(page.text.strip() for page in pages):
             return pages
         errors.append("PyMuPDF extracted no text")
