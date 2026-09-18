@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 import time
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from uuid import UUID
 
@@ -10,10 +10,17 @@ from .chunking import chunk_pages
 from .config import Settings
 from .embeddings import HashingEmbedder, estimate_tokens
 from .evidence import CAUSE_RE, QUANTITY_RE, evidence_passages
+from .financial_text import format_financial_text
+from .financial_tables import financial_table_facts
+from .financial_table_passages import table_passages
+from .table_context import attach_table_context
 from .llm import CITATION_REFERENCE, InvalidGroundedDraft, OllamaClient
 from .parsing import parse_document
 from .retrieval import RetrievalService
-from .query import content_terms, explicit_periods, passage_period, question_scope, refusal_reason, required_evidence_patterns
+from .retrieval_query import company_clause_queries
+from .source_query import source_clause_query
+from .query import content_terms, explicit_periods, question_scope, refusal_reason, required_evidence_patterns, passage_period
+from .query_topics import query_topics
 from .schemas import (
     ChatAnswerPayload,
     ChatRequest,
@@ -41,6 +48,7 @@ from .storage import JsonRepository
 class EvidencePoint:
     text: str
     result: RetrievalDebugResult
+    source_text: str | None = None
 
 
 class IngestionService:
@@ -65,6 +73,7 @@ class IngestionService:
                 target_tokens=self.settings.chunk_target_tokens,
                 overlap_tokens=self.settings.chunk_overlap_tokens,
             )
+            drafts = attach_table_context(pages, drafts)
             chunks = [
                 DocumentChunk(
                     document_id=document.id,
@@ -332,7 +341,7 @@ class ResearchService:
         )
 
     def _answer_from_context(self, question: str, results: list[RetrievalDebugResult]) -> tuple[ChatAnswerPayload, str, str]:
-        evidence = self._points_from_results(question, results, max_points=4)
+        evidence = self._points_from_results(question, results, max_points=8)
         reason = refusal_reason(question)
         if reason or not evidence:
             return (
@@ -414,7 +423,7 @@ class ResearchService:
             limitations.append(fallback_note)
         return (
             ChatAnswerPayload(
-                answer=" ".join(points),
+                answer=" ".join(self._cited_points(evidence, citations, render=True)),
                 key_points=points, citations=citations,
                 confidence=Confidence.medium,
                 limitations=limitations,
@@ -422,29 +431,31 @@ class ResearchService:
             "local", self.settings.local_model_name,
         )
 
-    def _cited_points(self, points: list[EvidencePoint], citations: list[Citation]) -> list[str]:
+    def _cited_points(self, points: list[EvidencePoint], citations: list[Citation], *, render: bool = False) -> list[str]:
         rendered = []
-        multiple_documents = len({item.result.document.id for item in points}) > 1
         for point in points:
+            source_text = point.source_text or point.text
             index = next((i for i, citation in enumerate(citations) if citation.chunk_id == point.result.chunk.id), None)
             if index is None:
                 index = len(citations)
-                citations.append(self._citation(point.result, point.text))
-            elif point.text not in citations[index].excerpt:
-                citations[index].excerpt += "\n" + point.text
-            period = ""
-            if multiple_documents:
+                citations.append(self._citation(point.result, source_text))
+            elif source_text not in citations[index].excerpt:
+                citations[index].excerpt += "\n" + source_text
+            if render:
                 doc = point.result.document
                 quarter = f" Q{doc.fiscal_quarter}" if doc.fiscal_quarter else ""
                 period = f"{point.result.company.ticker} {doc.document_type.value} FY{doc.fiscal_year or 'unknown'}{quarter}: "
-            rendered.append(f"{period}{point.text} [{index + 1}]")
+                rendered.append(f"{period}{format_financial_text(point.text)} [{index + 1}]")
+            else:
+                # Evidence points remain verbatim, independently of readable
+                # answer formatting and derived table normalization.
+                rendered.append(f"{source_text} [{index + 1}]")
         return rendered
 
     def _points_from_results(self, query: str, results: list[RetrievalDebugResult], max_points: int) -> list[EvidencePoint]:
         company_terms = set().union(*(content_terms(r.company.name) | content_terms(r.company.ticker) for r in results))
-        query_terms = content_terms(query) - company_terms
+        company_queries = company_clause_queries(query, {r.company.id: r.company for r in results}.values())
         anchors = required_evidence_patterns(query)
-        explanatory = bool(re.search(r"\b(?:why|drove|driver|drivers|factor|factors|discussion|commentary)\b", query, re.I))
         # Preserve query word order for phrase matches: a "gross margin"
         # passage is stronger evidence than unrelated mentions of either word.
         def sequence(text: str) -> list[str]:
@@ -452,9 +463,6 @@ class ResearchService:
                     for token in re.findall(r"[A-Za-z]+", text)
                     for terms in [content_terms(token)]]
 
-        query_sequence = sequence(query)
-        phrases = {(left, right) for left, right in zip(query_sequence, query_sequence[1:])
-                   if left in query_terms and right in query_terms}
         scope = question_scope(query)
         requested_periods = set(scope.periods)
         if scope.quarters and not any(quarter is not None for _, quarter in scope.periods):
@@ -464,9 +472,21 @@ class ResearchService:
             requested_periods = {(year, quarter) for year, _ in scope.periods for quarter in scope.quarters}
             if re.search(r"\b(?:annual|full[- ]year|10[- ]?k)\b", query, re.I):
                 requested_periods.update(scope.periods)
-        facets = [content_terms(part) - company_terms for part in re.split(r"\band\b|\bor\b", query, flags=re.I)]
         scored: list[tuple[float, str, RetrievalDebugResult, set[str], set[tuple[str, ...]]]] = []
+        table_labels: dict[tuple[UUID, str], str] = {}
+        sections: dict[tuple[UUID, str], str] = {}
         for result in results:
+            topic_query = company_queries[result.company.id]
+            if topic_query == query:
+                topic_query = source_clause_query(query, result.document.document_type)
+            topics = query_topics(topic_query, excluded_terms=company_terms)
+            query_terms = topics.terms
+            query_sequence = sequence(topic_query)
+            phrases = {(left, right) for left, right in zip(query_sequence, query_sequence[1:])
+                       if left in query_terms and right in query_terms}
+            facets = [content_terms(part) - company_terms for part in re.split(r"\band\b|\bor\b", topic_query, flags=re.I)]
+            explanatory = bool(re.search(r"\b(?:why|drove|driver|drivers|factor|factors|discussion|commentary)\b", topic_query, re.I))
+            qualitative_risk = bool(re.search(r"\bsupply\b|\binventory\b|\bcapacity\b", topic_query, re.I))
             # A fiscal-year release may contain both Q4 and full-year sections.
             # Use an explicit local heading when present; metadata alone cannot
             # distinguish those figures. Unknown section periods remain unknown.
@@ -482,27 +502,64 @@ class ResearchService:
                         local_period = (int(year[0]), None)
                     local_period = passage_period(text, local_period, result.document.fiscal_year)
                 blocks.append((text, local_period))
-            for cleaned in evidence_passages(result.chunk.text):
-                sentence_terms = content_terms(cleaned)
-                matched = query_terms & sentence_terms
+            passages = evidence_passages(result.chunk.text)
+            source_sections = [
+                (" ".join(result.chunk.text[span["start"]:span["end"]].split()), span["section"])
+                for span in result.chunk.metadata.get("section_spans", [])
+            ]
+            facts = result.chunk.metadata.get("financial_table_facts")
+            if facts is None:  # Compatibility with documents ingested before table provenance was saved.
+                facts = [asdict(fact) for fact in financial_table_facts(result.chunk.text)]
+            table_candidates = table_passages(facts)
+            for label, source_excerpt in table_candidates:
+                if source_excerpt not in passages:
+                    passages.append(source_excerpt)
+                table_labels[(result.chunk.id, source_excerpt)] = label
+            for cleaned in passages:
+                # A table row's metric often lives in its verified caption.
+                # Use that original header for relevance, never infer a metric
+                # from an amount or an isolated geographic/business label.
+                table_label = table_labels.get((result.chunk.id, cleaned))
+                table_fact = table_label is not None
+                sentence_terms = content_terms(table_label if table_fact else cleaned)
+                containing_sections = {section for text, section in source_sections
+                                       if " ".join(cleaned.split()) in text} if not table_fact else set()
+                if len(containing_sections) > 1:
+                    continue  # Identical prose in different segments has ambiguous scope.
+                section = next(iter(containing_sections), "")
+                if section:
+                    sections[(result.chunk.id, cleaned)] = section
+                leaf_terms = content_terms(" ".join(label.rsplit(": ", 1)[-1]
+                    for label in table_label.splitlines())) if table_fact else sentence_terms
+                direct_matched = (topics.matched_terms(leaf_terms) | (sentence_terms & query_terms)) & query_terms
+                header = cleaned.split("\n...\n", 1)[0] if table_fact else ""
+                context_matched = topics.matched_terms(content_terms(header)) & query_terms
+                matched = direct_matched | context_matched
                 if not (query_terms and (len(matched) >= min(2, len(query_terms))
                                         or any(facet and facet <= matched for facet in facets))
                         and all(re.search(pattern, cleaned, re.I) for pattern in anchors)):
                     continue
-                overlap = len(matched) / len(query_terms)
-                words = sequence(cleaned)
+                literal_header_matches = content_terms(header) & query_terms
+                overlap = (len(direct_matched) + len(literal_header_matches - direct_matched)
+                           + 0.3 * len(context_matched - direct_matched - literal_header_matches)) / len(query_terms)
+                words = sequence(table_label if table_fact else cleaned)
                 phrase_overlap = len(phrases & set(zip(words, words[1:]))) / max(len(phrases), 1)
-                score = result.score + overlap + 0.3 * phrase_overlap
+                score = result.score + 2 * overlap + 0.3 * phrase_overlap + 0.35 * topics.related_score(sentence_terms)
                 score -= 0.2 if explanatory and "\n...\n" in cleaned else 0.0
                 # Actual amounts and causal explanations answer financial
                 # questions more directly than repeated accounting definitions.
-                score += 0.05 * min(3, len(set(QUANTITY_RE.findall(cleaned))))
+                score += (0.08 if qualitative_risk else 0.25) * min(3, len(set(QUANTITY_RE.findall(cleaned)))) * max(0.25, overlap)
                 if explanatory and CAUSE_RE.search(cleaned):
                     score += 0.2
                 # Full-year releases can also contain their final quarter. Do
                 # not treat an explicitly quarterly figure as a full-year total.
                 normalized = " ".join(cleaned.split())
                 local_period = next((period for text, period in blocks if normalized in text), None)
+                if section:
+                    local_period = passage_period(section, local_period, result.document.fiscal_year)
+                    heading_year = re.match(r"^(20\d{2})\b", section)
+                    if heading_year:
+                        local_period = (int(heading_year[1]), None)
                 # A release can switch to full-year results in prose without
                 # introducing a new heading. The passage's explicit period is
                 # stronger evidence than an inherited section label.
@@ -532,8 +589,7 @@ class ResearchService:
                 if allowed_periods and local_period:
                     if local_period not in allowed_periods:
                         continue
-                    if requested_periods:
-                        score += 0.2
+                    score += 0.2
                 tokens = re.findall(r"\w+", cleaned.lower())
                 shingles = {tuple(tokens[i:i + 5]) for i in range(max(1, len(tokens) - 4))}
                 scored.append((score, cleaned, result, matched, shingles))
@@ -547,20 +603,13 @@ class ResearchService:
                 redundancy = max((len(shingles & item[4]) / max(1, min(len(shingles), len(item[4])))
                                   for item in comparable), default=0.0)
                 covered = set().union(*(item[3] for item in comparable))
-                novelty = len(terms - covered) / max(1, len(query_terms))
-                # Reserve room for requested companies and documents without
-                # letting four overlapping sentence windows fill the answer.
-                coverage = 0.0
-                if diversify:
-                    if result.company.id not in {item[2].company.id for item in selected}:
-                        coverage += 1.0
-                    if result.document.id not in {item[2].document.id for item in selected}:
-                        coverage += 0.5
-                # Redundancy matters when it crowds out another requested
-                # topic. For one topic, overlapping context may supply its
-                # essential explanation or offsetting factors.
-                penalty = 0.8 * redundancy if len(facets) > 1 else 0.0
-                return score + 0.2 * novelty + coverage - penalty
+                novelty = len(terms - covered) / max(1, len(terms))
+                # A comparison must represent each eligible source before one
+                # source can consume every answer slot. Rank evidence within
+                # that requirement, rather than trading coverage for a bonus.
+                coverage = (int(result.company.id not in {item[2].company.id for item in selected}),
+                            int(not comparable)) if diversify else (0, 0)
+                return (*coverage, score + 0.2 * novelty - 0.8 * redundancy)
 
             row = max(scored, key=priority)
             scored.remove(row)
@@ -571,10 +620,23 @@ class ResearchService:
                    for item in selected):
                 continue
             selected.append(row)
-        return [EvidencePoint(row[1], row[2]) for row in selected]
+        evidence = []
+        for _, text, result, _, _ in selected:
+            section = sections.get((result.chunk.id, text))
+            source_text = None
+            if section and section not in text:
+                source_text = section + "\n...\n" + text
+                text = f"{section}: {text}"
+            evidence.append(EvidencePoint(text, result, source_text))
+        return evidence
 
     def _citation(self, result: RetrievalDebugResult, excerpt: str) -> Citation:
         document = result.document
+        section = result.chunk.section_title
+        spans = result.chunk.metadata.get("section_spans")
+        if spans:
+            sections = {span["section"] for span in spans}
+            section = next(iter(sections)) if len(sections) == 1 else None
         page = ""
         if result.chunk.page_start:
             page = f", p. {result.chunk.page_start}"
@@ -592,7 +654,7 @@ class ResearchService:
             company_ticker=result.company.ticker,
             page_start=result.chunk.page_start,
             page_end=result.chunk.page_end,
-            section_title=result.chunk.section_title,
+            section_title=section,
         )
 
     def _usage(

@@ -42,6 +42,20 @@ def assert_point_sources(payload):
         assert point[:match.start()] in payload["citations"][int(match[1]) - 1]["excerpt"]
 
 
+@pytest.mark.parametrize("question", [
+    "What was robotaxi revenue?", "What was revenue from lunar tourism?",
+])
+def test_related_financial_words_do_not_answer_an_unmentioned_business_line(tmp_path, monkeypatch, question):
+    app, company, results = corpus_app(tmp_path, monkeypatch, count=1)
+    results[0].chunk.text = "Revenue grew 15% to $4.2 billion because pricing improved and demand increased."
+    payload = TestClient(app).post("/research/chat", json={
+        "company_ids": [str(company.id)], "question": question,
+    }).json()
+    assert not payload["citations"]
+    assert not payload["key_points"]
+    assert "$4.2" not in payload["answer"]
+
+
 def test_lower_ranked_support_is_cited_and_audit_matches_response(tmp_path, monkeypatch):
     app, company, results = corpus_app(tmp_path, monkeypatch)
     client = TestClient(app)
@@ -154,3 +168,25 @@ def test_malformed_provider_transport_response_falls_back(tmp_path, monkeypatch,
     }).json()
     assert payload["usage"]["provider"] == "local"
     assert_point_sources(payload)
+
+
+def test_comparison_keeps_each_source_even_when_scores_differ(tmp_path, monkeypatch):
+    app, company, results = corpus_app(tmp_path, monkeypatch, count=1)
+    annual = results[0]
+    annual.score = 100
+    annual.chunk.text = (
+        "Subscription revenue growth reached 28 percent because enterprise demand increased.\n\n"
+        "Advertising revenue growth reached 19 percent because customer spending increased."
+    )
+    quarterly = annual.model_copy(deep=True)
+    quarterly.document = app.state.repo.create_document(company.id, DocumentCreate(
+        title="Quarterly report", document_type=DocumentType.ten_q, fiscal_year=2026, fiscal_quarter=1,
+    ), None)
+    quarterly.chunk = DocumentChunk(document_id=quarterly.document.id, company_id=company.id,
+        chunk_index=0, text="Subscription revenue growth reached 12 percent because customer demand improved.",
+        token_count=15, embedding=[0.0] * 128)
+    quarterly.score = 0.1
+    points = app.state.research._points_from_results(
+        "Compare revenue growth in the annual and quarterly filings.", [annual, quarterly], max_points=2,
+    )
+    assert {point.result.document.id for point in points} == {annual.document.id, quarterly.document.id}
