@@ -378,9 +378,12 @@ class ResearchService:
                 fallback_note = f"Local model output failed citation validation; deterministic cited synthesis used instead ({exc})."
             except RuntimeError as exc:
                 if self.settings.llm_provider == "ollama":
+                    message = "The local LLM is configured but unavailable. Start Ollama and pull the configured model, then retry."
+                    if "timed out" in str(exc).lower():
+                        message = "The local model request timed out before an answer was available. Try fewer documents or increase the configured timeout."
                     return (
                         ChatAnswerPayload(
-                            answer="The local LLM is configured but unavailable. Start Ollama and pull the configured model, then retry.",
+                            answer=message,
                             key_points=[], citations=[], confidence=Confidence.low, limitations=[str(exc)]),
                         "ollama", self.settings.ollama_model,
                     )
