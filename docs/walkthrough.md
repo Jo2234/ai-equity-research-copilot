@@ -6,7 +6,7 @@ This document shows the product loop behind the AI Equity Research Copilot: ask 
 
 [![Apple filing research session](media/copilot-demo-poster.png)](media/copilot-demo.mp4)
 
-[Watch the MP4](media/copilot-demo.mp4): Gemma 3 4B via Ollama, recorded 2026-09-29. Apple corpus built through SEC EDGAR: 12 filings, 226 chunks. The cited research answer is accepted model output without fallback; the advice refusal is an application guardrail. [Response metadata, source manifest and recording notes](media/README.md). [Measured 35-case evaluation](../evals/results/2026-09-29/README.md).
+[Watch the MP4](media/copilot-demo.mp4): Gemma 3 4B via Ollama, recorded 2026-09-29; 71.5-second app-only edit with synthetic narration (OpenAI Marin). Apple corpus built through SEC EDGAR: 12 filings, 226 chunks. The cited research answer is accepted model output without fallback; the advice refusal is an application guardrail. [Response metadata, source manifest and recording notes](media/README.md). [Measured 35-case evaluation](../evals/results/2026-09-29/README.md).
 
 The walkthrough below uses synthetic fixture responses and is separate from the recording.
 
