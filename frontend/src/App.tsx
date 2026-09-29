@@ -154,6 +154,7 @@ export function App() {
   const [compareError, setCompareError] = useState("");
   const [reloadVersion, setReloadVersion] = useState(0);
   const [question, setQuestion] = useState(starterQuestion);
+  const [chatTopK, setChatTopK] = useState(8);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "welcome",
@@ -298,7 +299,7 @@ export function App() {
         question: userMessage.content,
         documentTypes: selectedDocumentTypes,
         fiscalYears: selectedFiscalYears,
-        topK: 8
+        topK: chatTopK
       });
 
       const assistantMessage: ChatMessage = {
@@ -778,7 +779,10 @@ export function App() {
               <Filter size={16} aria-hidden="true" />
               <FilterChip label="Types" value={selectedDocumentTypes.join(", ") || "none"} />
               <FilterChip label="Fiscal years" value={selectedFiscalYears.join(", ") || "all"} />
-              <FilterChip label="Top K" value="8" />
+              <label>Chat passages <select aria-label="Chat retrieval limit" value={chatTopK}
+                onChange={(event) => setChatTopK(Number(event.target.value))}>
+                {[1, 3, 5, 8, 12].map((count) => <option key={count} value={count}>{count}</option>)}
+              </select></label>
               <FilterChip label="Citation policy" value="Required for factual claims" />
             </div>
           </div>
@@ -892,6 +896,7 @@ export function App() {
                     {message.usage ? (
                       <div className="usage-row">
                         <span>{message.usage.model}</span>
+                        {message.usage.provider ? <span>{message.usage.provider}</span> : null}
                         <span>{message.usage.latency_ms} ms</span>
                         <span>${message.usage.estimated_cost_usd.toFixed(4)}</span>
                       </div>
