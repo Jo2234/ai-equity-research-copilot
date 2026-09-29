@@ -1,0 +1,71 @@
+configuration,id,category,latency_ms,accepted_model_output,validation_fallback,answer_accuracy,citation_count,supported_citations,citation_requirements,citation_requirements_met,unsupported_claim_count,refusal_correctness,hard_fail_reasons,note
+ollama,finance_qa_v1_001,single_document,11592.34,True,False,1,2,2,1,1,0,,[],All three expected growth points; extra margin statement is grounded.
+ollama,finance_qa_v1_002,single_document,7757.67,True,False,1,1,1,1,1,0,,[],All expected margin drivers and offsets.
+ollama,finance_qa_v1_003,single_document,54.786,False,False,0,0,0,1,0,0,,[],Refuses despite a canonical risk-factor source.
+ollama,finance_qa_v1_004,single_document,6174.072,True,False,1,1,1,1,1,0,,[],All Services growth drivers and installed-base support.
+ollama,finance_qa_v1_005,single_document,8994.563,False,True,1,1,1,1,1,0,,[],All three margin points.
+ollama,finance_qa_v1_006,single_document,53.888,False,False,0,0,0,1,0,0,,[],Refuses despite a canonical Apple risk-factor source.
+ollama,finance_qa_v1_007,single_document,7861.723,True,False,1,1,1,1,1,0,,[],All NII drivers and deposit-cost sensitivity.
+ollama,finance_qa_v1_008,single_document,31.454,False,False,0,0,0,1,0,0,,[],Refuses despite a canonical credit-loss source.
+ollama,finance_qa_v1_009,single_document,7335.845,True,False,0.5,2,2,1,1,0,,[],Correct regulatory drivers but does not identify CET1 explicitly; both citations support the claims.
+ollama,finance_qa_v1_010,single_document,20990.344,False,True,0.5,1,1,1,1,0,,[],Two of three expected points; advantaged-asset production offset omitted.
+ollama,finance_qa_v1_011,single_document,6822.08,True,False,1,1,1,1,1,0,,[],"All capital-allocation priorities, with conditional repurchases."
+ollama,finance_qa_v1_012,single_document,4661.859,True,False,0,1,1,1,1,0,,[],Only one of three expected points: price/mix pressure. Revenue factors and manufacturing-cost offsets omitted.
+ollama,finance_qa_v1_013,multi_document,42.619,False,False,0,0,0,3,0,0,,[],"Refuses despite available growth, risk and transcript sources."
+ollama,finance_qa_v1_014,multi_document,11467.021,False,True,0.5,2,2,2,2,0,,[],Validation fallback. Three of four points; record revenue and paid-subscription highs omitted.
+ollama,finance_qa_v1_015,multi_document,7024.172,True,False,0,1,1,3,1,0,,[],Only credit normalization; NII and deposit-cost points missing.
+ollama,finance_qa_v1_016,multi_document,5918.962,True,False,0.5,1,1,2,1,0,,[],Includes upstream factors and advantaged-production offset; omits downstream and chemical margin commentary.
+ollama,finance_qa_v1_017,multi_document,11674.113,False,True,0.5,2,2,3,2,0,,[],"Validation fallback; three of four expected points, with both returned citations supporting their claims."
+ollama,finance_qa_v1_018,multi_document,8343.664,True,False,0.5,2,1,2,1,1,,[],Infers Blackwell-specific transition costs not established in the annual context. The risk-factor citation does not support that cost attribution; one unsupported assertion.
+ollama,finance_qa_v1_019,multi_document,13264.463,True,False,1,3,3,2,2,0,,[],All margin and risk themes.
+ollama,finance_qa_v1_020,multi_document,10764.24,True,False,0.5,2,2,3,1,0,,[],Capital uses and conditional repurchases covered; earnings-call expense commentary and NII backdrop omitted. No unsupported extension of board approval.
+ollama,finance_qa_v1_021,multi_document,53.626,False,False,0,0,0,3,0,0,,[],Refuses despite available strategy and risk sources.
+ollama,finance_qa_v1_022,multi_document,49.202,False,False,0,0,0,2,0,0,,[],Refuses rather than explaining autonomy uncertainty and the lack of a firm date.
+ollama,finance_qa_v1_023,comparison,21.574,False,False,0,1,1,2,1,0,,[],"Partial NVIDIA growth only; Apple refused, so the core comparison is absent."
+ollama,finance_qa_v1_024,comparison,25.111,False,False,0.5,1,1,2,1,0,,[],NVIDIA margin drivers covered and companies separated; Tesla wrongly refused.
+ollama,finance_qa_v1_025,comparison,8.944,False,False,0,0,0,2,0,0,,[],Both companies refused despite source coverage.
+ollama,finance_qa_v1_026,comparison,8.281,False,False,0,0,0,2,0,0,,[],Both companies refused despite source coverage.
+ollama,finance_qa_v1_027,comparison,14.387,False,False,0,1,1,3,1,0,,[],Exxon capital allocation covered; Tesla growth and requested contrast absent.
+ollama,finance_qa_v1_028,comparison,10.221,False,False,0,0,0,3,0,0,,[],All three companies refused despite source coverage.
+ollama,finance_qa_v1_029,insufficient_context,50.767,False,False,0.5,0,0,0,0,0,1,[],Generic insufficient-context refusal; valuation assumptions and research-only disclaimer omitted.
+ollama,finance_qa_v1_030,insufficient_context,44.068,False,False,0.5,0,0,0,0,0,1,[],Generic refusal avoids a number but does not identify the missing FY2027 forecast or scenario inputs.
+ollama,finance_qa_v1_031,insufficient_context,44.959,False,False,0.5,0,0,0,0,0,1,[],Generic refusal avoids external legal facts but does not identify the missing ruling/impact evidence.
+ollama,finance_qa_v1_032,insufficient_context,6668.141,True,False,0.5,1,1,1,1,0,1,[],Explicitly states exact next-year CRE losses are unavailable and cites allowance context; does not request the scenario assumptions/additional disclosures expected by the case.
+ollama,finance_qa_v1_033,insufficient_context,41.352,False,False,0.5,0,0,0,0,0,1,[],Generic refusal; no commodity/production assumptions requested.
+ollama,finance_qa_v1_034,insufficient_context,37.462,False,False,0.5,0,0,1,0,0,1,[],Generic refusal instead of citing the explicit no-firm-date passage.
+ollama,finance_qa_v1_035,insufficient_context,39.687,False,False,0.5,0,0,0,0,0,1,[],Generic refusal avoids a cheaper-stock conclusion but omits the specific missing market/valuation inputs.
+local,finance_qa_v1_001,single_document,18.33,False,False,0.5,2,2,1,1,0,,[],Two of three expected growth points; customer categories omitted. Extra margin statement is grounded.
+local,finance_qa_v1_002,single_document,10.793,False,False,1,1,1,1,1,0,,[],All expected margin drivers and offsets.
+local,finance_qa_v1_003,single_document,11.577,False,False,0,0,0,1,0,0,,[],Refuses despite a canonical risk-factor source.
+local,finance_qa_v1_004,single_document,15.64,False,False,1,1,1,1,1,0,,[],All Services growth drivers and installed-base support.
+local,finance_qa_v1_005,single_document,13.761,False,False,1,1,1,1,1,0,,[],All three margin points.
+local,finance_qa_v1_006,single_document,12.039,False,False,0,0,0,1,0,0,,[],Refuses despite a canonical Apple risk-factor source.
+local,finance_qa_v1_007,single_document,14.555,False,False,1,1,1,1,1,0,,[],All NII drivers and deposit-cost sensitivity.
+local,finance_qa_v1_008,single_document,15.308,False,False,0,0,0,1,0,0,,[],Refuses despite a canonical credit-loss source.
+local,finance_qa_v1_009,single_document,18.595,False,False,0.5,1,1,1,1,0,,[],Missing either above-minimum capital position (baseline) or explicit CET1 identification (model).
+local,finance_qa_v1_010,single_document,16.142,False,False,0.5,1,1,1,1,0,,[],Two of three expected points; advantaged-asset production offset omitted.
+local,finance_qa_v1_011,single_document,15.61,False,False,1,1,1,1,1,0,,[],"All capital-allocation priorities, with conditional repurchases."
+local,finance_qa_v1_012,single_document,16.429,False,False,1,1,1,1,1,0,,[],All revenue factors and margin pressure/offsets.
+local,finance_qa_v1_013,multi_document,16.425,False,False,0,0,0,3,0,0,,[],"Refuses despite available growth, risk and transcript sources."
+local,finance_qa_v1_014,multi_document,18.661,False,False,0.5,2,2,2,2,0,,[],Baseline omits record Services revenue and subscriptions; model covers them but misattributes record revenue to citation [2] in a key point.
+local,finance_qa_v1_015,multi_document,19.152,False,False,0,1,1,3,1,0,,[],Only credit normalization; NII and deposit-cost points missing.
+local,finance_qa_v1_016,multi_document,17.628,False,False,0,1,1,2,1,0,,[],Only upstream earnings factors; production offset and downstream/chemical commentary omitted.
+local,finance_qa_v1_017,multi_document,17.971,False,False,0.5,2,2,3,2,0,,[],Three of four points; management transcript emphasis omitted.
+local,finance_qa_v1_018,multi_document,17.505,False,False,0.5,1,1,2,1,0,,[],Baseline covers mix/pricing and offsets but omits transition warning. Model omits mix/pricing and warning; its asserted Blackwell-specific cost contribution is not established by retrieved annual excerpts.
+local,finance_qa_v1_019,multi_document,18.29,False,False,1,2,2,2,2,0,,[],All margin and risk themes.
+local,finance_qa_v1_020,multi_document,16.323,False,False,0.5,1,1,3,1,0,,[],Capital uses and conditionality covered; earnings-call expense commentary and NII backdrop omitted. Model additionally extends board approval to all activities rather than just repurchases.
+local,finance_qa_v1_021,multi_document,15.977,False,False,0,0,0,3,0,0,,[],Refuses despite available strategy and risk sources.
+local,finance_qa_v1_022,multi_document,16.056,False,False,0,0,0,2,0,0,,[],Refuses rather than explaining autonomy uncertainty and the lack of a firm date.
+local,finance_qa_v1_023,comparison,5.765,False,False,0,1,1,2,1,0,,[],"Partial NVIDIA growth only; Apple refused, so the core comparison is absent."
+local,finance_qa_v1_024,comparison,5.157,False,False,0.5,1,1,2,1,0,,[],NVIDIA margin drivers covered and companies separated; Tesla wrongly refused.
+local,finance_qa_v1_025,comparison,2.456,False,False,0,0,0,2,0,0,,[],Both companies refused despite source coverage.
+local,finance_qa_v1_026,comparison,2.67,False,False,0,0,0,2,0,0,,[],Both companies refused despite source coverage.
+local,finance_qa_v1_027,comparison,3.601,False,False,0,1,1,3,1,0,,[],Exxon capital allocation covered; Tesla growth and requested contrast absent.
+local,finance_qa_v1_028,comparison,2.885,False,False,0,0,0,3,0,0,,[],All three companies refused despite source coverage.
+local,finance_qa_v1_029,insufficient_context,16.642,False,False,0.5,0,0,0,0,0,1,[],Generic insufficient-context refusal; valuation assumptions and research-only disclaimer omitted.
+local,finance_qa_v1_030,insufficient_context,17.189,False,False,0.5,0,0,0,0,0,1,[],Generic refusal avoids a number but does not identify the missing FY2027 forecast or scenario inputs.
+local,finance_qa_v1_031,insufficient_context,16.583,False,False,0.5,0,0,0,0,0,1,[],Generic refusal avoids external legal facts but does not identify the missing ruling/impact evidence.
+local,finance_qa_v1_032,insufficient_context,16.557,False,False,0,1,1,1,1,0,0,[],Baseline gives contextual allowance factors with no explicit future-loss refusal. Model states no exact losses but changes the requested future period to FY2025.
+local,finance_qa_v1_033,insufficient_context,22.763,False,False,0.5,0,0,0,0,0,1,[],Generic refusal; no commodity/production assumptions requested.
+local,finance_qa_v1_034,insufficient_context,15.007,False,False,0.5,0,0,1,0,0,1,[],Generic refusal instead of citing the explicit no-firm-date passage.
+local,finance_qa_v1_035,insufficient_context,15.317,False,False,0.5,0,0,0,0,0,1,[],Generic refusal avoids a cheaper-stock conclusion but omits the specific missing market/valuation inputs.
